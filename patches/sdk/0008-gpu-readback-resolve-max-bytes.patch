@@ -1,0 +1,49 @@
+From 681ffbc838562f547046e48366ec8cb8e4a3fd19 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Mon, 12 Oct 2026 18:16:32 -0400
+Subject: [PATCH] gpu: readback_resolve_max_bytes, read back only small
+ resolves
+
+With readback_resolve=fast every resolve is copied back to guest memory one
+frame late. Crackdown resolves about 21 targets a frame (two 1024x1024, several
+1280x720 and 1280x240/484, 640x242/120, 320x180, 128x128): about 27 MB a frame
+of GPU copies plus a CPU memcpy on the command processor thread. The game only
+reads the small ones on the CPU (scene brightness). The new cvar skips the
+readback for resolves larger than the limit; they stay GPU-only exactly like
+readback_resolve=none. 0 (default) keeps the old behaviour.
+---
+ src/graphics/d3d12/command_processor.cpp | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
+index 00f712b..5e5cf97 100644
+--- a/src/graphics/d3d12/command_processor.cpp
++++ b/src/graphics/d3d12/command_processor.cpp
+@@ -43,6 +43,12 @@ REXCVAR_DEFINE_BOOL(d3d12_readback_resolve, false, "GPU/D3D12",
+                     "Read render-to-texture results on the CPU")
+     .lifecycle(rex::cvar::Lifecycle::kHotReload);
+ 
++REXCVAR_DEFINE_INT32(readback_resolve_max_bytes, 0, "GPU",
++                     "With readback_resolve on: only copy resolves of at most this many bytes "
++                     "back to guest memory (0 = all). Larger resolves stay GPU-only, like "
++                     "readback_resolve=none, which skips the readback copy and memcpy.")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++
+ REXCVAR_DEFINE_BOOL(d3d12_submit_on_primary_buffer_end, true, "GPU/D3D12",
+                     "Submit command list when PM4 primary buffer ends")
+     .lifecycle(rex::cvar::Lifecycle::kHotReload);
+@@ -2911,6 +2917,11 @@ bool D3D12CommandProcessor::IssueCopy_ReadbackResolvePath() {
+     return true;
+   }
+ 
++  const int32_t max_bytes = REXCVAR_GET(readback_resolve_max_bytes);
++  if (max_bytes > 0 && written_length > uint32_t(max_bytes)) {
++    return true;
++  }
++
+   bool is_scaled = texture_cache_->IsDrawResolutionScaled();
+   uint64_t resolve_key = MakeReadbackResolveKey(written_address, written_length);
+   ReadbackBuffer& rb = readback_buffers_[resolve_key];
+-- 
+2.54.0.windows.1
+

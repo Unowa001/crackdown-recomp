@@ -1,0 +1,120 @@
+# Mid-asm hooks (SDK [[midasm_hook]]). Every entry cites why it exists.
+# SDK v0.10.0, Default.xex sha256 7aaa7a89...7e5a
+#
+# Game ms clock (--sim_game_clock, crackdown/src/hooks_framerate.cpp).
+# Each address is the `li rX,33` in the inlined per-frame ms choice
+#   ms = [[0x82DE25C0]+13] ? 33 : ([0x82DE3FB0] ? [0x82D99228] : 16)
+# (disassembly: `lbz ..,13(..); cmplwi; beq L; li rX,33; b ...`, so the li is
+# at L - 8). The clock is always locked in retail, so these timers advance a
+# fixed 33 ms per frame. After the li, CrackdownFrameMs_<address> puts the
+# measured frame ms in the register (it leaves 33 when the cvar is off, or when
+# the site's bit in --sim_game_clock_sites is clear; bits follow the order
+# below, bit 0 = first entry). Unlocking the clock
+# to use the game's own variable path broke physics (PC run crackdown_018).
+# A 14th `li r5,33` at 0x8285CE30 (sub_8285CA20) is an unrelated enum value.
+
+[[midasm_hook]]  # sub_82287130
+address = 0x82287170
+name = "CrackdownFrameMs_82287170"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_82388D90
+address = 0x82388E74
+name = "CrackdownFrameMs_82388E74"
+registers = ["r9"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_823F0E70
+address = 0x823F0EB4
+name = "CrackdownFrameMs_823F0EB4"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_8248F210
+address = 0x8248F254
+name = "CrackdownFrameMs_8248F254"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_824F9518
+address = 0x824F9CF8
+name = "CrackdownFrameMs_824F9CF8"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_824FAC28
+address = 0x824FB3E4
+name = "CrackdownFrameMs_824FB3E4"
+registers = ["r10"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_82505CB8
+address = 0x82505ED0
+name = "CrackdownFrameMs_82505ED0"
+registers = ["r9"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_8257A4F8
+address = 0x8257AAE8
+name = "CrackdownFrameMs_8257AAE8"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_8259A330
+address = 0x8259A3A8
+name = "CrackdownFrameMs_8259A3A8"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_825E11D0
+address = 0x825E120C
+name = "CrackdownFrameMs_825E120C"
+registers = ["r27"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_82651570
+address = 0x82651768
+name = "CrackdownFrameMs_82651768"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_82651570
+address = 0x826517CC
+name = "CrackdownFrameMs_826517CC"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_826A7698
+address = 0x826A78F4
+name = "CrackdownFrameMs_826A78F4"
+registers = ["r11"]
+after_instruction = true
+
+# Co-op HDD gates (crackdown/src/hooks_storage.cpp). Each address is the
+# `lbz rX,16282(rX)` that reads the HDD-cache flag 0x82DE3F9A, which the storage
+# hook keeps clear so loaders stream from game:\. With co-op networking on,
+# CrackdownCoopHdd_<address> reports "HDD present" to these menu checks only:
+#   0x8265ADE4 sub_8265A738  Campaign "Play Now - Co-op" enable
+#   0x82661C54 sub_82661B58  no-HDD popup (strings 380/664) before co-op
+#   0x82678104 sub_82678010  no-HDD branch on the co-op menu path
+# Loader readers 0x8253CA78/0x8253EE74 and XUI scene loading 0x82628A4C/
+# 0x826298CC stay unhooked.
+
+[[midasm_hook]]  # sub_8265A738
+address = 0x8265ADE4
+name = "CrackdownCoopHdd_8265ADE4"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_82661B58
+address = 0x82661C54
+name = "CrackdownCoopHdd_82661C54"
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]  # sub_82678010
+address = 0x82678104
+name = "CrackdownCoopHdd_82678104"
+registers = ["r11"]
+after_instruction = true

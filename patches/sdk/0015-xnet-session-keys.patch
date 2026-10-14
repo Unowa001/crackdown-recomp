@@ -1,0 +1,82 @@
+From 08fef3972db0e8cb9b860eb28750daf628b89882 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Tue, 13 Oct 2026 20:20:50 -0400
+Subject: [PATCH] xnet-session-keys
+
+Guest create/register 0x824621B4/0x824621C4; joining register 0x82462718. Disassembly generated .65.cpp:10673/10682 and .102.cpp:10916; fork ef09406 kernel/xnet.h:1516 key classification (fixed fork key generator deliberately not ported). Validation: runtime trace and registry fixtures pending. Author: Codex.
+---
+ src/kernel/CMakeLists.txt         |  1 +
+ src/kernel/xam/coop_xnet_keys.cpp | 41 +++++++++++++++++++++++++++++++
+ src/kernel/xam/xam_net.cpp        |  6 ++---
+ 3 files changed, 45 insertions(+), 3 deletions(-)
+ create mode 100644 src/kernel/xam/coop_xnet_keys.cpp
+
+diff --git a/src/kernel/CMakeLists.txt b/src/kernel/CMakeLists.txt
+index 0d54106..317d14f 100644
+--- a/src/kernel/CMakeLists.txt
++++ b/src/kernel/CMakeLists.txt
+@@ -9,0 +10 @@ set(REXKERNEL_SOURCES
++    xam/coop_xnet_keys.cpp
+diff --git a/src/kernel/xam/coop_xnet_keys.cpp b/src/kernel/xam/coop_xnet_keys.cpp
+new file mode 100644
+index 0000000..257cf78
+--- /dev/null
++++ b/src/kernel/xam/coop_xnet_keys.cpp
+@@ -0,0 +1,41 @@
++// XNKID classification: xenia-netplay ef09406 kernel/xnet.h:1516.
++// Original serverless registry implementation (keys are never logged).
++#include <rex/hook.h>
++#include <rex/system/coop_network_context.h>
++#include <random>
++namespace rex::kernel::xam {
++using namespace rex::system;
++u32 NetDll_XNetCreateKey_entry(u32 caller,ppc_ptr_t<XNKID> id,ppc_ptr_t<XNKEY> key) {
++  if (!id || !key) return 10014;
++  std::random_device random;
++  for (auto& byte:id->ab) byte=uint8_t(random());
++  id->ab[0]&=0x0f; // System Link key type, opaque bytes.
++  id->ab[7]|=1;
++  for (auto& byte:key->ab) byte=uint8_t(random());
++  if (REXCVAR_GET(net_trace)) REXLOG_INFO("net XNetCreateKey id={:02X}{:02X}.. (key redacted)",id->ab[0],id->ab[1]);
++  return 0;
++}
++u32 NetDll_XNetRegisterKey_entry(u32 caller,ppc_ptr_t<XNKID> id,ppc_ptr_t<XNKEY> key) {
++  if (!id || !key) return 10014;
++  if ((id->ab[0]&0xf0)!=0) return 10022;
++  auto& net=REX_KERNEL_STATE()->coop_network();
++  std::lock_guard lock(net.mutex);
++  auto index=std::to_array(id->ab);
++  auto found=net.keys.find(index);
++  if (found!=net.keys.end()) return std::memcmp(found->second.ab,key->ab,16)?10022:0;
++  if (net.keys.size()>=64) return 10055;
++  net.keys.emplace(index,*key);
++  if (REXCVAR_GET(net_trace)) REXLOG_INFO("net XNetRegisterKey id={:02X}{:02X}.. entries={}",id->ab[0],id->ab[1],net.keys.size());
++  return 0;
++}
++u32 NetDll_XNetUnregisterKey_entry(u32 caller,ppc_ptr_t<XNKID> id) {
++  if (!id) return 10014;
++  auto& net=REX_KERNEL_STATE()->coop_network(); std::lock_guard lock(net.mutex);
++  if (!net.keys.erase(std::to_array(id->ab))) return 10022;
++  for (auto& peer:net.peers) if (!std::memcmp(peer.session.ab,id->ab,8)) { peer.connected=false; peer.session={}; }
++  return 0;
++}
++}
++REX_EXPORT(__imp__NetDll_XNetCreateKey,rex::kernel::xam::NetDll_XNetCreateKey_entry)
++REX_EXPORT(__imp__NetDll_XNetRegisterKey,rex::kernel::xam::NetDll_XNetRegisterKey_entry)
++REX_EXPORT(__imp__NetDll_XNetUnregisterKey,rex::kernel::xam::NetDll_XNetUnregisterKey_entry)
+diff --git a/src/kernel/xam/xam_net.cpp b/src/kernel/xam/xam_net.cpp
+index 27b7163..433a899 100644
+--- a/src/kernel/xam/xam_net.cpp
++++ b/src/kernel/xam/xam_net.cpp
+@@ -961 +961 @@ REX_EXPORT_STUB(__imp__NetDll_XNetConnect);
+-REX_EXPORT_STUB(__imp__NetDll_XNetCreateKey);
++
+@@ -971 +971 @@ REX_EXPORT_STUB(__imp__NetDll_XNetQosLookup);
+-REX_EXPORT_STUB(__imp__NetDll_XNetRegisterKey);
++
+@@ -978 +978 @@ REX_EXPORT_STUB(__imp__NetDll_XNetUnregisterInAddr);
+-REX_EXPORT_STUB(__imp__NetDll_XNetUnregisterKey);
++
+-- 
+2.54.0.windows.1
+

@@ -1,0 +1,270 @@
+From 9cd43eda9eef89a9a3b2697a46681188f0547bf3 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Tue, 13 Oct 2026 20:17:50 -0400
+Subject: [PATCH] coop-network-context
+
+Guest ports: socket/bind 0x82462350/0x8246238C (1000), 0x82462AF8/0x82462B6C (1001), 0x82462560 (1002); plan-coop generated-disassembly references and section 7. Original serverless implementation; peer routing differs from fork master-service lookup deliberately. Validation: not yet built or runtime traced; subsequent transport fixture evidence required. Author: Codex.
+---
+ include/rex/system/coop_network_context.h |  42 +++++++
+ include/rex/system/kernel_state.h         |   3 +
+ src/system/CMakeLists.txt                 |   1 +
+ src/system/coop_network_context.cpp       | 133 ++++++++++++++++++++++
+ src/system/xam/user_profile.cpp           |   7 +-
+ 5 files changed, 184 insertions(+), 2 deletions(-)
+ create mode 100644 include/rex/system/coop_network_context.h
+ create mode 100644 src/system/coop_network_context.cpp
+
+diff --git a/include/rex/system/coop_network_context.h b/include/rex/system/coop_network_context.h
+new file mode 100644
+index 0000000..ea3e9e0
+--- /dev/null
++++ b/include/rex/system/coop_network_context.h
+@@ -0,0 +1,42 @@
++#pragma once
++#include <array>
++#include <map>
++#include <mutex>
++#include <vector>
++#include <rex/cvar.h>
++#include <rex/system/coop_network_abi.h>
++REXCVAR_DECLARE(bool, net_trace);
++namespace rex::system {
++// IPv4 values in this interface are host-order; wire bytes are converted only
++// at the sockaddr/XNADDR boundary. Each process owns one context per runtime.
++struct CoopEndpoint { uint32_t ip; uint16_t port; };
++struct CoopPeer {
++  uint32_t token;
++  XNADDR address{};
++  XNKID session{};
++  uint32_t ip;
++  int32_t offset;
++  bool connected=false;
++};
++class CoopNetworkContext {
++ public:
++  void Initialize();
++  bool enabled=false;
++  uint32_t bind_ip=0, advertise_ip=0;
++  int32_t port_offset=0;
++  XNADDR local{};
++  std::mutex mutex;
++  std::map<std::array<uint8_t,8>,XNKEY> keys;
++  std::vector<CoopPeer> peers;
++  CoopEndpoint BindEndpoint(CoopEndpoint guest);
++  std::vector<CoopEndpoint> Destinations(CoopEndpoint guest);
++  CoopEndpoint Source(CoopEndpoint native);
++  uint32_t Resolve(const XNADDR& address,const XNKID& session);
++  bool Reverse(uint32_t token,XNADDR* address,XNKID* session);
++  bool Connect(uint32_t token);
++  uint32_t Status(uint32_t token);
++  bool Forget(uint32_t token);
++ private:
++  std::once_flag init_once_;
++};
++} // namespace rex::system
+diff --git a/include/rex/system/kernel_state.h b/include/rex/system/kernel_state.h
+index 9b9cf9e..2037e11 100644
+--- a/include/rex/system/kernel_state.h
++++ b/include/rex/system/kernel_state.h
+@@ -10,6 +10,7 @@
+  * @modified    Tom Clay, 2026 - Adapted for ReXGlue runtime
+  */
+ 
++#include <rex/system/coop_network_context.h>
+ #include <atomic>
+ #include <condition_variable>
+ #include <filesystem>
+@@ -183,6 +184,7 @@ struct FiberInfo {
+ 
+ class KernelState {
+  public:
++  CoopNetworkContext& coop_network() { coop_network_.Initialize(); return coop_network_; }
+   explicit KernelState(Runtime* emulator);
+   ~KernelState();
+ 
+@@ -346,6 +348,7 @@ class KernelState {
+                          uint32_t tls_raw_data_address);
+   void LoadAchievementsData();
+ 
++  CoopNetworkContext coop_network_;
+   Runtime* emulator_;
+   memory::Memory* memory_;
+   runtime::FunctionDispatcher* function_dispatcher_;
+diff --git a/src/system/CMakeLists.txt b/src/system/CMakeLists.txt
+index fc46d86..9605bf1 100644
+--- a/src/system/CMakeLists.txt
++++ b/src/system/CMakeLists.txt
+@@ -1,5 +1,6 @@
+ set(REXSYSTEM_SOURCES
+     runtime.cpp
++    coop_network_context.cpp
+     embedded_metadata.cpp
+     achievement_manager.cpp
+     achievements.cpp
+diff --git a/src/system/coop_network_context.cpp b/src/system/coop_network_context.cpp
+new file mode 100644
+index 0000000..d5f7f38
+--- /dev/null
++++ b/src/system/coop_network_context.cpp
+@@ -0,0 +1,133 @@
++// Serverless transport configuration, original implementation for ReXGlue.
++#include <rex/system/coop_network_context.h>
++#include <rex/logging.h>
++#include <cstring>
++#include <random>
++#include <sstream>
++#include <stdexcept>
++REXCVAR_DEFINE_STRING(net_mode,"off","Network","off, lan or direct");
++REXCVAR_DEFINE_STRING(net_bind_ip,"127.0.0.1","Network","Explicit local IPv4 interface");
++REXCVAR_DEFINE_STRING(net_advertise_ip,"","Network","Advertised IPv4 (defaults to bind IP)");
++REXCVAR_DEFINE_STRING(net_peer_endpoints,"","Network","Comma-separated IPv4:discovery-host-port; fixed offset map for guest ports");
++REXCVAR_DEFINE_INT32(net_port_offset,0,"Network","Local host port minus guest port");
++REXCVAR_DEFINE_STRING(net_instance_id,"","Network","Diagnostic instance label");
++REXCVAR_DEFINE_BOOL(net_trace,false,"Network","Opt-in network trace (no raw keys)");
++namespace rex::system {
++namespace {
++uint32_t ParseIP(const std::string& text) {
++  std::istringstream in(text); unsigned a,b,c,d; char x,y,z,extra;
++  if (!(in>>a>>x>>b>>y>>c>>z>>d) || x!='.' || y!='.' || z!='.' ||
++      a>255 || b>255 || c>255 || d>255 || (in>>extra))
++    throw std::invalid_argument("net: invalid IPv4: "+text);
++  return (a<<24)|(b<<16)|(c<<8)|d;
++}
++uint16_t Port(uint16_t guest,int32_t offset) {
++  if (!guest) return 0; // Preserve ephemeral port selection.
++  int64_t mapped=int64_t(guest)+offset;
++  if (mapped<1 || mapped>65535) throw std::invalid_argument("net: port mapping outside 1..65535");
++  return uint16_t(mapped);
++}
++void Identity(XNADDR& out,uint32_t ip,int32_t offset) {
++  out={}; out.ina.s_addr=htonl(ip); out.wPortOnline=Port(1000,offset);
++  // Locally administered unicast MAC. The configured endpoint distinguishes
++  // two processes on one IPv4; no master service or game-packet headers.
++  out.abEnet[0]=2; out.abEnet[1]=uint8_t(ip>>16); out.abEnet[2]=uint8_t(ip>>8);
++  out.abEnet[3]=uint8_t(ip); out.abEnet[4]=uint8_t(out.wPortOnline>>8);
++  out.abEnet[5]=uint8_t(out.wPortOnline);
++}
++}
++void CoopNetworkContext::Initialize() {
++  std::call_once(init_once_,[this] {
++    const auto mode=REXCVAR_GET(net_mode);
++    if (mode!="off" && mode!="lan" && mode!="direct") throw std::invalid_argument("net_mode must be off, lan or direct");
++    enabled=mode!="off"; if (!enabled) return;
++    bind_ip=ParseIP(REXCVAR_GET(net_bind_ip));
++    advertise_ip=REXCVAR_GET(net_advertise_ip).empty()?bind_ip:ParseIP(REXCVAR_GET(net_advertise_ip));
++    if (!advertise_ip || advertise_ip==0xffffffff) throw std::invalid_argument("net: advertise IP must be unicast");
++    port_offset=REXCVAR_GET(net_port_offset);
++    Port(1002,port_offset); Identity(local,advertise_ip,port_offset);
++    std::stringstream input(REXCVAR_GET(net_peer_endpoints)); std::string item;
++    std::vector<CoopPeer> configured;
++    while (std::getline(input,item,',')) {
++      const auto colon=item.find(':');
++      if (colon==std::string::npos) throw std::invalid_argument("net: peer must be IPv4:discovery-port");
++      auto ip=ParseIP(item.substr(0,colon));
++      size_t used=0; const auto tail=item.substr(colon+1); auto p=std::stoul(tail,&used);
++      if (used!=tail.size() || p<1001 || p>65534 || !ip || ip==0xffffffff || configured.size()>=16)
++        throw std::invalid_argument("net: invalid peer endpoint");
++      CoopPeer peer{}; peer.token=0xf0000001+uint32_t(configured.size()); peer.ip=ip; peer.offset=int32_t(p)-1001;
++      Identity(peer.address,ip,peer.offset); configured.push_back(peer);
++    }
++    if (mode=="direct" && configured.empty()) throw std::invalid_argument("net: direct mode requires peers");
++    peers=std::move(configured);
++    REXLOG_INFO("net: instance={} mode={} bind={:08X} offset={} peers={}",REXCVAR_GET(net_instance_id),mode,bind_ip,port_offset,peers.size());
++  });
++}
++CoopEndpoint CoopNetworkContext::BindEndpoint(CoopEndpoint guest) {
++  if (!enabled) return guest;
++  if (!guest.ip) guest.ip=bind_ip;
++  guest.port=Port(guest.port,port_offset); return guest;
++}
++std::vector<CoopEndpoint> CoopNetworkContext::Destinations(CoopEndpoint guest) {
++  std::lock_guard lock(mutex);
++  if (!enabled) return {guest};
++  if (guest.ip==0xffffffff && !peers.empty()) {
++    std::vector<CoopEndpoint> result;
++    for (const auto& peer:peers) result.push_back({peer.ip,Port(guest.port,peer.offset)});
++    return result;
++  }
++  for (const auto& peer:peers) if (peer.token==guest.ip) return {{peer.ip,Port(guest.port,peer.offset)}};
++  // Unknown opaque addresses must never leak onto the host network.
++  if ((guest.ip&0xf0000000)==0xf0000000 && guest.ip!=0xffffffff) return {};
++  return {guest};
++}
++CoopEndpoint CoopNetworkContext::Source(CoopEndpoint native) {
++  std::lock_guard lock(mutex);
++  if (!enabled) return native;
++  for (const auto& peer:peers) {
++    int64_t guest_port=int64_t(native.port)-peer.offset;
++    if (peer.ip==native.ip && guest_port>=1000 && guest_port<=1002)
++      return {peer.token,uint16_t(guest_port)};
++  }
++  return native;
++}
++uint32_t CoopNetworkContext::Resolve(const XNADDR& address,const XNKID& session) {
++  std::lock_guard lock(mutex);
++  if (!enabled || !keys.contains(std::to_array(session.ab))) return 0;
++  for (auto& peer:peers) if (!std::memcmp(peer.address.abEnet,address.abEnet,6)) {
++    peer.address=address; peer.session=session; return peer.token;
++  }
++  // LAN addresses retain their original guest ports. Explicit peers must have
++  // a configured remote endpoint map; do not guess their offset from our own.
++  uint32_t ip=ntohl(address.ina.s_addr);
++  if (!ip || ip==0xffffffff || peers.size()>=64) return 0;
++  if (REXCVAR_GET(net_mode)=="direct") return 0;
++  CoopPeer peer{}; peer.token=0xf0000001+uint32_t(peers.size());
++  peer.address=address; peer.session=session; peer.ip=ip; peer.offset=0;
++  peers.push_back(peer); return peer.token;
++}
++bool CoopNetworkContext::Reverse(uint32_t token,XNADDR* address,XNKID* session) {
++  std::lock_guard lock(mutex);
++  for (const auto& peer:peers) if (peer.token==token) {
++    if (address) *address=peer.address;
++    if (session) *session=peer.session;
++    return true;
++  }
++  return false;
++}
++bool CoopNetworkContext::Connect(uint32_t token) {
++  std::lock_guard lock(mutex);
++  for (auto& peer:peers) if (peer.token==token) { peer.connected=true; return true; }
++  return false;
++}
++uint32_t CoopNetworkContext::Status(uint32_t token) {
++  std::lock_guard lock(mutex);
++  for (const auto& peer:peers) if (peer.token==token) return peer.connected?3:0;
++  return 0;
++}
++bool CoopNetworkContext::Forget(uint32_t token) {
++  std::lock_guard lock(mutex);
++  for (auto& peer:peers) if (peer.token==token) { peer.connected=false; peer.session={}; return true; }
++  return false;
++}
++} // namespace rex::system
+diff --git a/src/system/xam/user_profile.cpp b/src/system/xam/user_profile.cpp
+index a77f5e6..0decf17 100644
+--- a/src/system/xam/user_profile.cpp
++++ b/src/system/xam/user_profile.cpp
+@@ -10,6 +10,9 @@
+  */
+ 
+ #include <sstream>
++#include <rex/cvar.h>
++REXCVAR_DEFINE_UINT64(coop_profile_xuid,0xB13EBABEBABEBABE,"Network","Local co-op profile identity");
++REXCVAR_DEFINE_STRING(coop_profile_name,"User","Network","Local co-op profile name");
+ 
+ #include <fmt/format.h>
+ 
+@@ -25,8 +28,8 @@ UserProfile::UserProfile() {
+   // 58410A1F checks the user XUID against a mask of 0x00C0000000000000 (3<<54),
+   // if non-zero, it prevents the user from playing the game.
+   // "You do not have permissions to perform this operation."
+-  xuid_ = 0xB13EBABEBABEBABE;
+-  name_ = "User";
++  xuid_ = REXCVAR_GET(coop_profile_xuid);
++  name_ = REXCVAR_GET(coop_profile_name);
+ 
+   // https://cs.rin.ru/forum/viewtopic.php?f=38&t=60668&hilit=gfwl+live&start=195
+   // https://github.com/arkem/py360/blob/master/py360/constants.py
+-- 
+2.54.0.windows.1
+

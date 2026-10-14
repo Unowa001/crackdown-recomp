@@ -1,0 +1,10182 @@
+{
+ "version": "crackdown-m2-dev-1",
+ "game": "Crackdown",
+ "supported_xex_sha256": "7aaa7a8920d1c3c737e58cf583debafe6013be0a96bec3ec136e5de7e3377e5a",
+ "source": {
+  "file": "out/ap-discovery/catalog-probe.json",
+  "sha256": "63eff845795bcf5d0c1f9ce44f5cf528ab0780898a749676a51cacdb0721eddc",
+  "schema": "crackdown-discovery-v0"
+ },
+ "location_base": 73400000,
+ "items": {
+  "Progressive Agility": 73410000,
+  "Progressive Driving": 73410001,
+  "Progressive Explosives": 73410002,
+  "Progressive Strength": 73410003,
+  "Progressive Firearms": 73410004,
+  "Agency Commendation": 73411000,
+  "Colby EAR50 Machine Gun": 73410101,
+  "Colby Enforcer Pistol": 73410102,
+  "Colby Limpet Charge": 73410103,
+  "Smithson 'Punisher'": 73410104,
+  "Ishkov 'Diktat'": 73410105,
+  "Harman MP-50": 73410106,
+  "Ankram X80 SMG": 73410107,
+  "Ankram MG-60": 73410108,
+  "Harlington HMG-90": 73410109,
+  "Dempsey 190 'Equalizer'": 73410110,
+  "Dempsey SO-6 'Stub'": 73410111,
+  "Bastion S600 'Hawkeye'": 73410112,
+  "Bastion SX900 'Longshot'": 73410113,
+  "Watson HE79 'Grenadier'": 73410114,
+  "Watson HE99 'Hotshot'": 73410115,
+  "Watson HE99-X 'Firefly'": 73410116,
+  "Shrapnel Grenade": 73410117,
+  "Grenade": 73410118,
+  "Cluster Grenade": 73410119
+ },
+ "agility": {
+  "starting": 1,
+  "maximum": 5
+ },
+ "orbs": [
+  {
+   "id": 73400000,
+   "ordinal": 0,
+   "type": 4,
+   "name": "Hidden Orb 000",
+   "position": [
+    1963.019,
+    30.009,
+    -2698.2
+   ]
+  },
+  {
+   "id": 73400001,
+   "ordinal": 1,
+   "type": 0,
+   "name": "Agility Orb 001",
+   "position": [
+    2100.131,
+    41.685,
+    -3435.438
+   ]
+  },
+  {
+   "id": 73400002,
+   "ordinal": 2,
+   "type": 0,
+   "name": "Agility Orb 002",
+   "position": [
+    1815.41,
+    48.069,
+    -3468.706
+   ]
+  },
+  {
+   "id": 73400003,
+   "ordinal": 3,
+   "type": 0,
+   "name": "Agility Orb 003",
+   "position": [
+    1728.438,
+    42.147,
+    -3418.17
+   ]
+  },
+  {
+   "id": 73400004,
+   "ordinal": 4,
+   "type": 0,
+   "name": "Agility Orb 004",
+   "position": [
+    1865.312,
+    42.147,
+    -3381.802
+   ]
+  },
+  {
+   "id": 73400005,
+   "ordinal": 5,
+   "type": 0,
+   "name": "Agility Orb 005",
+   "position": [
+    1982.596,
+    28.194,
+    -3277.263
+   ]
+  },
+  {
+   "id": 73400006,
+   "ordinal": 6,
+   "type": 0,
+   "name": "Agility Orb 006",
+   "position": [
+    2714.69,
+    50.1,
+    -2156.493
+   ]
+  },
+  {
+   "id": 73400007,
+   "ordinal": 7,
+   "type": 0,
+   "name": "Agility Orb 007",
+   "position": [
+    2643.711,
+    40.262,
+    -2236.828
+   ]
+  },
+  {
+   "id": 73400008,
+   "ordinal": 8,
+   "type": 1,
+   "name": "Agility Orb 008",
+   "position": [
+    2911.812,
+    73.566,
+    -3514.797
+   ]
+  },
+  {
+   "id": 73400009,
+   "ordinal": 9,
+   "type": 1,
+   "name": "Agility Orb 009",
+   "position": [
+    2409.448,
+    49.3,
+    -3563.274
+   ]
+  },
+  {
+   "id": 73400010,
+   "ordinal": 10,
+   "type": 1,
+   "name": "Agility Orb 010",
+   "position": [
+    2483.928,
+    51.288,
+    -3497.136
+   ]
+  },
+  {
+   "id": 73400011,
+   "ordinal": 11,
+   "type": 1,
+   "name": "Agility Orb 011",
+   "position": [
+    2563.7,
+    54.1,
+    -3488.125
+   ]
+  },
+  {
+   "id": 73400012,
+   "ordinal": 12,
+   "type": 1,
+   "name": "Agility Orb 012",
+   "position": [
+    1944.113,
+    51.001,
+    -3416.532
+   ]
+  },
+  {
+   "id": 73400013,
+   "ordinal": 13,
+   "type": 1,
+   "name": "Agility Orb 013",
+   "position": [
+    2024.352,
+    39.507,
+    -3281.218
+   ]
+  },
+  {
+   "id": 73400014,
+   "ordinal": 14,
+   "type": 1,
+   "name": "Agility Orb 014",
+   "position": [
+    2166.745,
+    49.1,
+    -3363.739
+   ]
+  },
+  {
+   "id": 73400015,
+   "ordinal": 15,
+   "type": 1,
+   "name": "Agility Orb 015",
+   "position": [
+    2198.228,
+    47.1,
+    -3349.443
+   ]
+  },
+  {
+   "id": 73400016,
+   "ordinal": 16,
+   "type": 1,
+   "name": "Agility Orb 016",
+   "position": [
+    2137.439,
+    47.533,
+    -3251.271
+   ]
+  },
+  {
+   "id": 73400017,
+   "ordinal": 17,
+   "type": 1,
+   "name": "Agility Orb 017",
+   "position": [
+    2199.428,
+    49.93,
+    -3227.128
+   ]
+  },
+  {
+   "id": 73400018,
+   "ordinal": 18,
+   "type": 1,
+   "name": "Agility Orb 018",
+   "position": [
+    2204.141,
+    44.13,
+    -3173.247
+   ]
+  },
+  {
+   "id": 73400019,
+   "ordinal": 19,
+   "type": 1,
+   "name": "Agility Orb 019",
+   "position": [
+    2591.93,
+    46.095,
+    -3339.642
+   ]
+  },
+  {
+   "id": 73400020,
+   "ordinal": 20,
+   "type": 1,
+   "name": "Agility Orb 020",
+   "position": [
+    2547.197,
+    52.601,
+    -3378.696
+   ]
+  },
+  {
+   "id": 73400021,
+   "ordinal": 21,
+   "type": 1,
+   "name": "Agility Orb 021",
+   "position": [
+    1868.087,
+    68.101,
+    -3032.96
+   ]
+  },
+  {
+   "id": 73400022,
+   "ordinal": 22,
+   "type": 1,
+   "name": "Agility Orb 022",
+   "position": [
+    2001.039,
+    132.001,
+    -2959.998
+   ]
+  },
+  {
+   "id": 73400023,
+   "ordinal": 23,
+   "type": 1,
+   "name": "Agility Orb 023",
+   "position": [
+    1930.464,
+    110.998,
+    -2971.181
+   ]
+  },
+  {
+   "id": 73400024,
+   "ordinal": 24,
+   "type": 1,
+   "name": "Agility Orb 024",
+   "position": [
+    1823.375,
+    50.973,
+    -2824.412
+   ]
+  },
+  {
+   "id": 73400025,
+   "ordinal": 25,
+   "type": 1,
+   "name": "Agility Orb 025",
+   "position": [
+    1929.902,
+    96.101,
+    -2821.481
+   ]
+  },
+  {
+   "id": 73400026,
+   "ordinal": 26,
+   "type": 1,
+   "name": "Agility Orb 026",
+   "position": [
+    1731.631,
+    29.001,
+    -2971.141
+   ]
+  },
+  {
+   "id": 73400027,
+   "ordinal": 27,
+   "type": 1,
+   "name": "Agility Orb 027",
+   "position": [
+    1734.126,
+    23.734,
+    -2868.25
+   ]
+  },
+  {
+   "id": 73400028,
+   "ordinal": 28,
+   "type": 1,
+   "name": "Agility Orb 028",
+   "position": [
+    1765.49,
+    25.002,
+    -2767.8
+   ]
+  },
+  {
+   "id": 73400029,
+   "ordinal": 29,
+   "type": 1,
+   "name": "Agility Orb 029",
+   "position": [
+    1777.127,
+    19.001,
+    -2740.719
+   ]
+  },
+  {
+   "id": 73400030,
+   "ordinal": 30,
+   "type": 1,
+   "name": "Agility Orb 030",
+   "position": [
+    1808.956,
+    34.793,
+    -2731.609
+   ]
+  },
+  {
+   "id": 73400031,
+   "ordinal": 31,
+   "type": 1,
+   "name": "Agility Orb 031",
+   "position": [
+    1784.327,
+    24.001,
+    -2669.963
+   ]
+  },
+  {
+   "id": 73400032,
+   "ordinal": 32,
+   "type": 1,
+   "name": "Agility Orb 032",
+   "position": [
+    1842.595,
+    32.6,
+    -2671.812
+   ]
+  },
+  {
+   "id": 73400033,
+   "ordinal": 33,
+   "type": 1,
+   "name": "Agility Orb 033",
+   "position": [
+    1841.536,
+    33.001,
+    -2642.045
+   ]
+  },
+  {
+   "id": 73400034,
+   "ordinal": 34,
+   "type": 1,
+   "name": "Agility Orb 034",
+   "position": [
+    1782.113,
+    24.0,
+    -2602.756
+   ]
+  },
+  {
+   "id": 73400035,
+   "ordinal": 35,
+   "type": 1,
+   "name": "Agility Orb 035",
+   "position": [
+    1788.871,
+    36.131,
+    -2519.506
+   ]
+  },
+  {
+   "id": 73400036,
+   "ordinal": 36,
+   "type": 1,
+   "name": "Agility Orb 036",
+   "position": [
+    2260.515,
+    91.0,
+    -2638.351
+   ]
+  },
+  {
+   "id": 73400037,
+   "ordinal": 37,
+   "type": 1,
+   "name": "Agility Orb 037",
+   "position": [
+    2258.033,
+    80.0,
+    -2588.264
+   ]
+  },
+  {
+   "id": 73400038,
+   "ordinal": 38,
+   "type": 1,
+   "name": "Agility Orb 038",
+   "position": [
+    1527.993,
+    51.001,
+    -3166.622
+   ]
+  },
+  {
+   "id": 73400039,
+   "ordinal": 39,
+   "type": 1,
+   "name": "Agility Orb 039",
+   "position": [
+    2665.554,
+    55.244,
+    -2289.8
+   ]
+  },
+  {
+   "id": 73400040,
+   "ordinal": 40,
+   "type": 1,
+   "name": "Agility Orb 040",
+   "position": [
+    2656.903,
+    55.239,
+    -2232.484
+   ]
+  },
+  {
+   "id": 73400041,
+   "ordinal": 41,
+   "type": 1,
+   "name": "Agility Orb 041",
+   "position": [
+    2683.247,
+    70.073,
+    -2380.457
+   ]
+  },
+  {
+   "id": 73400042,
+   "ordinal": 42,
+   "type": 1,
+   "name": "Agility Orb 042",
+   "position": [
+    2595.535,
+    84.996,
+    -2385.134
+   ]
+  },
+  {
+   "id": 73400043,
+   "ordinal": 43,
+   "type": 1,
+   "name": "Agility Orb 043",
+   "position": [
+    2609.708,
+    84.996,
+    -2292.393
+   ]
+  },
+  {
+   "id": 73400044,
+   "ordinal": 44,
+   "type": 1,
+   "name": "Agility Orb 044",
+   "position": [
+    2519.343,
+    53.024,
+    -2368.445
+   ]
+  },
+  {
+   "id": 73400045,
+   "ordinal": 45,
+   "type": 1,
+   "name": "Agility Orb 045",
+   "position": [
+    2434.857,
+    55.455,
+    -2200.561
+   ]
+  },
+  {
+   "id": 73400046,
+   "ordinal": 46,
+   "type": 2,
+   "name": "Agility Orb 046",
+   "position": [
+    2483.892,
+    64.214,
+    -3582.437
+   ]
+  },
+  {
+   "id": 73400047,
+   "ordinal": 47,
+   "type": 2,
+   "name": "Agility Orb 047",
+   "position": [
+    2381.239,
+    54.65,
+    -3639.16
+   ]
+  },
+  {
+   "id": 73400048,
+   "ordinal": 48,
+   "type": 2,
+   "name": "Agility Orb 048",
+   "position": [
+    2558.149,
+    54.587,
+    -3550.584
+   ]
+  },
+  {
+   "id": 73400049,
+   "ordinal": 49,
+   "type": 2,
+   "name": "Agility Orb 049",
+   "position": [
+    2607.874,
+    64.213,
+    -3520.62
+   ]
+  },
+  {
+   "id": 73400050,
+   "ordinal": 50,
+   "type": 2,
+   "name": "Agility Orb 050",
+   "position": [
+    2475.008,
+    82.001,
+    -3436.452
+   ]
+  },
+  {
+   "id": 73400051,
+   "ordinal": 51,
+   "type": 2,
+   "name": "Agility Orb 051",
+   "position": [
+    2378.834,
+    74.166,
+    -3505.169
+   ]
+  },
+  {
+   "id": 73400052,
+   "ordinal": 52,
+   "type": 2,
+   "name": "Agility Orb 052",
+   "position": [
+    2407.347,
+    74.202,
+    -3489.947
+   ]
+  },
+  {
+   "id": 73400053,
+   "ordinal": 53,
+   "type": 2,
+   "name": "Agility Orb 053",
+   "position": [
+    2339.778,
+    84.101,
+    -3511.172
+   ]
+  },
+  {
+   "id": 73400054,
+   "ordinal": 54,
+   "type": 2,
+   "name": "Agility Orb 054",
+   "position": [
+    2299.185,
+    79.099,
+    -3529.666
+   ]
+  },
+  {
+   "id": 73400055,
+   "ordinal": 55,
+   "type": 2,
+   "name": "Agility Orb 055",
+   "position": [
+    2243.414,
+    72.099,
+    -3427.403
+   ]
+  },
+  {
+   "id": 73400056,
+   "ordinal": 56,
+   "type": 2,
+   "name": "Agility Orb 056",
+   "position": [
+    2044.852,
+    47.507,
+    -3304.329
+   ]
+  },
+  {
+   "id": 73400057,
+   "ordinal": 57,
+   "type": 2,
+   "name": "Agility Orb 057",
+   "position": [
+    2261.01,
+    56.028,
+    -3293.976
+   ]
+  },
+  {
+   "id": 73400058,
+   "ordinal": 58,
+   "type": 2,
+   "name": "Agility Orb 058",
+   "position": [
+    2298.1,
+    42.528,
+    -3213.444
+   ]
+  },
+  {
+   "id": 73400059,
+   "ordinal": 59,
+   "type": 2,
+   "name": "Agility Orb 059",
+   "position": [
+    2269.67,
+    36.317,
+    -3147.461
+   ]
+  },
+  {
+   "id": 73400060,
+   "ordinal": 60,
+   "type": 2,
+   "name": "Agility Orb 060",
+   "position": [
+    2408.142,
+    71.863,
+    -3239.383
+   ]
+  },
+  {
+   "id": 73400061,
+   "ordinal": 61,
+   "type": 2,
+   "name": "Agility Orb 061",
+   "position": [
+    2330.383,
+    88.038,
+    -3349.501
+   ]
+  },
+  {
+   "id": 73400062,
+   "ordinal": 62,
+   "type": 2,
+   "name": "Agility Orb 062",
+   "position": [
+    2325.223,
+    75.814,
+    -3392.538
+   ]
+  },
+  {
+   "id": 73400063,
+   "ordinal": 63,
+   "type": 2,
+   "name": "Agility Orb 063",
+   "position": [
+    2444.713,
+    72.863,
+    -3193.715
+   ]
+  },
+  {
+   "id": 73400064,
+   "ordinal": 64,
+   "type": 2,
+   "name": "Agility Orb 064",
+   "position": [
+    2497.52,
+    68.025,
+    -3297.394
+   ]
+  },
+  {
+   "id": 73400065,
+   "ordinal": 65,
+   "type": 2,
+   "name": "Agility Orb 065",
+   "position": [
+    2568.766,
+    78.276,
+    -3273.513
+   ]
+  },
+  {
+   "id": 73400066,
+   "ordinal": 66,
+   "type": 2,
+   "name": "Agility Orb 066",
+   "position": [
+    2510.047,
+    91.101,
+    -3131.11
+   ]
+  },
+  {
+   "id": 73400067,
+   "ordinal": 67,
+   "type": 2,
+   "name": "Agility Orb 067",
+   "position": [
+    2592.2,
+    69.101,
+    -3152.958
+   ]
+  },
+  {
+   "id": 73400068,
+   "ordinal": 68,
+   "type": 2,
+   "name": "Agility Orb 068",
+   "position": [
+    2593.093,
+    60.0,
+    -3221.855
+   ]
+  },
+  {
+   "id": 73400069,
+   "ordinal": 69,
+   "type": 2,
+   "name": "Agility Orb 069",
+   "position": [
+    2421.273,
+    79.669,
+    -3336.696
+   ]
+  },
+  {
+   "id": 73400070,
+   "ordinal": 70,
+   "type": 2,
+   "name": "Agility Orb 070",
+   "position": [
+    2371.218,
+    76.101,
+    -3422.996
+   ]
+  },
+  {
+   "id": 73400071,
+   "ordinal": 71,
+   "type": 2,
+   "name": "Agility Orb 071",
+   "position": [
+    2284.826,
+    71.815,
+    -3428.922
+   ]
+  },
+  {
+   "id": 73400072,
+   "ordinal": 72,
+   "type": 2,
+   "name": "Agility Orb 072",
+   "position": [
+    2348.856,
+    66.107,
+    -3118.89
+   ]
+  },
+  {
+   "id": 73400073,
+   "ordinal": 73,
+   "type": 2,
+   "name": "Agility Orb 073",
+   "position": [
+    2428.247,
+    140.101,
+    -3091.696
+   ]
+  },
+  {
+   "id": 73400074,
+   "ordinal": 74,
+   "type": 2,
+   "name": "Agility Orb 074",
+   "position": [
+    2457.993,
+    88.5,
+    -3040.449
+   ]
+  },
+  {
+   "id": 73400075,
+   "ordinal": 75,
+   "type": 2,
+   "name": "Agility Orb 075",
+   "position": [
+    2482.005,
+    122.785,
+    -3036.013
+   ]
+  },
+  {
+   "id": 73400076,
+   "ordinal": 76,
+   "type": 2,
+   "name": "Agility Orb 076",
+   "position": [
+    2666.149,
+    87.999,
+    -2770.393
+   ]
+  },
+  {
+   "id": 73400077,
+   "ordinal": 77,
+   "type": 2,
+   "name": "Agility Orb 077",
+   "position": [
+    1834.737,
+    76.101,
+    -3014.458
+   ]
+  },
+  {
+   "id": 73400078,
+   "ordinal": 78,
+   "type": 2,
+   "name": "Agility Orb 078",
+   "position": [
+    2039.778,
+    82.186,
+    -2956.882
+   ]
+  },
+  {
+   "id": 73400079,
+   "ordinal": 79,
+   "type": 2,
+   "name": "Agility Orb 079",
+   "position": [
+    2030.991,
+    83.0,
+    -2884.854
+   ]
+  },
+  {
+   "id": 73400080,
+   "ordinal": 80,
+   "type": 2,
+   "name": "Agility Orb 080",
+   "position": [
+    2085.502,
+    70.162,
+    -2905.868
+   ]
+  },
+  {
+   "id": 73400081,
+   "ordinal": 81,
+   "type": 2,
+   "name": "Agility Orb 081",
+   "position": [
+    2111.872,
+    115.467,
+    -2827.52
+   ]
+  },
+  {
+   "id": 73400082,
+   "ordinal": 82,
+   "type": 2,
+   "name": "Agility Orb 082",
+   "position": [
+    2176.841,
+    74.0,
+    -2944.21
+   ]
+  },
+  {
+   "id": 73400083,
+   "ordinal": 83,
+   "type": 2,
+   "name": "Agility Orb 083",
+   "position": [
+    2210.61,
+    119.001,
+    -2942.924
+   ]
+  },
+  {
+   "id": 73400084,
+   "ordinal": 84,
+   "type": 2,
+   "name": "Agility Orb 084",
+   "position": [
+    2302.1,
+    95.001,
+    -2880.339
+   ]
+  },
+  {
+   "id": 73400085,
+   "ordinal": 85,
+   "type": 2,
+   "name": "Agility Orb 085",
+   "position": [
+    2236.985,
+    130.0,
+    -2842.3
+   ]
+  },
+  {
+   "id": 73400086,
+   "ordinal": 86,
+   "type": 2,
+   "name": "Agility Orb 086",
+   "position": [
+    1865.401,
+    59.001,
+    -2912.326
+   ]
+  },
+  {
+   "id": 73400087,
+   "ordinal": 87,
+   "type": 2,
+   "name": "Agility Orb 087",
+   "position": [
+    1884.799,
+    55.093,
+    -2858.868
+   ]
+  },
+  {
+   "id": 73400088,
+   "ordinal": 88,
+   "type": 2,
+   "name": "Agility Orb 088",
+   "position": [
+    1892.236,
+    66.001,
+    -2778.727
+   ]
+  },
+  {
+   "id": 73400089,
+   "ordinal": 89,
+   "type": 2,
+   "name": "Agility Orb 089",
+   "position": [
+    1840.997,
+    61.9,
+    -2812.057
+   ]
+  },
+  {
+   "id": 73400090,
+   "ordinal": 90,
+   "type": 2,
+   "name": "Agility Orb 090",
+   "position": [
+    1755.065,
+    33.015,
+    -2727.921
+   ]
+  },
+  {
+   "id": 73400091,
+   "ordinal": 91,
+   "type": 2,
+   "name": "Agility Orb 091",
+   "position": [
+    1864.25,
+    59.001,
+    -2711.328
+   ]
+  },
+  {
+   "id": 73400092,
+   "ordinal": 92,
+   "type": 2,
+   "name": "Agility Orb 092",
+   "position": [
+    1898.043,
+    63.0,
+    -2691.239
+   ]
+  },
+  {
+   "id": 73400093,
+   "ordinal": 93,
+   "type": 2,
+   "name": "Agility Orb 093",
+   "position": [
+    1838.02,
+    60.751,
+    -2583.002
+   ]
+  },
+  {
+   "id": 73400094,
+   "ordinal": 94,
+   "type": 2,
+   "name": "Agility Orb 094",
+   "position": [
+    1969.443,
+    85.998,
+    -2622.371
+   ]
+  },
+  {
+   "id": 73400095,
+   "ordinal": 95,
+   "type": 2,
+   "name": "Agility Orb 095",
+   "position": [
+    1993.154,
+    122.006,
+    -2572.003
+   ]
+  },
+  {
+   "id": 73400096,
+   "ordinal": 96,
+   "type": 2,
+   "name": "Agility Orb 096",
+   "position": [
+    2070.648,
+    142.1,
+    -2635.407
+   ]
+  },
+  {
+   "id": 73400097,
+   "ordinal": 97,
+   "type": 2,
+   "name": "Agility Orb 097",
+   "position": [
+    2020.796,
+    104.001,
+    -2547.606
+   ]
+  },
+  {
+   "id": 73400098,
+   "ordinal": 98,
+   "type": 2,
+   "name": "Agility Orb 098",
+   "position": [
+    2135.451,
+    125.753,
+    -2589.756
+   ]
+  },
+  {
+   "id": 73400099,
+   "ordinal": 99,
+   "type": 2,
+   "name": "Agility Orb 099",
+   "position": [
+    2169.486,
+    157.753,
+    -2626.712
+   ]
+  },
+  {
+   "id": 73400100,
+   "ordinal": 100,
+   "type": 2,
+   "name": "Agility Orb 100",
+   "position": [
+    2226.41,
+    140.945,
+    -2611.566
+   ]
+  },
+  {
+   "id": 73400101,
+   "ordinal": 101,
+   "type": 2,
+   "name": "Agility Orb 101",
+   "position": [
+    1528.422,
+    59.001,
+    -3201.044
+   ]
+  },
+  {
+   "id": 73400102,
+   "ordinal": 102,
+   "type": 2,
+   "name": "Agility Orb 102",
+   "position": [
+    2017.67,
+    81.0,
+    -2529.148
+   ]
+  },
+  {
+   "id": 73400103,
+   "ordinal": 103,
+   "type": 2,
+   "name": "Agility Orb 103",
+   "position": [
+    1961.612,
+    80.001,
+    -2471.525
+   ]
+  },
+  {
+   "id": 73400104,
+   "ordinal": 104,
+   "type": 2,
+   "name": "Agility Orb 104",
+   "position": [
+    2130.624,
+    84.0,
+    -2472.998
+   ]
+  },
+  {
+   "id": 73400105,
+   "ordinal": 105,
+   "type": 2,
+   "name": "Agility Orb 105",
+   "position": [
+    2205.597,
+    93.0,
+    -2514.482
+   ]
+  },
+  {
+   "id": 73400106,
+   "ordinal": 106,
+   "type": 2,
+   "name": "Agility Orb 106",
+   "position": [
+    2781.56,
+    76.478,
+    -2509.905
+   ]
+  },
+  {
+   "id": 73400107,
+   "ordinal": 107,
+   "type": 2,
+   "name": "Agility Orb 107",
+   "position": [
+    2785.764,
+    67.728,
+    -2533.689
+   ]
+  },
+  {
+   "id": 73400108,
+   "ordinal": 108,
+   "type": 2,
+   "name": "Agility Orb 108",
+   "position": [
+    2756.615,
+    74.901,
+    -2309.443
+   ]
+  },
+  {
+   "id": 73400109,
+   "ordinal": 109,
+   "type": 2,
+   "name": "Agility Orb 109",
+   "position": [
+    2856.848,
+    66.0,
+    -2254.16
+   ]
+  },
+  {
+   "id": 73400110,
+   "ordinal": 110,
+   "type": 2,
+   "name": "Agility Orb 110",
+   "position": [
+    2435.676,
+    59.455,
+    -2289.142
+   ]
+  },
+  {
+   "id": 73400111,
+   "ordinal": 111,
+   "type": 2,
+   "name": "Agility Orb 111",
+   "position": [
+    2449.796,
+    67.455,
+    -2252.582
+   ]
+  },
+  {
+   "id": 73400112,
+   "ordinal": 112,
+   "type": 2,
+   "name": "Agility Orb 112",
+   "position": [
+    2527.184,
+    53.832,
+    -2216.374
+   ]
+  },
+  {
+   "id": 73400113,
+   "ordinal": 113,
+   "type": 3,
+   "name": "Agility Orb 113",
+   "position": [
+    2387.489,
+    98.382,
+    -3274.579
+   ]
+  },
+  {
+   "id": 73400114,
+   "ordinal": 114,
+   "type": 3,
+   "name": "Agility Orb 114",
+   "position": [
+    2548.362,
+    61.106,
+    -3416.665
+   ]
+  },
+  {
+   "id": 73400115,
+   "ordinal": 115,
+   "type": 3,
+   "name": "Agility Orb 115",
+   "position": [
+    2259.756,
+    132.332,
+    -2908.204
+   ]
+  },
+  {
+   "id": 73400116,
+   "ordinal": 116,
+   "type": 3,
+   "name": "Agility Orb 116",
+   "position": [
+    2100.177,
+    108.0,
+    -2542.355
+   ]
+  },
+  {
+   "id": 73400117,
+   "ordinal": 117,
+   "type": 3,
+   "name": "Agility Orb 117",
+   "position": [
+    2353.505,
+    85.0,
+    -2433.71
+   ]
+  },
+  {
+   "id": 73400118,
+   "ordinal": 118,
+   "type": 3,
+   "name": "Agility Orb 118",
+   "position": [
+    2416.31,
+    85.0,
+    -2452.127
+   ]
+  },
+  {
+   "id": 73400119,
+   "ordinal": 119,
+   "type": 3,
+   "name": "Agility Orb 119",
+   "position": [
+    2413.619,
+    85.0,
+    -2503.315
+   ]
+  },
+  {
+   "id": 73400120,
+   "ordinal": 120,
+   "type": 3,
+   "name": "Agility Orb 120",
+   "position": [
+    2455.0,
+    111.622,
+    -2534.438
+   ]
+  },
+  {
+   "id": 73400121,
+   "ordinal": 121,
+   "type": 3,
+   "name": "Agility Orb 121",
+   "position": [
+    2555.896,
+    92.603,
+    -2500.47
+   ]
+  },
+  {
+   "id": 73400122,
+   "ordinal": 122,
+   "type": 3,
+   "name": "Agility Orb 122",
+   "position": [
+    2545.07,
+    90.047,
+    -2458.49
+   ]
+  },
+  {
+   "id": 73400123,
+   "ordinal": 123,
+   "type": 3,
+   "name": "Agility Orb 123",
+   "position": [
+    2638.063,
+    83.953,
+    -2447.195
+   ]
+  },
+  {
+   "id": 73400124,
+   "ordinal": 124,
+   "type": 3,
+   "name": "Agility Orb 124",
+   "position": [
+    2670.556,
+    78.188,
+    -2449.161
+   ]
+  },
+  {
+   "id": 73400125,
+   "ordinal": 125,
+   "type": 3,
+   "name": "Agility Orb 125",
+   "position": [
+    2777.783,
+    97.292,
+    -2430.421
+   ]
+  },
+  {
+   "id": 73400126,
+   "ordinal": 126,
+   "type": 3,
+   "name": "Agility Orb 126",
+   "position": [
+    2781.728,
+    114.838,
+    -2208.475
+   ]
+  },
+  {
+   "id": 73400127,
+   "ordinal": 127,
+   "type": 3,
+   "name": "Agility Orb 127",
+   "position": [
+    2382.955,
+    72.025,
+    -2312.991
+   ]
+  },
+  {
+   "id": 73400128,
+   "ordinal": 128,
+   "type": 3,
+   "name": "Agility Orb 128",
+   "position": [
+    2367.188,
+    72.236,
+    -2336.971
+   ]
+  },
+  {
+   "id": 73400129,
+   "ordinal": 129,
+   "type": 0,
+   "name": "Agility Orb 129",
+   "position": [
+    938.442,
+    69.182,
+    -1716.247
+   ]
+  },
+  {
+   "id": 73400130,
+   "ordinal": 130,
+   "type": 0,
+   "name": "Agility Orb 130",
+   "position": [
+    882.314,
+    68.94,
+    -1713.945
+   ]
+  },
+  {
+   "id": 73400131,
+   "ordinal": 131,
+   "type": 0,
+   "name": "Agility Orb 131",
+   "position": [
+    863.036,
+    68.19,
+    -1696.7
+   ]
+  },
+  {
+   "id": 73400132,
+   "ordinal": 132,
+   "type": 0,
+   "name": "Agility Orb 132",
+   "position": [
+    881.678,
+    66.049,
+    -1674.457
+   ]
+  },
+  {
+   "id": 73400133,
+   "ordinal": 133,
+   "type": 0,
+   "name": "Agility Orb 133",
+   "position": [
+    939.393,
+    70.595,
+    -1653.571
+   ]
+  },
+  {
+   "id": 73400134,
+   "ordinal": 134,
+   "type": 0,
+   "name": "Agility Orb 134",
+   "position": [
+    907.004,
+    71.156,
+    -1619.604
+   ]
+  },
+  {
+   "id": 73400135,
+   "ordinal": 135,
+   "type": 0,
+   "name": "Agility Orb 135",
+   "position": [
+    899.423,
+    65.955,
+    -1590.479
+   ]
+  },
+  {
+   "id": 73400136,
+   "ordinal": 136,
+   "type": 0,
+   "name": "Agility Orb 136",
+   "position": [
+    788.439,
+    52.458,
+    -1716.694
+   ]
+  },
+  {
+   "id": 73400137,
+   "ordinal": 137,
+   "type": 0,
+   "name": "Agility Orb 137",
+   "position": [
+    804.458,
+    63.792,
+    -1694.611
+   ]
+  },
+  {
+   "id": 73400138,
+   "ordinal": 138,
+   "type": 0,
+   "name": "Agility Orb 138",
+   "position": [
+    786.569,
+    71.829,
+    -1655.902
+   ]
+  },
+  {
+   "id": 73400139,
+   "ordinal": 139,
+   "type": 0,
+   "name": "Agility Orb 139",
+   "position": [
+    805.609,
+    56.183,
+    -1748.584
+   ]
+  },
+  {
+   "id": 73400140,
+   "ordinal": 140,
+   "type": 0,
+   "name": "Agility Orb 140",
+   "position": [
+    736.404,
+    49.4,
+    -1708.384
+   ]
+  },
+  {
+   "id": 73400141,
+   "ordinal": 141,
+   "type": 0,
+   "name": "Agility Orb 141",
+   "position": [
+    714.252,
+    56.967,
+    -1638.546
+   ]
+  },
+  {
+   "id": 73400142,
+   "ordinal": 142,
+   "type": 0,
+   "name": "Agility Orb 142",
+   "position": [
+    1002.534,
+    60.454,
+    -1734.762
+   ]
+  },
+  {
+   "id": 73400143,
+   "ordinal": 143,
+   "type": 0,
+   "name": "Agility Orb 143",
+   "position": [
+    1036.357,
+    55.87,
+    -1751.715
+   ]
+  },
+  {
+   "id": 73400144,
+   "ordinal": 144,
+   "type": 0,
+   "name": "Agility Orb 144",
+   "position": [
+    766.525,
+    60.693,
+    -1616.4
+   ]
+  },
+  {
+   "id": 73400145,
+   "ordinal": 145,
+   "type": 0,
+   "name": "Agility Orb 145",
+   "position": [
+    1110.459,
+    62.041,
+    -1516.703
+   ]
+  },
+  {
+   "id": 73400146,
+   "ordinal": 146,
+   "type": 0,
+   "name": "Agility Orb 146",
+   "position": [
+    1124.58,
+    77.001,
+    -1792.606
+   ]
+  },
+  {
+   "id": 73400147,
+   "ordinal": 147,
+   "type": 0,
+   "name": "Agility Orb 147",
+   "position": [
+    1259.538,
+    69.826,
+    -1756.105
+   ]
+  },
+  {
+   "id": 73400148,
+   "ordinal": 148,
+   "type": 0,
+   "name": "Agility Orb 148",
+   "position": [
+    1243.629,
+    70.733,
+    -1882.842
+   ]
+  },
+  {
+   "id": 73400149,
+   "ordinal": 149,
+   "type": 0,
+   "name": "Agility Orb 149",
+   "position": [
+    1227.151,
+    66.737,
+    -1875.224
+   ]
+  },
+  {
+   "id": 73400150,
+   "ordinal": 150,
+   "type": 0,
+   "name": "Agility Orb 150",
+   "position": [
+    1200.94,
+    56.737,
+    -1758.442
+   ]
+  },
+  {
+   "id": 73400151,
+   "ordinal": 151,
+   "type": 0,
+   "name": "Agility Orb 151",
+   "position": [
+    1390.272,
+    55.971,
+    -1790.575
+   ]
+  },
+  {
+   "id": 73400152,
+   "ordinal": 152,
+   "type": 0,
+   "name": "Agility Orb 152",
+   "position": [
+    969.255,
+    66.682,
+    -1787.408
+   ]
+  },
+  {
+   "id": 73400153,
+   "ordinal": 153,
+   "type": 0,
+   "name": "Agility Orb 153",
+   "position": [
+    916.177,
+    67.181,
+    -1777.059
+   ]
+  },
+  {
+   "id": 73400154,
+   "ordinal": 154,
+   "type": 0,
+   "name": "Agility Orb 154",
+   "position": [
+    895.062,
+    66.183,
+    -1781.848
+   ]
+  },
+  {
+   "id": 73400155,
+   "ordinal": 155,
+   "type": 0,
+   "name": "Agility Orb 155",
+   "position": [
+    835.037,
+    62.183,
+    -1776.635
+   ]
+  },
+  {
+   "id": 73400156,
+   "ordinal": 156,
+   "type": 0,
+   "name": "Agility Orb 156",
+   "position": [
+    769.849,
+    42.983,
+    -1788.723
+   ]
+  },
+  {
+   "id": 73400157,
+   "ordinal": 157,
+   "type": 0,
+   "name": "Agility Orb 157",
+   "position": [
+    715.842,
+    39.557,
+    -1804.282
+   ]
+  },
+  {
+   "id": 73400158,
+   "ordinal": 158,
+   "type": 0,
+   "name": "Agility Orb 158",
+   "position": [
+    758.019,
+    47.627,
+    -1742.265
+   ]
+  },
+  {
+   "id": 73400159,
+   "ordinal": 159,
+   "type": 0,
+   "name": "Agility Orb 159",
+   "position": [
+    581.536,
+    24.789,
+    -1699.902
+   ]
+  },
+  {
+   "id": 73400160,
+   "ordinal": 160,
+   "type": 0,
+   "name": "Agility Orb 160",
+   "position": [
+    1347.295,
+    77.675,
+    -1544.672
+   ]
+  },
+  {
+   "id": 73400161,
+   "ordinal": 161,
+   "type": 0,
+   "name": "Agility Orb 161",
+   "position": [
+    1252.093,
+    53.955,
+    -1505.036
+   ]
+  },
+  {
+   "id": 73400162,
+   "ordinal": 162,
+   "type": 0,
+   "name": "Agility Orb 162",
+   "position": [
+    1158.827,
+    85.709,
+    -1496.302
+   ]
+  },
+  {
+   "id": 73400163,
+   "ordinal": 163,
+   "type": 0,
+   "name": "Agility Orb 163",
+   "position": [
+    1178.537,
+    64.404,
+    -1606.145
+   ]
+  },
+  {
+   "id": 73400164,
+   "ordinal": 164,
+   "type": 0,
+   "name": "Agility Orb 164",
+   "position": [
+    1072.363,
+    93.553,
+    -1427.749
+   ]
+  },
+  {
+   "id": 73400165,
+   "ordinal": 165,
+   "type": 0,
+   "name": "Agility Orb 165",
+   "position": [
+    1043.412,
+    88.546,
+    -1476.6
+   ]
+  },
+  {
+   "id": 73400166,
+   "ordinal": 166,
+   "type": 0,
+   "name": "Agility Orb 166",
+   "position": [
+    945.566,
+    76.354,
+    -1559.849
+   ]
+  },
+  {
+   "id": 73400167,
+   "ordinal": 167,
+   "type": 0,
+   "name": "Agility Orb 167",
+   "position": [
+    957.538,
+    68.966,
+    -1470.679
+   ]
+  },
+  {
+   "id": 73400168,
+   "ordinal": 168,
+   "type": 0,
+   "name": "Agility Orb 168",
+   "position": [
+    857.885,
+    78.156,
+    -1543.305
+   ]
+  },
+  {
+   "id": 73400169,
+   "ordinal": 169,
+   "type": 0,
+   "name": "Agility Orb 169",
+   "position": [
+    831.533,
+    74.158,
+    -1540.473
+   ]
+  },
+  {
+   "id": 73400170,
+   "ordinal": 170,
+   "type": 0,
+   "name": "Agility Orb 170",
+   "position": [
+    833.021,
+    65.177,
+    -1607.874
+   ]
+  },
+  {
+   "id": 73400171,
+   "ordinal": 171,
+   "type": 0,
+   "name": "Agility Orb 171",
+   "position": [
+    837.816,
+    72.8,
+    -1605.275
+   ]
+  },
+  {
+   "id": 73400172,
+   "ordinal": 172,
+   "type": 0,
+   "name": "Agility Orb 172",
+   "position": [
+    742.651,
+    55.136,
+    -1542.147
+   ]
+  },
+  {
+   "id": 73400173,
+   "ordinal": 173,
+   "type": 0,
+   "name": "Agility Orb 173",
+   "position": [
+    845.254,
+    62.183,
+    -1619.955
+   ]
+  },
+  {
+   "id": 73400174,
+   "ordinal": 174,
+   "type": 0,
+   "name": "Agility Orb 174",
+   "position": [
+    723.616,
+    48.171,
+    -1600.399
+   ]
+  },
+  {
+   "id": 73400175,
+   "ordinal": 175,
+   "type": 0,
+   "name": "Agility Orb 175",
+   "position": [
+    1469.072,
+    47.001,
+    -1395.884
+   ]
+  },
+  {
+   "id": 73400176,
+   "ordinal": 176,
+   "type": 0,
+   "name": "Agility Orb 176",
+   "position": [
+    1441.339,
+    33.5,
+    -1421.101
+   ]
+  },
+  {
+   "id": 73400177,
+   "ordinal": 177,
+   "type": 0,
+   "name": "Agility Orb 177",
+   "position": [
+    1443.482,
+    33.5,
+    -1461.341
+   ]
+  },
+  {
+   "id": 73400178,
+   "ordinal": 178,
+   "type": 0,
+   "name": "Agility Orb 178",
+   "position": [
+    1394.076,
+    32.303,
+    -1408.959
+   ]
+  },
+  {
+   "id": 73400179,
+   "ordinal": 179,
+   "type": 0,
+   "name": "Agility Orb 179",
+   "position": [
+    1535.426,
+    13.097,
+    -1377.966
+   ]
+  },
+  {
+   "id": 73400180,
+   "ordinal": 180,
+   "type": 0,
+   "name": "Agility Orb 180",
+   "position": [
+    1500.701,
+    12.738,
+    -1354.563
+   ]
+  },
+  {
+   "id": 73400181,
+   "ordinal": 181,
+   "type": 0,
+   "name": "Agility Orb 181",
+   "position": [
+    1177.964,
+    81.099,
+    -1405.672
+   ]
+  },
+  {
+   "id": 73400182,
+   "ordinal": 182,
+   "type": 0,
+   "name": "Agility Orb 182",
+   "position": [
+    1157.306,
+    80.283,
+    -1300.929
+   ]
+  },
+  {
+   "id": 73400183,
+   "ordinal": 183,
+   "type": 0,
+   "name": "Agility Orb 183",
+   "position": [
+    968.675,
+    84.23,
+    -1371.283
+   ]
+  },
+  {
+   "id": 73400184,
+   "ordinal": 184,
+   "type": 0,
+   "name": "Agility Orb 184",
+   "position": [
+    863.497,
+    77.644,
+    -1420.694
+   ]
+  },
+  {
+   "id": 73400185,
+   "ordinal": 185,
+   "type": 0,
+   "name": "Agility Orb 185",
+   "position": [
+    883.086,
+    61.019,
+    -1371.631
+   ]
+  },
+  {
+   "id": 73400186,
+   "ordinal": 186,
+   "type": 0,
+   "name": "Agility Orb 186",
+   "position": [
+    934.232,
+    66.519,
+    -1428.114
+   ]
+  },
+  {
+   "id": 73400187,
+   "ordinal": 187,
+   "type": 0,
+   "name": "Agility Orb 187",
+   "position": [
+    390.563,
+    34.791,
+    -1513.115
+   ]
+  },
+  {
+   "id": 73400188,
+   "ordinal": 188,
+   "type": 0,
+   "name": "Agility Orb 188",
+   "position": [
+    1285.361,
+    50.353,
+    -1358.026
+   ]
+  },
+  {
+   "id": 73400189,
+   "ordinal": 189,
+   "type": 0,
+   "name": "Agility Orb 189",
+   "position": [
+    1278.303,
+    59.022,
+    -1368.26
+   ]
+  },
+  {
+   "id": 73400190,
+   "ordinal": 190,
+   "type": 0,
+   "name": "Agility Orb 190",
+   "position": [
+    1297.846,
+    59.022,
+    -1359.995
+   ]
+  },
+  {
+   "id": 73400191,
+   "ordinal": 191,
+   "type": 0,
+   "name": "Agility Orb 191",
+   "position": [
+    1207.369,
+    45.968,
+    -1215.984
+   ]
+  },
+  {
+   "id": 73400192,
+   "ordinal": 192,
+   "type": 0,
+   "name": "Agility Orb 192",
+   "position": [
+    1280.744,
+    63.725,
+    -1201.109
+   ]
+  },
+  {
+   "id": 73400193,
+   "ordinal": 193,
+   "type": 0,
+   "name": "Agility Orb 193",
+   "position": [
+    1303.663,
+    65.889,
+    -1241.534
+   ]
+  },
+  {
+   "id": 73400194,
+   "ordinal": 194,
+   "type": 0,
+   "name": "Agility Orb 194",
+   "position": [
+    1293.556,
+    57.937,
+    -1284.154
+   ]
+  },
+  {
+   "id": 73400195,
+   "ordinal": 195,
+   "type": 0,
+   "name": "Agility Orb 195",
+   "position": [
+    1418.522,
+    24.543,
+    -1194.519
+   ]
+  },
+  {
+   "id": 73400196,
+   "ordinal": 196,
+   "type": 0,
+   "name": "Agility Orb 196",
+   "position": [
+    1107.211,
+    74.097,
+    -1182.406
+   ]
+  },
+  {
+   "id": 73400197,
+   "ordinal": 197,
+   "type": 0,
+   "name": "Agility Orb 197",
+   "position": [
+    1043.18,
+    65.508,
+    -1237.764
+   ]
+  },
+  {
+   "id": 73400198,
+   "ordinal": 198,
+   "type": 0,
+   "name": "Agility Orb 198",
+   "position": [
+    1031.767,
+    85.853,
+    -1257.748
+   ]
+  },
+  {
+   "id": 73400199,
+   "ordinal": 199,
+   "type": 0,
+   "name": "Agility Orb 199",
+   "position": [
+    935.27,
+    94.065,
+    -1327.381
+   ]
+  },
+  {
+   "id": 73400200,
+   "ordinal": 200,
+   "type": 0,
+   "name": "Agility Orb 200",
+   "position": [
+    823.22,
+    69.814,
+    -1328.961
+   ]
+  },
+  {
+   "id": 73400201,
+   "ordinal": 201,
+   "type": 0,
+   "name": "Agility Orb 201",
+   "position": [
+    914.118,
+    48.606,
+    -1224.938
+   ]
+  },
+  {
+   "id": 73400202,
+   "ordinal": 202,
+   "type": 0,
+   "name": "Agility Orb 202",
+   "position": [
+    1125.208,
+    55.0,
+    -1082.463
+   ]
+  },
+  {
+   "id": 73400203,
+   "ordinal": 203,
+   "type": 0,
+   "name": "Agility Orb 203",
+   "position": [
+    1088.63,
+    63.0,
+    -952.59
+   ]
+  },
+  {
+   "id": 73400204,
+   "ordinal": 204,
+   "type": 0,
+   "name": "Agility Orb 204",
+   "position": [
+    1120.643,
+    63.0,
+    -897.47
+   ]
+  },
+  {
+   "id": 73400205,
+   "ordinal": 205,
+   "type": 0,
+   "name": "Agility Orb 205",
+   "position": [
+    1066.374,
+    48.079,
+    -1012.639
+   ]
+  },
+  {
+   "id": 73400206,
+   "ordinal": 206,
+   "type": 0,
+   "name": "Agility Orb 206",
+   "position": [
+    1017.892,
+    38.811,
+    -1035.478
+   ]
+  },
+  {
+   "id": 73400207,
+   "ordinal": 207,
+   "type": 0,
+   "name": "Agility Orb 207",
+   "position": [
+    1032.049,
+    44.288,
+    -1064.809
+   ]
+  },
+  {
+   "id": 73400208,
+   "ordinal": 208,
+   "type": 0,
+   "name": "Agility Orb 208",
+   "position": [
+    1141.498,
+    71.0,
+    -986.489
+   ]
+  },
+  {
+   "id": 73400209,
+   "ordinal": 209,
+   "type": 0,
+   "name": "Agility Orb 209",
+   "position": [
+    1190.448,
+    51.0,
+    -978.249
+   ]
+  },
+  {
+   "id": 73400210,
+   "ordinal": 210,
+   "type": 0,
+   "name": "Agility Orb 210",
+   "position": [
+    1176.498,
+    63.0,
+    -925.658
+   ]
+  },
+  {
+   "id": 73400211,
+   "ordinal": 211,
+   "type": 0,
+   "name": "Agility Orb 211",
+   "position": [
+    1128.796,
+    52.937,
+    -879.954
+   ]
+  },
+  {
+   "id": 73400212,
+   "ordinal": 212,
+   "type": 0,
+   "name": "Agility Orb 212",
+   "position": [
+    1166.948,
+    46.165,
+    -891.64
+   ]
+  },
+  {
+   "id": 73400213,
+   "ordinal": 213,
+   "type": 0,
+   "name": "Agility Orb 213",
+   "position": [
+    1012.625,
+    24.35,
+    -868.947
+   ]
+  },
+  {
+   "id": 73400214,
+   "ordinal": 214,
+   "type": 0,
+   "name": "Agility Orb 214",
+   "position": [
+    893.052,
+    40.05,
+    -899.15
+   ]
+  },
+  {
+   "id": 73400215,
+   "ordinal": 215,
+   "type": 0,
+   "name": "Agility Orb 215",
+   "position": [
+    931.146,
+    40.05,
+    -845.231
+   ]
+  },
+  {
+   "id": 73400216,
+   "ordinal": 216,
+   "type": 0,
+   "name": "Agility Orb 216",
+   "position": [
+    1023.094,
+    41.507,
+    -791.675
+   ]
+  },
+  {
+   "id": 73400217,
+   "ordinal": 217,
+   "type": 0,
+   "name": "Agility Orb 217",
+   "position": [
+    994.35,
+    25.31,
+    -773.992
+   ]
+  },
+  {
+   "id": 73400218,
+   "ordinal": 218,
+   "type": 0,
+   "name": "Agility Orb 218",
+   "position": [
+    1012.267,
+    30.2,
+    -755.989
+   ]
+  },
+  {
+   "id": 73400219,
+   "ordinal": 219,
+   "type": 0,
+   "name": "Agility Orb 219",
+   "position": [
+    1043.409,
+    37.509,
+    -699.031
+   ]
+  },
+  {
+   "id": 73400220,
+   "ordinal": 220,
+   "type": 0,
+   "name": "Agility Orb 220",
+   "position": [
+    1081.074,
+    33.104,
+    -679.839
+   ]
+  },
+  {
+   "id": 73400221,
+   "ordinal": 221,
+   "type": 0,
+   "name": "Agility Orb 221",
+   "position": [
+    1124.625,
+    37.272,
+    -614.581
+   ]
+  },
+  {
+   "id": 73400222,
+   "ordinal": 222,
+   "type": 0,
+   "name": "Agility Orb 222",
+   "position": [
+    1082.169,
+    32.131,
+    -627.399
+   ]
+  },
+  {
+   "id": 73400223,
+   "ordinal": 223,
+   "type": 0,
+   "name": "Agility Orb 223",
+   "position": [
+    1040.875,
+    33.043,
+    -619.456
+   ]
+  },
+  {
+   "id": 73400224,
+   "ordinal": 224,
+   "type": 0,
+   "name": "Agility Orb 224",
+   "position": [
+    1032.046,
+    33.043,
+    -607.714
+   ]
+  },
+  {
+   "id": 73400225,
+   "ordinal": 225,
+   "type": 0,
+   "name": "Agility Orb 225",
+   "position": [
+    875.364,
+    15.582,
+    -749.036
+   ]
+  },
+  {
+   "id": 73400226,
+   "ordinal": 226,
+   "type": 0,
+   "name": "Agility Orb 226",
+   "position": [
+    831.929,
+    19.117,
+    -868.002
+   ]
+  },
+  {
+   "id": 73400227,
+   "ordinal": 227,
+   "type": 0,
+   "name": "Agility Orb 227",
+   "position": [
+    666.369,
+    18.971,
+    -1047.763
+   ]
+  },
+  {
+   "id": 73400228,
+   "ordinal": 228,
+   "type": 0,
+   "name": "Agility Orb 228",
+   "position": [
+    608.772,
+    16.97,
+    -1002.93
+   ]
+  },
+  {
+   "id": 73400229,
+   "ordinal": 229,
+   "type": 0,
+   "name": "Agility Orb 229",
+   "position": [
+    716.075,
+    14.205,
+    -939.781
+   ]
+  },
+  {
+   "id": 73400230,
+   "ordinal": 230,
+   "type": 0,
+   "name": "Agility Orb 230",
+   "position": [
+    291.24,
+    17.706,
+    -1331.941
+   ]
+  },
+  {
+   "id": 73400231,
+   "ordinal": 231,
+   "type": 0,
+   "name": "Agility Orb 231",
+   "position": [
+    1320.849,
+    25.296,
+    -1288.96
+   ]
+  },
+  {
+   "id": 73400232,
+   "ordinal": 232,
+   "type": 0,
+   "name": "Agility Orb 232",
+   "position": [
+    1254.15,
+    34.382,
+    -1108.591
+   ]
+  },
+  {
+   "id": 73400233,
+   "ordinal": 233,
+   "type": 0,
+   "name": "Agility Orb 233",
+   "position": [
+    1108.796,
+    28.293,
+    -708.538
+   ]
+  },
+  {
+   "id": 73400234,
+   "ordinal": 234,
+   "type": 0,
+   "name": "Agility Orb 234",
+   "position": [
+    1038.766,
+    24.293,
+    -760.351
+   ]
+  },
+  {
+   "id": 73400235,
+   "ordinal": 235,
+   "type": 0,
+   "name": "Agility Orb 235",
+   "position": [
+    985.691,
+    28.674,
+    -758.078
+   ]
+  },
+  {
+   "id": 73400236,
+   "ordinal": 236,
+   "type": 0,
+   "name": "Agility Orb 236",
+   "position": [
+    1067.547,
+    29.293,
+    -662.771
+   ]
+  },
+  {
+   "id": 73400237,
+   "ordinal": 237,
+   "type": 0,
+   "name": "Agility Orb 237",
+   "position": [
+    1063.428,
+    28.293,
+    -728.375
+   ]
+  },
+  {
+   "id": 73400238,
+   "ordinal": 238,
+   "type": 0,
+   "name": "Agility Orb 238",
+   "position": [
+    797.208,
+    32.248,
+    -1043.264
+   ]
+  },
+  {
+   "id": 73400239,
+   "ordinal": 239,
+   "type": 0,
+   "name": "Agility Orb 239",
+   "position": [
+    766.326,
+    32.242,
+    -1063.457
+   ]
+  },
+  {
+   "id": 73400240,
+   "ordinal": 240,
+   "type": 0,
+   "name": "Agility Orb 240",
+   "position": [
+    464.842,
+    45.074,
+    -1359.194
+   ]
+  },
+  {
+   "id": 73400241,
+   "ordinal": 241,
+   "type": 0,
+   "name": "Agility Orb 241",
+   "position": [
+    829.362,
+    52.781,
+    -1199.495
+   ]
+  },
+  {
+   "id": 73400242,
+   "ordinal": 242,
+   "type": 0,
+   "name": "Agility Orb 242",
+   "position": [
+    1059.368,
+    46.072,
+    -1233.598
+   ]
+  },
+  {
+   "id": 73400243,
+   "ordinal": 243,
+   "type": 0,
+   "name": "Agility Orb 243",
+   "position": [
+    1108.919,
+    38.597,
+    -1179.384
+   ]
+  },
+  {
+   "id": 73400244,
+   "ordinal": 244,
+   "type": 0,
+   "name": "Agility Orb 244",
+   "position": [
+    1395.971,
+    7.3,
+    -1194.273
+   ]
+  },
+  {
+   "id": 73400245,
+   "ordinal": 245,
+   "type": 0,
+   "name": "Agility Orb 245",
+   "position": [
+    1294.412,
+    37.191,
+    -1744.29
+   ]
+  },
+  {
+   "id": 73400246,
+   "ordinal": 246,
+   "type": 0,
+   "name": "Agility Orb 246",
+   "position": [
+    1326.984,
+    38.092,
+    -1756.757
+   ]
+  },
+  {
+   "id": 73400247,
+   "ordinal": 247,
+   "type": 0,
+   "name": "Agility Orb 247",
+   "position": [
+    1098.618,
+    34.5,
+    -1085.751
+   ]
+  },
+  {
+   "id": 73400248,
+   "ordinal": 248,
+   "type": 0,
+   "name": "Agility Orb 248",
+   "position": [
+    1093.345,
+    39.975,
+    -1078.547
+   ]
+  },
+  {
+   "id": 73400249,
+   "ordinal": 249,
+   "type": 0,
+   "name": "Agility Orb 249",
+   "position": [
+    1054.658,
+    34.131,
+    -989.484
+   ]
+  },
+  {
+   "id": 73400250,
+   "ordinal": 250,
+   "type": 0,
+   "name": "Agility Orb 250",
+   "position": [
+    1050.898,
+    40.931,
+    -996.657
+   ]
+  },
+  {
+   "id": 73400251,
+   "ordinal": 251,
+   "type": 0,
+   "name": "Agility Orb 251",
+   "position": [
+    1153.872,
+    23.458,
+    -808.719
+   ]
+  },
+  {
+   "id": 73400252,
+   "ordinal": 252,
+   "type": 0,
+   "name": "Agility Orb 252",
+   "position": [
+    1157.441,
+    28.288,
+    -823.107
+   ]
+  },
+  {
+   "id": 73400253,
+   "ordinal": 253,
+   "type": 0,
+   "name": "Agility Orb 253",
+   "position": [
+    1169.121,
+    36.585,
+    -828.454
+   ]
+  },
+  {
+   "id": 73400254,
+   "ordinal": 254,
+   "type": 0,
+   "name": "Agility Orb 254",
+   "position": [
+    1024.296,
+    24.255,
+    -777.802
+   ]
+  },
+  {
+   "id": 73400255,
+   "ordinal": 255,
+   "type": 0,
+   "name": "Agility Orb 255",
+   "position": [
+    1027.358,
+    31.199,
+    -784.369
+   ]
+  },
+  {
+   "id": 73400256,
+   "ordinal": 256,
+   "type": 0,
+   "name": "Agility Orb 256",
+   "position": [
+    1273.572,
+    30.154,
+    -1377.893
+   ]
+  },
+  {
+   "id": 73400257,
+   "ordinal": 257,
+   "type": 0,
+   "name": "Agility Orb 257",
+   "position": [
+    1272.037,
+    38.154,
+    -1375.497
+   ]
+  },
+  {
+   "id": 73400258,
+   "ordinal": 258,
+   "type": 0,
+   "name": "Agility Orb 258",
+   "position": [
+    1271.708,
+    50.354,
+    -1367.772
+   ]
+  },
+  {
+   "id": 73400259,
+   "ordinal": 259,
+   "type": 0,
+   "name": "Agility Orb 259",
+   "position": [
+    1289.329,
+    59.196,
+    -1367.894
+   ]
+  },
+  {
+   "id": 73400260,
+   "ordinal": 260,
+   "type": 0,
+   "name": "Agility Orb 260",
+   "position": [
+    1189.979,
+    32.938,
+    -1395.22
+   ]
+  },
+  {
+   "id": 73400261,
+   "ordinal": 261,
+   "type": 0,
+   "name": "Agility Orb 261",
+   "position": [
+    1187.176,
+    34.866,
+    -1385.93
+   ]
+  },
+  {
+   "id": 73400262,
+   "ordinal": 262,
+   "type": 0,
+   "name": "Agility Orb 262",
+   "position": [
+    1173.158,
+    38.134,
+    -1357.323
+   ]
+  },
+  {
+   "id": 73400263,
+   "ordinal": 263,
+   "type": 0,
+   "name": "Agility Orb 263",
+   "position": [
+    1162.328,
+    40.747,
+    -1329.688
+   ]
+  },
+  {
+   "id": 73400264,
+   "ordinal": 264,
+   "type": 0,
+   "name": "Agility Orb 264",
+   "position": [
+    1159.285,
+    45.797,
+    -1301.366
+   ]
+  },
+  {
+   "id": 73400265,
+   "ordinal": 265,
+   "type": 0,
+   "name": "Agility Orb 265",
+   "position": [
+    1157.318,
+    53.797,
+    -1300.759
+   ]
+  },
+  {
+   "id": 73400266,
+   "ordinal": 266,
+   "type": 0,
+   "name": "Agility Orb 266",
+   "position": [
+    1157.302,
+    73.819,
+    -1300.56
+   ]
+  },
+  {
+   "id": 73400267,
+   "ordinal": 267,
+   "type": 0,
+   "name": "Agility Orb 267",
+   "position": [
+    1077.712,
+    73.819,
+    -1296.031
+   ]
+  },
+  {
+   "id": 73400268,
+   "ordinal": 268,
+   "type": 0,
+   "name": "Agility Orb 268",
+   "position": [
+    1060.028,
+    65.339,
+    -1309.217
+   ]
+  },
+  {
+   "id": 73400269,
+   "ordinal": 269,
+   "type": 0,
+   "name": "Agility Orb 269",
+   "position": [
+    1034.624,
+    73.231,
+    -1323.848
+   ]
+  },
+  {
+   "id": 73400270,
+   "ordinal": 270,
+   "type": 0,
+   "name": "Agility Orb 270",
+   "position": [
+    1051.029,
+    84.23,
+    -1347.913
+   ]
+  },
+  {
+   "id": 73400271,
+   "ordinal": 271,
+   "type": 0,
+   "name": "Agility Orb 271",
+   "position": [
+    1010.171,
+    88.546,
+    -1401.788
+   ]
+  },
+  {
+   "id": 73400272,
+   "ordinal": 272,
+   "type": 0,
+   "name": "Agility Orb 272",
+   "position": [
+    1145.136,
+    73.819,
+    -1265.219
+   ]
+  },
+  {
+   "id": 73400273,
+   "ordinal": 273,
+   "type": 0,
+   "name": "Agility Orb 273",
+   "position": [
+    1471.287,
+    47.001,
+    -1441.108
+   ]
+  },
+  {
+   "id": 73400274,
+   "ordinal": 274,
+   "type": 0,
+   "name": "Agility Orb 274",
+   "position": [
+    1307.15,
+    35.068,
+    -1482.486
+   ]
+  },
+  {
+   "id": 73400275,
+   "ordinal": 275,
+   "type": 1,
+   "name": "Agility Orb 275",
+   "position": [
+    1019.578,
+    75.967,
+    -1721.194
+   ]
+  },
+  {
+   "id": 73400276,
+   "ordinal": 276,
+   "type": 1,
+   "name": "Agility Orb 276",
+   "position": [
+    983.768,
+    81.12,
+    -1614.471
+   ]
+  },
+  {
+   "id": 73400277,
+   "ordinal": 277,
+   "type": 1,
+   "name": "Agility Orb 277",
+   "position": [
+    1046.405,
+    100.122,
+    -1597.669
+   ]
+  },
+  {
+   "id": 73400278,
+   "ordinal": 278,
+   "type": 1,
+   "name": "Agility Orb 278",
+   "position": [
+    1105.978,
+    89.003,
+    -1570.641
+   ]
+  },
+  {
+   "id": 73400279,
+   "ordinal": 279,
+   "type": 1,
+   "name": "Agility Orb 279",
+   "position": [
+    1111.776,
+    87.551,
+    -1547.68
+   ]
+  },
+  {
+   "id": 73400280,
+   "ordinal": 280,
+   "type": 1,
+   "name": "Agility Orb 280",
+   "position": [
+    1117.249,
+    92.853,
+    -1590.445
+   ]
+  },
+  {
+   "id": 73400281,
+   "ordinal": 281,
+   "type": 1,
+   "name": "Agility Orb 281",
+   "position": [
+    1166.015,
+    81.202,
+    -1709.71
+   ]
+  },
+  {
+   "id": 73400282,
+   "ordinal": 282,
+   "type": 1,
+   "name": "Agility Orb 282",
+   "position": [
+    1229.067,
+    90.229,
+    -1673.913
+   ]
+  },
+  {
+   "id": 73400283,
+   "ordinal": 283,
+   "type": 1,
+   "name": "Agility Orb 283",
+   "position": [
+    1210.605,
+    80.127,
+    -1602.51
+   ]
+  },
+  {
+   "id": 73400284,
+   "ordinal": 284,
+   "type": 1,
+   "name": "Agility Orb 284",
+   "position": [
+    1277.673,
+    72.473,
+    -1640.87
+   ]
+  },
+  {
+   "id": 73400285,
+   "ordinal": 285,
+   "type": 1,
+   "name": "Agility Orb 285",
+   "position": [
+    1286.994,
+    64.959,
+    -1546.365
+   ]
+  },
+  {
+   "id": 73400286,
+   "ordinal": 286,
+   "type": 1,
+   "name": "Agility Orb 286",
+   "position": [
+    1277.187,
+    70.213,
+    -1462.069
+   ]
+  },
+  {
+   "id": 73400287,
+   "ordinal": 287,
+   "type": 1,
+   "name": "Agility Orb 287",
+   "position": [
+    1123.489,
+    125.415,
+    -1452.664
+   ]
+  },
+  {
+   "id": 73400288,
+   "ordinal": 288,
+   "type": 1,
+   "name": "Agility Orb 288",
+   "position": [
+    1077.263,
+    110.515,
+    -1479.859
+   ]
+  },
+  {
+   "id": 73400289,
+   "ordinal": 289,
+   "type": 1,
+   "name": "Agility Orb 289",
+   "position": [
+    955.444,
+    66.171,
+    -1528.872
+   ]
+  },
+  {
+   "id": 73400290,
+   "ordinal": 290,
+   "type": 1,
+   "name": "Agility Orb 290",
+   "position": [
+    1321.481,
+    88.102,
+    -1329.504
+   ]
+  },
+  {
+   "id": 73400291,
+   "ordinal": 291,
+   "type": 1,
+   "name": "Agility Orb 291",
+   "position": [
+    1241.356,
+    74.534,
+    -1382.683
+   ]
+  },
+  {
+   "id": 73400292,
+   "ordinal": 292,
+   "type": 1,
+   "name": "Agility Orb 292",
+   "position": [
+    1221.059,
+    93.583,
+    -1355.411
+   ]
+  },
+  {
+   "id": 73400293,
+   "ordinal": 293,
+   "type": 1,
+   "name": "Agility Orb 293",
+   "position": [
+    1208.615,
+    62.66,
+    -1219.561
+   ]
+  },
+  {
+   "id": 73400294,
+   "ordinal": 294,
+   "type": 1,
+   "name": "Agility Orb 294",
+   "position": [
+    1239.167,
+    50.976,
+    -1243.055
+   ]
+  },
+  {
+   "id": 73400295,
+   "ordinal": 295,
+   "type": 1,
+   "name": "Agility Orb 295",
+   "position": [
+    1262.225,
+    69.787,
+    -1280.38
+   ]
+  },
+  {
+   "id": 73400296,
+   "ordinal": 296,
+   "type": 1,
+   "name": "Agility Orb 296",
+   "position": [
+    1108.478,
+    81.097,
+    -1225.165
+   ]
+  },
+  {
+   "id": 73400297,
+   "ordinal": 297,
+   "type": 1,
+   "name": "Agility Orb 297",
+   "position": [
+    807.601,
+    66.004,
+    -1375.145
+   ]
+  },
+  {
+   "id": 73400298,
+   "ordinal": 298,
+   "type": 1,
+   "name": "Agility Orb 298",
+   "position": [
+    822.75,
+    76.235,
+    -1319.976
+   ]
+  },
+  {
+   "id": 73400299,
+   "ordinal": 299,
+   "type": 1,
+   "name": "Agility Orb 299",
+   "position": [
+    563.332,
+    51.355,
+    -1340.864
+   ]
+  },
+  {
+   "id": 73400300,
+   "ordinal": 300,
+   "type": 1,
+   "name": "Agility Orb 300",
+   "position": [
+    1181.635,
+    38.099,
+    -1185.746
+   ]
+  },
+  {
+   "id": 73400301,
+   "ordinal": 301,
+   "type": 1,
+   "name": "Agility Orb 301",
+   "position": [
+    1188.867,
+    53.024,
+    -1162.161
+   ]
+  },
+  {
+   "id": 73400302,
+   "ordinal": 302,
+   "type": 1,
+   "name": "Agility Orb 302",
+   "position": [
+    797.768,
+    72.312,
+    -1255.434
+   ]
+  },
+  {
+   "id": 73400303,
+   "ordinal": 303,
+   "type": 1,
+   "name": "Agility Orb 303",
+   "position": [
+    869.25,
+    76.273,
+    -1261.433
+   ]
+  },
+  {
+   "id": 73400304,
+   "ordinal": 304,
+   "type": 1,
+   "name": "Agility Orb 304",
+   "position": [
+    914.024,
+    66.811,
+    -1117.418
+   ]
+  },
+  {
+   "id": 73400305,
+   "ordinal": 305,
+   "type": 1,
+   "name": "Agility Orb 305",
+   "position": [
+    1074.657,
+    50.811,
+    -1115.002
+   ]
+  },
+  {
+   "id": 73400306,
+   "ordinal": 306,
+   "type": 1,
+   "name": "Agility Orb 306",
+   "position": [
+    1123.934,
+    64.619,
+    -1076.196
+   ]
+  },
+  {
+   "id": 73400307,
+   "ordinal": 307,
+   "type": 1,
+   "name": "Agility Orb 307",
+   "position": [
+    1114.112,
+    77.322,
+    -912.69
+   ]
+  },
+  {
+   "id": 73400308,
+   "ordinal": 308,
+   "type": 1,
+   "name": "Agility Orb 308",
+   "position": [
+    1006.05,
+    54.811,
+    -1044.072
+   ]
+  },
+  {
+   "id": 73400309,
+   "ordinal": 309,
+   "type": 1,
+   "name": "Agility Orb 309",
+   "position": [
+    979.687,
+    57.22,
+    -1079.683
+   ]
+  },
+  {
+   "id": 73400310,
+   "ordinal": 310,
+   "type": 1,
+   "name": "Agility Orb 310",
+   "position": [
+    1013.463,
+    30.123,
+    -873.419
+   ]
+  },
+  {
+   "id": 73400311,
+   "ordinal": 311,
+   "type": 1,
+   "name": "Agility Orb 311",
+   "position": [
+    935.46,
+    54.879,
+    -888.709
+   ]
+  },
+  {
+   "id": 73400312,
+   "ordinal": 312,
+   "type": 1,
+   "name": "Agility Orb 312",
+   "position": [
+    912.087,
+    43.244,
+    -872.201
+   ]
+  },
+  {
+   "id": 73400313,
+   "ordinal": 313,
+   "type": 1,
+   "name": "Agility Orb 313",
+   "position": [
+    1116.178,
+    125.09,
+    -656.193
+   ]
+  },
+  {
+   "id": 73400314,
+   "ordinal": 314,
+   "type": 1,
+   "name": "Agility Orb 314",
+   "position": [
+    1158.834,
+    87.025,
+    -1539.68
+   ]
+  },
+  {
+   "id": 73400315,
+   "ordinal": 315,
+   "type": 2,
+   "name": "Agility Orb 315",
+   "position": [
+    1058.562,
+    63.617,
+    -1659.78
+   ]
+  },
+  {
+   "id": 73400316,
+   "ordinal": 316,
+   "type": 2,
+   "name": "Agility Orb 316",
+   "position": [
+    1108.514,
+    63.189,
+    -1644.728
+   ]
+  },
+  {
+   "id": 73400317,
+   "ordinal": 317,
+   "type": 2,
+   "name": "Agility Orb 317",
+   "position": [
+    1096.7,
+    90.804,
+    -1784.979
+   ]
+  },
+  {
+   "id": 73400318,
+   "ordinal": 318,
+   "type": 2,
+   "name": "Agility Orb 318",
+   "position": [
+    1145.595,
+    90.804,
+    -1772.99
+   ]
+  },
+  {
+   "id": 73400319,
+   "ordinal": 319,
+   "type": 2,
+   "name": "Agility Orb 319",
+   "position": [
+    883.122,
+    35.746,
+    -1854.474
+   ]
+  },
+  {
+   "id": 73400320,
+   "ordinal": 320,
+   "type": 2,
+   "name": "Agility Orb 320",
+   "position": [
+    1356.147,
+    89.673,
+    -1551.247
+   ]
+  },
+  {
+   "id": 73400321,
+   "ordinal": 321,
+   "type": 2,
+   "name": "Agility Orb 321",
+   "position": [
+    1271.956,
+    94.034,
+    -1435.956
+   ]
+  },
+  {
+   "id": 73400322,
+   "ordinal": 322,
+   "type": 2,
+   "name": "Agility Orb 322",
+   "position": [
+    988.172,
+    94.756,
+    -1521.141
+   ]
+  },
+  {
+   "id": 73400323,
+   "ordinal": 323,
+   "type": 2,
+   "name": "Agility Orb 323",
+   "position": [
+    962.014,
+    75.601,
+    -1499.466
+   ]
+  },
+  {
+   "id": 73400324,
+   "ordinal": 324,
+   "type": 2,
+   "name": "Agility Orb 324",
+   "position": [
+    902.161,
+    101.019,
+    -1443.219
+   ]
+  },
+  {
+   "id": 73400325,
+   "ordinal": 325,
+   "type": 2,
+   "name": "Agility Orb 325",
+   "position": [
+    1241.399,
+    100.965,
+    -1207.37
+   ]
+  },
+  {
+   "id": 73400326,
+   "ordinal": 326,
+   "type": 2,
+   "name": "Agility Orb 326",
+   "position": [
+    1106.642,
+    88.325,
+    -1187.797
+   ]
+  },
+  {
+   "id": 73400327,
+   "ordinal": 327,
+   "type": 2,
+   "name": "Agility Orb 327",
+   "position": [
+    1097.533,
+    58.639,
+    -1073.56
+   ]
+  },
+  {
+   "id": 73400328,
+   "ordinal": 328,
+   "type": 2,
+   "name": "Agility Orb 328",
+   "position": [
+    1185.199,
+    54.182,
+    -990.153
+   ]
+  },
+  {
+   "id": 73400329,
+   "ordinal": 329,
+   "type": 2,
+   "name": "Agility Orb 329",
+   "position": [
+    970.694,
+    110.48,
+    -1291.281
+   ]
+  },
+  {
+   "id": 73400330,
+   "ordinal": 330,
+   "type": 3,
+   "name": "Agility Orb 330",
+   "position": [
+    1269.971,
+    127.63,
+    -1429.906
+   ]
+  },
+  {
+   "id": 73400331,
+   "ordinal": 331,
+   "type": 3,
+   "name": "Agility Orb 331",
+   "position": [
+    866.623,
+    36.708,
+    -931.795
+   ]
+  },
+  {
+   "id": 73400332,
+   "ordinal": 332,
+   "type": 3,
+   "name": "Agility Orb 332",
+   "position": [
+    1034.813,
+    57.651,
+    -670.201
+   ]
+  },
+  {
+   "id": 73400333,
+   "ordinal": 333,
+   "type": 0,
+   "name": "Agility Orb 333",
+   "position": [
+    1118.84,
+    51.241,
+    -2221.469
+   ]
+  },
+  {
+   "id": 73400334,
+   "ordinal": 334,
+   "type": 0,
+   "name": "Agility Orb 334",
+   "position": [
+    1070.22,
+    86.001,
+    -2741.465
+   ]
+  },
+  {
+   "id": 73400335,
+   "ordinal": 335,
+   "type": 0,
+   "name": "Agility Orb 335",
+   "position": [
+    875.119,
+    31.998,
+    -2995.398
+   ]
+  },
+  {
+   "id": 73400336,
+   "ordinal": 336,
+   "type": 0,
+   "name": "Agility Orb 336",
+   "position": [
+    818.49,
+    28.021,
+    -3164.299
+   ]
+  },
+  {
+   "id": 73400337,
+   "ordinal": 337,
+   "type": 0,
+   "name": "Agility Orb 337",
+   "position": [
+    895.688,
+    41.743,
+    -3182.946
+   ]
+  },
+  {
+   "id": 73400338,
+   "ordinal": 338,
+   "type": 0,
+   "name": "Agility Orb 338",
+   "position": [
+    779.584,
+    110.442,
+    -2215.414
+   ]
+  },
+  {
+   "id": 73400339,
+   "ordinal": 339,
+   "type": 1,
+   "name": "Agility Orb 339",
+   "position": [
+    884.266,
+    125.961,
+    -3088.532
+   ]
+  },
+  {
+   "id": 73400340,
+   "ordinal": 340,
+   "type": 2,
+   "name": "Agility Orb 340",
+   "position": [
+    879.658,
+    156.633,
+    -3099.709
+   ]
+  },
+  {
+   "id": 73400341,
+   "ordinal": 341,
+   "type": 0,
+   "name": "Agility Orb 341",
+   "position": [
+    2767.255,
+    70.878,
+    -1595.748
+   ]
+  },
+  {
+   "id": 73400342,
+   "ordinal": 342,
+   "type": 0,
+   "name": "Agility Orb 342",
+   "position": [
+    2973.224,
+    126.898,
+    -1601.146
+   ]
+  },
+  {
+   "id": 73400343,
+   "ordinal": 343,
+   "type": 0,
+   "name": "Agility Orb 343",
+   "position": [
+    2969.336,
+    58.185,
+    -1364.886
+   ]
+  },
+  {
+   "id": 73400344,
+   "ordinal": 344,
+   "type": 0,
+   "name": "Agility Orb 344",
+   "position": [
+    3005.371,
+    62.85,
+    -1378.855
+   ]
+  },
+  {
+   "id": 73400345,
+   "ordinal": 345,
+   "type": 0,
+   "name": "Agility Orb 345",
+   "position": [
+    2949.588,
+    56.031,
+    -1196.039
+   ]
+  },
+  {
+   "id": 73400346,
+   "ordinal": 346,
+   "type": 0,
+   "name": "Agility Orb 346",
+   "position": [
+    2983.616,
+    58.768,
+    -1218.237
+   ]
+  },
+  {
+   "id": 73400347,
+   "ordinal": 347,
+   "type": 0,
+   "name": "Agility Orb 347",
+   "position": [
+    3084.413,
+    70.545,
+    -1206.178
+   ]
+  },
+  {
+   "id": 73400348,
+   "ordinal": 348,
+   "type": 0,
+   "name": "Agility Orb 348",
+   "position": [
+    3093.444,
+    70.562,
+    -1181.207
+   ]
+  },
+  {
+   "id": 73400349,
+   "ordinal": 349,
+   "type": 0,
+   "name": "Agility Orb 349",
+   "position": [
+    2963.202,
+    46.554,
+    -1108.016
+   ]
+  },
+  {
+   "id": 73400350,
+   "ordinal": 350,
+   "type": 0,
+   "name": "Agility Orb 350",
+   "position": [
+    2860.621,
+    69.28,
+    -1154.467
+   ]
+  },
+  {
+   "id": 73400351,
+   "ordinal": 351,
+   "type": 0,
+   "name": "Agility Orb 351",
+   "position": [
+    2874.878,
+    69.28,
+    -1121.26
+   ]
+  },
+  {
+   "id": 73400352,
+   "ordinal": 352,
+   "type": 0,
+   "name": "Agility Orb 352",
+   "position": [
+    2849.77,
+    41.663,
+    -1121.56
+   ]
+  },
+  {
+   "id": 73400353,
+   "ordinal": 353,
+   "type": 0,
+   "name": "Agility Orb 353",
+   "position": [
+    2340.59,
+    58.433,
+    -1213.898
+   ]
+  },
+  {
+   "id": 73400354,
+   "ordinal": 354,
+   "type": 0,
+   "name": "Agility Orb 354",
+   "position": [
+    2378.265,
+    59.92,
+    -1226.353
+   ]
+  },
+  {
+   "id": 73400355,
+   "ordinal": 355,
+   "type": 0,
+   "name": "Agility Orb 355",
+   "position": [
+    2253.497,
+    61.576,
+    -1246.425
+   ]
+  },
+  {
+   "id": 73400356,
+   "ordinal": 356,
+   "type": 0,
+   "name": "Agility Orb 356",
+   "position": [
+    2345.854,
+    35.227,
+    -1314.777
+   ]
+  },
+  {
+   "id": 73400357,
+   "ordinal": 357,
+   "type": 0,
+   "name": "Agility Orb 357",
+   "position": [
+    2261.475,
+    63.337,
+    -1346.546
+   ]
+  },
+  {
+   "id": 73400358,
+   "ordinal": 358,
+   "type": 0,
+   "name": "Agility Orb 358",
+   "position": [
+    2383.612,
+    63.322,
+    -1350.253
+   ]
+  },
+  {
+   "id": 73400359,
+   "ordinal": 359,
+   "type": 0,
+   "name": "Agility Orb 359",
+   "position": [
+    2179.534,
+    26.164,
+    -1192.446
+   ]
+  },
+  {
+   "id": 73400360,
+   "ordinal": 360,
+   "type": 0,
+   "name": "Agility Orb 360",
+   "position": [
+    2216.29,
+    35.227,
+    -1203.953
+   ]
+  },
+  {
+   "id": 73400361,
+   "ordinal": 361,
+   "type": 0,
+   "name": "Agility Orb 361",
+   "position": [
+    2213.364,
+    35.21,
+    -1242.315
+   ]
+  },
+  {
+   "id": 73400362,
+   "ordinal": 362,
+   "type": 0,
+   "name": "Agility Orb 362",
+   "position": [
+    2547.281,
+    40.993,
+    -818.128
+   ]
+  },
+  {
+   "id": 73400363,
+   "ordinal": 363,
+   "type": 0,
+   "name": "Agility Orb 363",
+   "position": [
+    2460.205,
+    48.5,
+    -854.568
+   ]
+  },
+  {
+   "id": 73400364,
+   "ordinal": 364,
+   "type": 0,
+   "name": "Agility Orb 364",
+   "position": [
+    2425.069,
+    45.0,
+    -820.899
+   ]
+  },
+  {
+   "id": 73400365,
+   "ordinal": 365,
+   "type": 0,
+   "name": "Agility Orb 365",
+   "position": [
+    2370.767,
+    41.0,
+    -821.246
+   ]
+  },
+  {
+   "id": 73400366,
+   "ordinal": 366,
+   "type": 0,
+   "name": "Agility Orb 366",
+   "position": [
+    2029.417,
+    109.004,
+    -757.818
+   ]
+  },
+  {
+   "id": 73400367,
+   "ordinal": 367,
+   "type": 0,
+   "name": "Agility Orb 367",
+   "position": [
+    2074.14,
+    109.004,
+    -727.016
+   ]
+  },
+  {
+   "id": 73400368,
+   "ordinal": 368,
+   "type": 0,
+   "name": "Agility Orb 368",
+   "position": [
+    2048.763,
+    107.14,
+    -675.715
+   ]
+  },
+  {
+   "id": 73400369,
+   "ordinal": 369,
+   "type": 0,
+   "name": "Agility Orb 369",
+   "position": [
+    2019.183,
+    114.423,
+    -645.865
+   ]
+  },
+  {
+   "id": 73400370,
+   "ordinal": 370,
+   "type": 0,
+   "name": "Agility Orb 370",
+   "position": [
+    2102.1,
+    114.423,
+    -633.826
+   ]
+  },
+  {
+   "id": 73400371,
+   "ordinal": 371,
+   "type": 0,
+   "name": "Agility Orb 371",
+   "position": [
+    1979.768,
+    118.782,
+    -547.36
+   ]
+  },
+  {
+   "id": 73400372,
+   "ordinal": 372,
+   "type": 0,
+   "name": "Agility Orb 372",
+   "position": [
+    1968.641,
+    118.782,
+    -448.946
+   ]
+  },
+  {
+   "id": 73400373,
+   "ordinal": 373,
+   "type": 0,
+   "name": "Agility Orb 373",
+   "position": [
+    2079.01,
+    105.497,
+    -450.119
+   ]
+  },
+  {
+   "id": 73400374,
+   "ordinal": 374,
+   "type": 0,
+   "name": "Agility Orb 374",
+   "position": [
+    2334.498,
+    37.199,
+    -567.266
+   ]
+  },
+  {
+   "id": 73400375,
+   "ordinal": 375,
+   "type": 0,
+   "name": "Agility Orb 375",
+   "position": [
+    2259.677,
+    35.25,
+    -564.158
+   ]
+  },
+  {
+   "id": 73400376,
+   "ordinal": 376,
+   "type": 0,
+   "name": "Agility Orb 376",
+   "position": [
+    2219.768,
+    32.0,
+    -549.233
+   ]
+  },
+  {
+   "id": 73400377,
+   "ordinal": 377,
+   "type": 0,
+   "name": "Agility Orb 377",
+   "position": [
+    2208.875,
+    33.0,
+    -442.105
+   ]
+  },
+  {
+   "id": 73400378,
+   "ordinal": 378,
+   "type": 0,
+   "name": "Agility Orb 378",
+   "position": [
+    2312.713,
+    29.0,
+    -519.678
+   ]
+  },
+  {
+   "id": 73400379,
+   "ordinal": 379,
+   "type": 0,
+   "name": "Agility Orb 379",
+   "position": [
+    2327.336,
+    30.0,
+    -440.111
+   ]
+  },
+  {
+   "id": 73400380,
+   "ordinal": 380,
+   "type": 0,
+   "name": "Agility Orb 380",
+   "position": [
+    2588.647,
+    43.979,
+    -494.51
+   ]
+  },
+  {
+   "id": 73400381,
+   "ordinal": 381,
+   "type": 0,
+   "name": "Agility Orb 381",
+   "position": [
+    2589.445,
+    35.181,
+    -445.197
+   ]
+  },
+  {
+   "id": 73400382,
+   "ordinal": 382,
+   "type": 0,
+   "name": "Agility Orb 382",
+   "position": [
+    2592.097,
+    34.174,
+    -420.346
+   ]
+  },
+  {
+   "id": 73400383,
+   "ordinal": 383,
+   "type": 0,
+   "name": "Agility Orb 383",
+   "position": [
+    2144.959,
+    30.359,
+    -475.61
+   ]
+  },
+  {
+   "id": 73400384,
+   "ordinal": 384,
+   "type": 0,
+   "name": "Agility Orb 384",
+   "position": [
+    2032.406,
+    80.0,
+    -351.096
+   ]
+  },
+  {
+   "id": 73400385,
+   "ordinal": 385,
+   "type": 0,
+   "name": "Agility Orb 385",
+   "position": [
+    2089.047,
+    28.792,
+    121.963
+   ]
+  },
+  {
+   "id": 73400386,
+   "ordinal": 386,
+   "type": 0,
+   "name": "Agility Orb 386",
+   "position": [
+    2118.851,
+    28.863,
+    107.229
+   ]
+  },
+  {
+   "id": 73400387,
+   "ordinal": 387,
+   "type": 0,
+   "name": "Agility Orb 387",
+   "position": [
+    1936.1,
+    34.633,
+    84.988
+   ]
+  },
+  {
+   "id": 73400388,
+   "ordinal": 388,
+   "type": 0,
+   "name": "Agility Orb 388",
+   "position": [
+    1920.154,
+    28.384,
+    8.81
+   ]
+  },
+  {
+   "id": 73400389,
+   "ordinal": 389,
+   "type": 0,
+   "name": "Agility Orb 389",
+   "position": [
+    2352.127,
+    32.149,
+    57.483
+   ]
+  },
+  {
+   "id": 73400390,
+   "ordinal": 390,
+   "type": 0,
+   "name": "Agility Orb 390",
+   "position": [
+    2528.175,
+    36.15,
+    93.473
+   ]
+  },
+  {
+   "id": 73400391,
+   "ordinal": 391,
+   "type": 0,
+   "name": "Agility Orb 391",
+   "position": [
+    2302.039,
+    48.15,
+    -106.136
+   ]
+  },
+  {
+   "id": 73400392,
+   "ordinal": 392,
+   "type": 0,
+   "name": "Agility Orb 392",
+   "position": [
+    2344.101,
+    33.946,
+    -210.433
+   ]
+  },
+  {
+   "id": 73400393,
+   "ordinal": 393,
+   "type": 0,
+   "name": "Agility Orb 393",
+   "position": [
+    2364.054,
+    27.521,
+    -143.645
+   ]
+  },
+  {
+   "id": 73400394,
+   "ordinal": 394,
+   "type": 0,
+   "name": "Agility Orb 394",
+   "position": [
+    2468.154,
+    44.002,
+    -102.369
+   ]
+  },
+  {
+   "id": 73400395,
+   "ordinal": 395,
+   "type": 0,
+   "name": "Agility Orb 395",
+   "position": [
+    2472.563,
+    32.152,
+    -194.584
+   ]
+  },
+  {
+   "id": 73400396,
+   "ordinal": 396,
+   "type": 0,
+   "name": "Agility Orb 396",
+   "position": [
+    3281.264,
+    15.888,
+    -465.827
+   ]
+  },
+  {
+   "id": 73400397,
+   "ordinal": 397,
+   "type": 0,
+   "name": "Agility Orb 397",
+   "position": [
+    3501.487,
+    32.688,
+    -302.831
+   ]
+  },
+  {
+   "id": 73400398,
+   "ordinal": 398,
+   "type": 0,
+   "name": "Agility Orb 398",
+   "position": [
+    3536.71,
+    26.318,
+    -296.935
+   ]
+  },
+  {
+   "id": 73400399,
+   "ordinal": 399,
+   "type": 0,
+   "name": "Agility Orb 399",
+   "position": [
+    3576.763,
+    28.758,
+    -300.554
+   ]
+  },
+  {
+   "id": 73400400,
+   "ordinal": 400,
+   "type": 0,
+   "name": "Agility Orb 400",
+   "position": [
+    3535.182,
+    25.547,
+    -267.054
+   ]
+  },
+  {
+   "id": 73400401,
+   "ordinal": 401,
+   "type": 0,
+   "name": "Agility Orb 401",
+   "position": [
+    3563.453,
+    42.505,
+    -240.265
+   ]
+  },
+  {
+   "id": 73400402,
+   "ordinal": 402,
+   "type": 0,
+   "name": "Agility Orb 402",
+   "position": [
+    3595.585,
+    35.335,
+    -339.128
+   ]
+  },
+  {
+   "id": 73400403,
+   "ordinal": 403,
+   "type": 0,
+   "name": "Agility Orb 403",
+   "position": [
+    3622.88,
+    29.264,
+    -282.125
+   ]
+  },
+  {
+   "id": 73400404,
+   "ordinal": 404,
+   "type": 0,
+   "name": "Agility Orb 404",
+   "position": [
+    3619.882,
+    29.346,
+    -216.652
+   ]
+  },
+  {
+   "id": 73400405,
+   "ordinal": 405,
+   "type": 0,
+   "name": "Agility Orb 405",
+   "position": [
+    3651.589,
+    31.409,
+    -211.061
+   ]
+  },
+  {
+   "id": 73400406,
+   "ordinal": 406,
+   "type": 0,
+   "name": "Agility Orb 406",
+   "position": [
+    3081.149,
+    16.52,
+    93.005
+   ]
+  },
+  {
+   "id": 73400407,
+   "ordinal": 407,
+   "type": 0,
+   "name": "Agility Orb 407",
+   "position": [
+    3104.468,
+    53.43,
+    118.762
+   ]
+  },
+  {
+   "id": 73400408,
+   "ordinal": 408,
+   "type": 0,
+   "name": "Agility Orb 408",
+   "position": [
+    3089.349,
+    68.0,
+    173.84
+   ]
+  },
+  {
+   "id": 73400409,
+   "ordinal": 409,
+   "type": 0,
+   "name": "Agility Orb 409",
+   "position": [
+    3026.809,
+    89.352,
+    224.327
+   ]
+  },
+  {
+   "id": 73400410,
+   "ordinal": 410,
+   "type": 0,
+   "name": "Agility Orb 410",
+   "position": [
+    2786.289,
+    65.995,
+    -603.859
+   ]
+  },
+  {
+   "id": 73400411,
+   "ordinal": 411,
+   "type": 0,
+   "name": "Agility Orb 411",
+   "position": [
+    2361.287,
+    22.003,
+    -353.208
+   ]
+  },
+  {
+   "id": 73400412,
+   "ordinal": 412,
+   "type": 0,
+   "name": "Agility Orb 412",
+   "position": [
+    2382.292,
+    26.061,
+    -400.6
+   ]
+  },
+  {
+   "id": 73400413,
+   "ordinal": 413,
+   "type": 1,
+   "name": "Agility Orb 413",
+   "position": [
+    2716.433,
+    84.332,
+    -1617.899
+   ]
+  },
+  {
+   "id": 73400414,
+   "ordinal": 414,
+   "type": 1,
+   "name": "Agility Orb 414",
+   "position": [
+    2481.712,
+    44.572,
+    -1081.146
+   ]
+  },
+  {
+   "id": 73400415,
+   "ordinal": 415,
+   "type": 1,
+   "name": "Agility Orb 415",
+   "position": [
+    2475.901,
+    44.572,
+    -1144.682
+   ]
+  },
+  {
+   "id": 73400416,
+   "ordinal": 416,
+   "type": 1,
+   "name": "Agility Orb 416",
+   "position": [
+    2467.075,
+    44.572,
+    -1244.979
+   ]
+  },
+  {
+   "id": 73400417,
+   "ordinal": 417,
+   "type": 1,
+   "name": "Agility Orb 417",
+   "position": [
+    2460.196,
+    44.572,
+    -1325.03
+   ]
+  },
+  {
+   "id": 73400418,
+   "ordinal": 418,
+   "type": 1,
+   "name": "Agility Orb 418",
+   "position": [
+    2318.04,
+    66.433,
+    -1216.617
+   ]
+  },
+  {
+   "id": 73400419,
+   "ordinal": 419,
+   "type": 1,
+   "name": "Agility Orb 419",
+   "position": [
+    2328.004,
+    51.0,
+    -839.22
+   ]
+  },
+  {
+   "id": 73400420,
+   "ordinal": 420,
+   "type": 1,
+   "name": "Agility Orb 420",
+   "position": [
+    2399.201,
+    51.342,
+    -851.922
+   ]
+  },
+  {
+   "id": 73400421,
+   "ordinal": 421,
+   "type": 1,
+   "name": "Agility Orb 421",
+   "position": [
+    2391.823,
+    47.756,
+    -782.44
+   ]
+  },
+  {
+   "id": 73400422,
+   "ordinal": 422,
+   "type": 1,
+   "name": "Agility Orb 422",
+   "position": [
+    2396.347,
+    43.001,
+    -713.973
+   ]
+  },
+  {
+   "id": 73400423,
+   "ordinal": 423,
+   "type": 1,
+   "name": "Agility Orb 423",
+   "position": [
+    2356.05,
+    48.221,
+    -721.094
+   ]
+  },
+  {
+   "id": 73400424,
+   "ordinal": 424,
+   "type": 1,
+   "name": "Agility Orb 424",
+   "position": [
+    2363.093,
+    53.735,
+    -695.15
+   ]
+  },
+  {
+   "id": 73400425,
+   "ordinal": 425,
+   "type": 1,
+   "name": "Agility Orb 425",
+   "position": [
+    2374.401,
+    48.212,
+    -671.832
+   ]
+  },
+  {
+   "id": 73400426,
+   "ordinal": 426,
+   "type": 1,
+   "name": "Agility Orb 426",
+   "position": [
+    2469.295,
+    55.151,
+    -736.368
+   ]
+  },
+  {
+   "id": 73400427,
+   "ordinal": 427,
+   "type": 1,
+   "name": "Agility Orb 427",
+   "position": [
+    2431.845,
+    45.0,
+    -659.028
+   ]
+  },
+  {
+   "id": 73400428,
+   "ordinal": 428,
+   "type": 1,
+   "name": "Agility Orb 428",
+   "position": [
+    2506.01,
+    49.0,
+    -658.298
+   ]
+  },
+  {
+   "id": 73400429,
+   "ordinal": 429,
+   "type": 1,
+   "name": "Agility Orb 429",
+   "position": [
+    2586.941,
+    56.996,
+    -690.258
+   ]
+  },
+  {
+   "id": 73400430,
+   "ordinal": 430,
+   "type": 1,
+   "name": "Agility Orb 430",
+   "position": [
+    2659.939,
+    61.517,
+    -680.107
+   ]
+  },
+  {
+   "id": 73400431,
+   "ordinal": 431,
+   "type": 1,
+   "name": "Agility Orb 431",
+   "position": [
+    2793.153,
+    61.522,
+    -655.461
+   ]
+  },
+  {
+   "id": 73400432,
+   "ordinal": 432,
+   "type": 1,
+   "name": "Agility Orb 432",
+   "position": [
+    2233.42,
+    60.555,
+    -778.741
+   ]
+  },
+  {
+   "id": 73400433,
+   "ordinal": 433,
+   "type": 1,
+   "name": "Agility Orb 433",
+   "position": [
+    1961.812,
+    39.292,
+    -794.605
+   ]
+  },
+  {
+   "id": 73400434,
+   "ordinal": 434,
+   "type": 1,
+   "name": "Agility Orb 434",
+   "position": [
+    2408.833,
+    55.415,
+    -599.428
+   ]
+  },
+  {
+   "id": 73400435,
+   "ordinal": 435,
+   "type": 1,
+   "name": "Agility Orb 435",
+   "position": [
+    2398.79,
+    63.972,
+    -558.508
+   ]
+  },
+  {
+   "id": 73400436,
+   "ordinal": 436,
+   "type": 1,
+   "name": "Agility Orb 436",
+   "position": [
+    2414.099,
+    55.0,
+    -535.941
+   ]
+  },
+  {
+   "id": 73400437,
+   "ordinal": 437,
+   "type": 1,
+   "name": "Agility Orb 437",
+   "position": [
+    2317.468,
+    46.502,
+    -577.815
+   ]
+  },
+  {
+   "id": 73400438,
+   "ordinal": 438,
+   "type": 1,
+   "name": "Agility Orb 438",
+   "position": [
+    2177.337,
+    44.998,
+    -542.456
+   ]
+  },
+  {
+   "id": 73400439,
+   "ordinal": 439,
+   "type": 1,
+   "name": "Agility Orb 439",
+   "position": [
+    2368.124,
+    41.0,
+    -448.105
+   ]
+  },
+  {
+   "id": 73400440,
+   "ordinal": 440,
+   "type": 1,
+   "name": "Agility Orb 440",
+   "position": [
+    2360.854,
+    36.879,
+    -510.412
+   ]
+  },
+  {
+   "id": 73400441,
+   "ordinal": 441,
+   "type": 1,
+   "name": "Agility Orb 441",
+   "position": [
+    2480.003,
+    49.0,
+    -560.18
+   ]
+  },
+  {
+   "id": 73400442,
+   "ordinal": 442,
+   "type": 1,
+   "name": "Agility Orb 442",
+   "position": [
+    2570.527,
+    58.936,
+    -554.432
+   ]
+  },
+  {
+   "id": 73400443,
+   "ordinal": 443,
+   "type": 1,
+   "name": "Agility Orb 443",
+   "position": [
+    2645.19,
+    54.662,
+    -583.645
+   ]
+  },
+  {
+   "id": 73400444,
+   "ordinal": 444,
+   "type": 1,
+   "name": "Agility Orb 444",
+   "position": [
+    2625.675,
+    45.886,
+    -597.949
+   ]
+  },
+  {
+   "id": 73400445,
+   "ordinal": 445,
+   "type": 1,
+   "name": "Agility Orb 445",
+   "position": [
+    2597.738,
+    54.662,
+    -592.344
+   ]
+  },
+  {
+   "id": 73400446,
+   "ordinal": 446,
+   "type": 1,
+   "name": "Agility Orb 446",
+   "position": [
+    2754.3,
+    74.0,
+    -560.552
+   ]
+  },
+  {
+   "id": 73400447,
+   "ordinal": 447,
+   "type": 1,
+   "name": "Agility Orb 447",
+   "position": [
+    2688.509,
+    63.137,
+    -542.312
+   ]
+  },
+  {
+   "id": 73400448,
+   "ordinal": 448,
+   "type": 1,
+   "name": "Agility Orb 448",
+   "position": [
+    2637.259,
+    62.525,
+    -523.968
+   ]
+  },
+  {
+   "id": 73400449,
+   "ordinal": 449,
+   "type": 1,
+   "name": "Agility Orb 449",
+   "position": [
+    2754.557,
+    69.289,
+    -505.333
+   ]
+  },
+  {
+   "id": 73400450,
+   "ordinal": 450,
+   "type": 1,
+   "name": "Agility Orb 450",
+   "position": [
+    2675.473,
+    64.0,
+    -461.339
+   ]
+  },
+  {
+   "id": 73400451,
+   "ordinal": 451,
+   "type": 1,
+   "name": "Agility Orb 451",
+   "position": [
+    2681.521,
+    73.637,
+    -420.069
+   ]
+  },
+  {
+   "id": 73400452,
+   "ordinal": 452,
+   "type": 1,
+   "name": "Agility Orb 452",
+   "position": [
+    2680.589,
+    39.632,
+    -387.067
+   ]
+  },
+  {
+   "id": 73400453,
+   "ordinal": 453,
+   "type": 1,
+   "name": "Agility Orb 453",
+   "position": [
+    2725.871,
+    58.854,
+    -383.163
+   ]
+  },
+  {
+   "id": 73400454,
+   "ordinal": 454,
+   "type": 1,
+   "name": "Agility Orb 454",
+   "position": [
+    2491.602,
+    53.956,
+    -390.291
+   ]
+  },
+  {
+   "id": 73400455,
+   "ordinal": 455,
+   "type": 1,
+   "name": "Agility Orb 455",
+   "position": [
+    2488.478,
+    75.895,
+    -479.85
+   ]
+  },
+  {
+   "id": 73400456,
+   "ordinal": 456,
+   "type": 1,
+   "name": "Agility Orb 456",
+   "position": [
+    2272.125,
+    31.0,
+    -382.063
+   ]
+  },
+  {
+   "id": 73400457,
+   "ordinal": 457,
+   "type": 1,
+   "name": "Agility Orb 457",
+   "position": [
+    2345.535,
+    29.0,
+    -412.435
+   ]
+  },
+  {
+   "id": 73400458,
+   "ordinal": 458,
+   "type": 1,
+   "name": "Agility Orb 458",
+   "position": [
+    2235.879,
+    40.5,
+    -384.598
+   ]
+  },
+  {
+   "id": 73400459,
+   "ordinal": 459,
+   "type": 1,
+   "name": "Agility Orb 459",
+   "position": [
+    2223.729,
+    48.0,
+    -348.142
+   ]
+  },
+  {
+   "id": 73400460,
+   "ordinal": 460,
+   "type": 1,
+   "name": "Agility Orb 460",
+   "position": [
+    2174.832,
+    53.0,
+    -315.766
+   ]
+  },
+  {
+   "id": 73400461,
+   "ordinal": 461,
+   "type": 1,
+   "name": "Agility Orb 461",
+   "position": [
+    2132.306,
+    47.648,
+    -366.539
+   ]
+  },
+  {
+   "id": 73400462,
+   "ordinal": 462,
+   "type": 1,
+   "name": "Agility Orb 462",
+   "position": [
+    2189.847,
+    41.5,
+    -395.655
+   ]
+  },
+  {
+   "id": 73400463,
+   "ordinal": 463,
+   "type": 1,
+   "name": "Agility Orb 463",
+   "position": [
+    2133.403,
+    52.293,
+    -400.639
+   ]
+  },
+  {
+   "id": 73400464,
+   "ordinal": 464,
+   "type": 1,
+   "name": "Agility Orb 464",
+   "position": [
+    2533.422,
+    42.347,
+    -354.199
+   ]
+  },
+  {
+   "id": 73400465,
+   "ordinal": 465,
+   "type": 1,
+   "name": "Agility Orb 465",
+   "position": [
+    2622.754,
+    46.276,
+    -353.318
+   ]
+  },
+  {
+   "id": 73400466,
+   "ordinal": 466,
+   "type": 1,
+   "name": "Agility Orb 466",
+   "position": [
+    2442.88,
+    48.476,
+    -362.127
+   ]
+  },
+  {
+   "id": 73400467,
+   "ordinal": 467,
+   "type": 1,
+   "name": "Agility Orb 467",
+   "position": [
+    2434.676,
+    47.393,
+    -406.663
+   ]
+  },
+  {
+   "id": 73400468,
+   "ordinal": 468,
+   "type": 1,
+   "name": "Agility Orb 468",
+   "position": [
+    1926.396,
+    39.269,
+    -413.333
+   ]
+  },
+  {
+   "id": 73400469,
+   "ordinal": 469,
+   "type": 1,
+   "name": "Agility Orb 469",
+   "position": [
+    2021.036,
+    52.876,
+    -190.535
+   ]
+  },
+  {
+   "id": 73400470,
+   "ordinal": 470,
+   "type": 1,
+   "name": "Agility Orb 470",
+   "position": [
+    2072.826,
+    52.891,
+    -204.091
+   ]
+  },
+  {
+   "id": 73400471,
+   "ordinal": 471,
+   "type": 1,
+   "name": "Agility Orb 471",
+   "position": [
+    2018.207,
+    52.882,
+    -118.023
+   ]
+  },
+  {
+   "id": 73400472,
+   "ordinal": 472,
+   "type": 1,
+   "name": "Agility Orb 472",
+   "position": [
+    2077.621,
+    47.358,
+    -90.419
+   ]
+  },
+  {
+   "id": 73400473,
+   "ordinal": 473,
+   "type": 1,
+   "name": "Agility Orb 473",
+   "position": [
+    2074.238,
+    51.531,
+    46.596
+   ]
+  },
+  {
+   "id": 73400474,
+   "ordinal": 474,
+   "type": 1,
+   "name": "Agility Orb 474",
+   "position": [
+    1990.638,
+    34.66,
+    89.827
+   ]
+  },
+  {
+   "id": 73400475,
+   "ordinal": 475,
+   "type": 1,
+   "name": "Agility Orb 475",
+   "position": [
+    2288.447,
+    48.15,
+    74.006
+   ]
+  },
+  {
+   "id": 73400476,
+   "ordinal": 476,
+   "type": 1,
+   "name": "Agility Orb 476",
+   "position": [
+    2328.793,
+    36.15,
+    78.033
+   ]
+  },
+  {
+   "id": 73400477,
+   "ordinal": 477,
+   "type": 2,
+   "name": "Agility Orb 477",
+   "position": [
+    3027.944,
+    86.188,
+    -1176.636
+   ]
+  },
+  {
+   "id": 73400478,
+   "ordinal": 478,
+   "type": 2,
+   "name": "Agility Orb 478",
+   "position": [
+    2494.898,
+    47.15,
+    -769.051
+   ]
+  },
+  {
+   "id": 73400479,
+   "ordinal": 479,
+   "type": 2,
+   "name": "Agility Orb 479",
+   "position": [
+    2431.913,
+    49.0,
+    -797.462
+   ]
+  },
+  {
+   "id": 73400480,
+   "ordinal": 480,
+   "type": 2,
+   "name": "Agility Orb 480",
+   "position": [
+    2331.219,
+    57.0,
+    -772.148
+   ]
+  },
+  {
+   "id": 73400481,
+   "ordinal": 481,
+   "type": 2,
+   "name": "Agility Orb 481",
+   "position": [
+    2207.872,
+    53.239,
+    -624.581
+   ]
+  },
+  {
+   "id": 73400482,
+   "ordinal": 482,
+   "type": 2,
+   "name": "Agility Orb 482",
+   "position": [
+    2173.879,
+    52.418,
+    -714.191
+   ]
+  },
+  {
+   "id": 73400483,
+   "ordinal": 483,
+   "type": 2,
+   "name": "Agility Orb 483",
+   "position": [
+    2422.226,
+    64.083,
+    -476.475
+   ]
+  },
+  {
+   "id": 73400484,
+   "ordinal": 484,
+   "type": 2,
+   "name": "Agility Orb 484",
+   "position": [
+    2158.301,
+    62.2,
+    -512.361
+   ]
+  },
+  {
+   "id": 73400485,
+   "ordinal": 485,
+   "type": 2,
+   "name": "Agility Orb 485",
+   "position": [
+    2940.919,
+    56.391,
+    -564.985
+   ]
+  },
+  {
+   "id": 73400486,
+   "ordinal": 486,
+   "type": 2,
+   "name": "Agility Orb 486",
+   "position": [
+    2184.428,
+    73.76,
+    -87.987
+   ]
+  },
+  {
+   "id": 73400487,
+   "ordinal": 487,
+   "type": 2,
+   "name": "Agility Orb 487",
+   "position": [
+    2206.745,
+    50.958,
+    -8.414
+   ]
+  },
+  {
+   "id": 73400488,
+   "ordinal": 488,
+   "type": 2,
+   "name": "Agility Orb 488",
+   "position": [
+    2163.682,
+    84.823,
+    41.23
+   ]
+  },
+  {
+   "id": 73400489,
+   "ordinal": 489,
+   "type": 2,
+   "name": "Agility Orb 489",
+   "position": [
+    2243.668,
+    72.247,
+    44.236
+   ]
+  },
+  {
+   "id": 73400490,
+   "ordinal": 490,
+   "type": 2,
+   "name": "Agility Orb 490",
+   "position": [
+    2326.679,
+    72.247,
+    167.513
+   ]
+  },
+  {
+   "id": 73400491,
+   "ordinal": 491,
+   "type": 2,
+   "name": "Agility Orb 491",
+   "position": [
+    2940.901,
+    52.057,
+    -365.916
+   ]
+  },
+  {
+   "id": 73400492,
+   "ordinal": 492,
+   "type": 2,
+   "name": "Agility Orb 492",
+   "position": [
+    3050.663,
+    31.641,
+    52.779
+   ]
+  },
+  {
+   "id": 73400493,
+   "ordinal": 493,
+   "type": 3,
+   "name": "Agility Orb 493",
+   "position": [
+    2185.883,
+    47.355,
+    -1241.515
+   ]
+  },
+  {
+   "id": 73400494,
+   "ordinal": 494,
+   "type": 3,
+   "name": "Agility Orb 494",
+   "position": [
+    1999.794,
+    129.544,
+    -487.52
+   ]
+  },
+  {
+   "id": 73400495,
+   "ordinal": 495,
+   "type": 3,
+   "name": "Agility Orb 495",
+   "position": [
+    2271.56,
+    50.0,
+    -362.171
+   ]
+  },
+  {
+   "id": 73400496,
+   "ordinal": 496,
+   "type": 1,
+   "name": "Agility Orb 496",
+   "position": [
+    1893.741,
+    192.001,
+    -1818.98
+   ]
+  },
+  {
+   "id": 73400497,
+   "ordinal": 497,
+   "type": 1,
+   "name": "Agility Orb 497",
+   "position": [
+    2023.707,
+    52.001,
+    -1948.543
+   ]
+  },
+  {
+   "id": 73400498,
+   "ordinal": 498,
+   "type": 2,
+   "name": "Agility Orb 498",
+   "position": [
+    1973.443,
+    306.356,
+    -1773.341
+   ]
+  },
+  {
+   "id": 73400499,
+   "ordinal": 499,
+   "type": 2,
+   "name": "Agility Orb 499",
+   "position": [
+    2028.317,
+    76.001,
+    -1984.196
+   ]
+  },
+  {
+   "id": 73400500,
+   "ordinal": 500,
+   "type": 3,
+   "name": "Agility Orb 500",
+   "position": [
+    1929.178,
+    326.359,
+    -1853.036
+   ]
+  },
+  {
+   "id": 73400501,
+   "ordinal": 501,
+   "type": 4,
+   "name": "Hidden Orb 501",
+   "position": [
+    388.968,
+    1.721,
+    -1494.692
+   ]
+  },
+  {
+   "id": 73400502,
+   "ordinal": 502,
+   "type": 4,
+   "name": "Hidden Orb 502",
+   "position": [
+    349.994,
+    5.76,
+    -1040.899
+   ]
+  },
+  {
+   "id": 73400503,
+   "ordinal": 503,
+   "type": 4,
+   "name": "Hidden Orb 503",
+   "position": [
+    825.561,
+    8.379,
+    -1020.377
+   ]
+  },
+  {
+   "id": 73400504,
+   "ordinal": 504,
+   "type": 4,
+   "name": "Hidden Orb 504",
+   "position": [
+    649.875,
+    11.993,
+    -736.736
+   ]
+  },
+  {
+   "id": 73400505,
+   "ordinal": 505,
+   "type": 4,
+   "name": "Hidden Orb 505",
+   "position": [
+    968.468,
+    0.693,
+    -566.515
+   ]
+  },
+  {
+   "id": 73400506,
+   "ordinal": 506,
+   "type": 4,
+   "name": "Hidden Orb 506",
+   "position": [
+    1292.658,
+    8.491,
+    -1004.175
+   ]
+  },
+  {
+   "id": 73400507,
+   "ordinal": 507,
+   "type": 4,
+   "name": "Hidden Orb 507",
+   "position": [
+    1465.44,
+    11.417,
+    -1318.93
+   ]
+  },
+  {
+   "id": 73400508,
+   "ordinal": 508,
+   "type": 4,
+   "name": "Hidden Orb 508",
+   "position": [
+    1469.65,
+    16.75,
+    -1460.849
+   ]
+  },
+  {
+   "id": 73400509,
+   "ordinal": 509,
+   "type": 4,
+   "name": "Hidden Orb 509",
+   "position": [
+    1435.627,
+    6.3,
+    -1180.34
+   ]
+  },
+  {
+   "id": 73400510,
+   "ordinal": 510,
+   "type": 4,
+   "name": "Hidden Orb 510",
+   "position": [
+    1458.765,
+    17.116,
+    -1823.605
+   ]
+  },
+  {
+   "id": 73400511,
+   "ordinal": 511,
+   "type": 4,
+   "name": "Hidden Orb 511",
+   "position": [
+    1139.138,
+    10.328,
+    -1944.023
+   ]
+  },
+  {
+   "id": 73400512,
+   "ordinal": 512,
+   "type": 4,
+   "name": "Hidden Orb 512",
+   "position": [
+    496.279,
+    28.898,
+    -1344.569
+   ]
+  },
+  {
+   "id": 73400513,
+   "ordinal": 513,
+   "type": 4,
+   "name": "Hidden Orb 513",
+   "position": [
+    862.71,
+    24.787,
+    -1792.583
+   ]
+  },
+  {
+   "id": 73400514,
+   "ordinal": 514,
+   "type": 4,
+   "name": "Hidden Orb 514",
+   "position": [
+    808.067,
+    22.183,
+    -1782.11
+   ]
+  },
+  {
+   "id": 73400515,
+   "ordinal": 515,
+   "type": 4,
+   "name": "Hidden Orb 515",
+   "position": [
+    985.929,
+    38.019,
+    -1690.186
+   ]
+  },
+  {
+   "id": 73400516,
+   "ordinal": 516,
+   "type": 4,
+   "name": "Hidden Orb 516",
+   "position": [
+    1024.852,
+    45.845,
+    -1723.271
+   ]
+  },
+  {
+   "id": 73400517,
+   "ordinal": 517,
+   "type": 4,
+   "name": "Hidden Orb 517",
+   "position": [
+    949.972,
+    52.182,
+    -1734.388
+   ]
+  },
+  {
+   "id": 73400518,
+   "ordinal": 518,
+   "type": 4,
+   "name": "Hidden Orb 518",
+   "position": [
+    1104.238,
+    42.63,
+    -1728.477
+   ]
+  },
+  {
+   "id": 73400519,
+   "ordinal": 519,
+   "type": 4,
+   "name": "Hidden Orb 519",
+   "position": [
+    1233.343,
+    53.737,
+    -1862.882
+   ]
+  },
+  {
+   "id": 73400520,
+   "ordinal": 520,
+   "type": 4,
+   "name": "Hidden Orb 520",
+   "position": [
+    1211.878,
+    75.844,
+    -1682.839
+   ]
+  },
+  {
+   "id": 73400521,
+   "ordinal": 521,
+   "type": 4,
+   "name": "Hidden Orb 521",
+   "position": [
+    1149.943,
+    68.3,
+    -1682.229
+   ]
+  },
+  {
+   "id": 73400522,
+   "ordinal": 522,
+   "type": 4,
+   "name": "Hidden Orb 522",
+   "position": [
+    1079.962,
+    74.867,
+    -1589.588
+   ]
+  },
+  {
+   "id": 73400523,
+   "ordinal": 523,
+   "type": 4,
+   "name": "Hidden Orb 523",
+   "position": [
+    894.513,
+    91.019,
+    -1431.597
+   ]
+  },
+  {
+   "id": 73400524,
+   "ordinal": 524,
+   "type": 4,
+   "name": "Hidden Orb 524",
+   "position": [
+    820.751,
+    65.047,
+    -1331.499
+   ]
+  },
+  {
+   "id": 73400525,
+   "ordinal": 525,
+   "type": 4,
+   "name": "Hidden Orb 525",
+   "position": [
+    871.553,
+    61.02,
+    -1430.818
+   ]
+  },
+  {
+   "id": 73400526,
+   "ordinal": 526,
+   "type": 4,
+   "name": "Hidden Orb 526",
+   "position": [
+    865.648,
+    55.103,
+    -1245.031
+   ]
+  },
+  {
+   "id": 73400527,
+   "ordinal": 527,
+   "type": 4,
+   "name": "Hidden Orb 527",
+   "position": [
+    996.4,
+    82.171,
+    -1527.066
+   ]
+  },
+  {
+   "id": 73400528,
+   "ordinal": 528,
+   "type": 4,
+   "name": "Hidden Orb 528",
+   "position": [
+    979.2,
+    111.944,
+    -1526.691
+   ]
+  },
+  {
+   "id": 73400529,
+   "ordinal": 529,
+   "type": 4,
+   "name": "Hidden Orb 529",
+   "position": [
+    922.616,
+    43.058,
+    -1506.272
+   ]
+  },
+  {
+   "id": 73400530,
+   "ordinal": 530,
+   "type": 4,
+   "name": "Hidden Orb 530",
+   "position": [
+    968.526,
+    61.969,
+    -1470.874
+   ]
+  },
+  {
+   "id": 73400531,
+   "ordinal": 531,
+   "type": 4,
+   "name": "Hidden Orb 531",
+   "position": [
+    1118.105,
+    117.63,
+    -1438.05
+   ]
+  },
+  {
+   "id": 73400532,
+   "ordinal": 532,
+   "type": 4,
+   "name": "Hidden Orb 532",
+   "position": [
+    1297.327,
+    92.864,
+    -1433.392
+   ]
+  },
+  {
+   "id": 73400533,
+   "ordinal": 533,
+   "type": 4,
+   "name": "Hidden Orb 533",
+   "position": [
+    1348.395,
+    47.525,
+    -1642.318
+   ]
+  },
+  {
+   "id": 73400534,
+   "ordinal": 534,
+   "type": 4,
+   "name": "Hidden Orb 534",
+   "position": [
+    1317.316,
+    34.456,
+    -1499.217
+   ]
+  },
+  {
+   "id": 73400535,
+   "ordinal": 535,
+   "type": 4,
+   "name": "Hidden Orb 535",
+   "position": [
+    1257.339,
+    42.663,
+    -1451.559
+   ]
+  },
+  {
+   "id": 73400536,
+   "ordinal": 536,
+   "type": 4,
+   "name": "Hidden Orb 536",
+   "position": [
+    1176.801,
+    43.452,
+    -1488.827
+   ]
+  },
+  {
+   "id": 73400537,
+   "ordinal": 537,
+   "type": 4,
+   "name": "Hidden Orb 537",
+   "position": [
+    1157.289,
+    79.107,
+    -1461.599
+   ]
+  },
+  {
+   "id": 73400538,
+   "ordinal": 538,
+   "type": 4,
+   "name": "Hidden Orb 538",
+   "position": [
+    1250.029,
+    92.583,
+    -1323.36
+   ]
+  },
+  {
+   "id": 73400539,
+   "ordinal": 539,
+   "type": 4,
+   "name": "Hidden Orb 539",
+   "position": [
+    1234.678,
+    57.341,
+    -1379.001
+   ]
+  },
+  {
+   "id": 73400540,
+   "ordinal": 540,
+   "type": 4,
+   "name": "Hidden Orb 540",
+   "position": [
+    1209.714,
+    36.659,
+    -1333.867
+   ]
+  },
+  {
+   "id": 73400541,
+   "ordinal": 541,
+   "type": 4,
+   "name": "Hidden Orb 541",
+   "position": [
+    1238.451,
+    33.392,
+    -1202.421
+   ]
+  },
+  {
+   "id": 73400542,
+   "ordinal": 542,
+   "type": 4,
+   "name": "Hidden Orb 542",
+   "position": [
+    1242.936,
+    73.948,
+    -1231.475
+   ]
+  },
+  {
+   "id": 73400543,
+   "ordinal": 543,
+   "type": 4,
+   "name": "Hidden Orb 543",
+   "position": [
+    665.369,
+    21.494,
+    -791.783
+   ]
+  },
+  {
+   "id": 73400544,
+   "ordinal": 544,
+   "type": 4,
+   "name": "Hidden Orb 544",
+   "position": [
+    1043.914,
+    20.006,
+    -778.108
+   ]
+  },
+  {
+   "id": 73400545,
+   "ordinal": 545,
+   "type": 4,
+   "name": "Hidden Orb 545",
+   "position": [
+    963.034,
+    32.991,
+    -1132.77
+   ]
+  },
+  {
+   "id": 73400546,
+   "ordinal": 546,
+   "type": 4,
+   "name": "Hidden Orb 546",
+   "position": [
+    996.331,
+    37.811,
+    -1061.912
+   ]
+  },
+  {
+   "id": 73400547,
+   "ordinal": 547,
+   "type": 4,
+   "name": "Hidden Orb 547",
+   "position": [
+    1091.877,
+    51.048,
+    -925.159
+   ]
+  },
+  {
+   "id": 73400548,
+   "ordinal": 548,
+   "type": 4,
+   "name": "Hidden Orb 548",
+   "position": [
+    1126.488,
+    41.999,
+    -918.343
+   ]
+  },
+  {
+   "id": 73400549,
+   "ordinal": 549,
+   "type": 4,
+   "name": "Hidden Orb 549",
+   "position": [
+    1308.543,
+    51.421,
+    -1278.187
+   ]
+  },
+  {
+   "id": 73400550,
+   "ordinal": 550,
+   "type": 4,
+   "name": "Hidden Orb 550",
+   "position": [
+    1432.494,
+    1.001,
+    -1375.163
+   ]
+  },
+  {
+   "id": 73400551,
+   "ordinal": 551,
+   "type": 4,
+   "name": "Hidden Orb 551",
+   "position": [
+    1421.644,
+    6.622,
+    -1700.058
+   ]
+  },
+  {
+   "id": 73400552,
+   "ordinal": 552,
+   "type": 4,
+   "name": "Hidden Orb 552",
+   "position": [
+    1385.952,
+    40.974,
+    -1797.976
+   ]
+  },
+  {
+   "id": 73400553,
+   "ordinal": 553,
+   "type": 4,
+   "name": "Hidden Orb 553",
+   "position": [
+    1117.628,
+    53.074,
+    -1591.508
+   ]
+  },
+  {
+   "id": 73400554,
+   "ordinal": 554,
+   "type": 4,
+   "name": "Hidden Orb 554",
+   "position": [
+    1676.688,
+    32.445,
+    -1261.803
+   ]
+  },
+  {
+   "id": 73400555,
+   "ordinal": 555,
+   "type": 4,
+   "name": "Hidden Orb 555",
+   "position": [
+    659.851,
+    31.938,
+    -1926.791
+   ]
+  },
+  {
+   "id": 73400556,
+   "ordinal": 556,
+   "type": 4,
+   "name": "Hidden Orb 556",
+   "position": [
+    641.689,
+    20.707,
+    -1758.727
+   ]
+  },
+  {
+   "id": 73400557,
+   "ordinal": 557,
+   "type": 4,
+   "name": "Hidden Orb 557",
+   "position": [
+    648.757,
+    16.707,
+    -1646.595
+   ]
+  },
+  {
+   "id": 73400558,
+   "ordinal": 558,
+   "type": 4,
+   "name": "Hidden Orb 558",
+   "position": [
+    487.228,
+    7.614,
+    -1472.468
+   ]
+  },
+  {
+   "id": 73400559,
+   "ordinal": 559,
+   "type": 4,
+   "name": "Hidden Orb 559",
+   "position": [
+    503.756,
+    34.908,
+    -1162.527
+   ]
+  },
+  {
+   "id": 73400560,
+   "ordinal": 560,
+   "type": 4,
+   "name": "Hidden Orb 560",
+   "position": [
+    756.304,
+    38.89,
+    -1442.819
+   ]
+  },
+  {
+   "id": 73400561,
+   "ordinal": 561,
+   "type": 4,
+   "name": "Hidden Orb 561",
+   "position": [
+    452.54,
+    9.38,
+    -1141.391
+   ]
+  },
+  {
+   "id": 73400562,
+   "ordinal": 562,
+   "type": 4,
+   "name": "Hidden Orb 562",
+   "position": [
+    383.337,
+    3.025,
+    -1218.796
+   ]
+  },
+  {
+   "id": 73400563,
+   "ordinal": 563,
+   "type": 4,
+   "name": "Hidden Orb 563",
+   "position": [
+    371.818,
+    1.316,
+    -1160.779
+   ]
+  },
+  {
+   "id": 73400564,
+   "ordinal": 564,
+   "type": 4,
+   "name": "Hidden Orb 564",
+   "position": [
+    416.893,
+    19.543,
+    -1019.194
+   ]
+  },
+  {
+   "id": 73400565,
+   "ordinal": 565,
+   "type": 4,
+   "name": "Hidden Orb 565",
+   "position": [
+    849.981,
+    28.247,
+    -1020.012
+   ]
+  },
+  {
+   "id": 73400566,
+   "ordinal": 566,
+   "type": 4,
+   "name": "Hidden Orb 566",
+   "position": [
+    1471.264,
+    62.243,
+    -1441.134
+   ]
+  },
+  {
+   "id": 73400567,
+   "ordinal": 567,
+   "type": 4,
+   "name": "Hidden Orb 567",
+   "position": [
+    1113.423,
+    80.203,
+    -653.282
+   ]
+  },
+  {
+   "id": 73400568,
+   "ordinal": 568,
+   "type": 4,
+   "name": "Hidden Orb 568",
+   "position": [
+    938.433,
+    52.578,
+    -543.692
+   ]
+  },
+  {
+   "id": 73400569,
+   "ordinal": 569,
+   "type": 4,
+   "name": "Hidden Orb 569",
+   "position": [
+    1788.767,
+    53.452,
+    -1184.956
+   ]
+  },
+  {
+   "id": 73400570,
+   "ordinal": 570,
+   "type": 4,
+   "name": "Hidden Orb 570",
+   "position": [
+    1207.004,
+    36.957,
+    -2425.728
+   ]
+  },
+  {
+   "id": 73400571,
+   "ordinal": 571,
+   "type": 4,
+   "name": "Hidden Orb 571",
+   "position": [
+    1302.115,
+    45.811,
+    -2309.163
+   ]
+  },
+  {
+   "id": 73400572,
+   "ordinal": 572,
+   "type": 4,
+   "name": "Hidden Orb 572",
+   "position": [
+    1347.465,
+    51.957,
+    -2218.717
+   ]
+  },
+  {
+   "id": 73400573,
+   "ordinal": 573,
+   "type": 4,
+   "name": "Hidden Orb 573",
+   "position": [
+    1451.127,
+    3.313,
+    -2481.839
+   ]
+  },
+  {
+   "id": 73400574,
+   "ordinal": 574,
+   "type": 4,
+   "name": "Hidden Orb 574",
+   "position": [
+    1290.11,
+    70.691,
+    -2409.615
+   ]
+  },
+  {
+   "id": 73400575,
+   "ordinal": 575,
+   "type": 4,
+   "name": "Hidden Orb 575",
+   "position": [
+    1247.484,
+    52.7,
+    -2256.517
+   ]
+  },
+  {
+   "id": 73400576,
+   "ordinal": 576,
+   "type": 4,
+   "name": "Hidden Orb 576",
+   "position": [
+    1053.078,
+    57.236,
+    -2403.88
+   ]
+  },
+  {
+   "id": 73400577,
+   "ordinal": 577,
+   "type": 4,
+   "name": "Hidden Orb 577",
+   "position": [
+    1080.904,
+    22.682,
+    -2349.815
+   ]
+  },
+  {
+   "id": 73400578,
+   "ordinal": 578,
+   "type": 4,
+   "name": "Hidden Orb 578",
+   "position": [
+    1124.418,
+    53.922,
+    -2351.92
+   ]
+  },
+  {
+   "id": 73400579,
+   "ordinal": 579,
+   "type": 4,
+   "name": "Hidden Orb 579",
+   "position": [
+    1339.146,
+    17.703,
+    -2921.491
+   ]
+  },
+  {
+   "id": 73400580,
+   "ordinal": 580,
+   "type": 4,
+   "name": "Hidden Orb 580",
+   "position": [
+    982.478,
+    51.823,
+    -2660.503
+   ]
+  },
+  {
+   "id": 73400581,
+   "ordinal": 581,
+   "type": 4,
+   "name": "Hidden Orb 581",
+   "position": [
+    985.119,
+    66.958,
+    -2781.817
+   ]
+  },
+  {
+   "id": 73400582,
+   "ordinal": 582,
+   "type": 4,
+   "name": "Hidden Orb 582",
+   "position": [
+    635.394,
+    52.306,
+    -2711.926
+   ]
+  },
+  {
+   "id": 73400583,
+   "ordinal": 583,
+   "type": 4,
+   "name": "Hidden Orb 583",
+   "position": [
+    885.924,
+    117.997,
+    -3101.441
+   ]
+  },
+  {
+   "id": 73400584,
+   "ordinal": 584,
+   "type": 4,
+   "name": "Hidden Orb 584",
+   "position": [
+    946.358,
+    9.62,
+    -3203.782
+   ]
+  },
+  {
+   "id": 73400585,
+   "ordinal": 585,
+   "type": 4,
+   "name": "Hidden Orb 585",
+   "position": [
+    1037.703,
+    37.834,
+    -2770.701
+   ]
+  },
+  {
+   "id": 73400586,
+   "ordinal": 586,
+   "type": 4,
+   "name": "Hidden Orb 586",
+   "position": [
+    1136.782,
+    10.046,
+    -2071.004
+   ]
+  },
+  {
+   "id": 73400587,
+   "ordinal": 587,
+   "type": 4,
+   "name": "Hidden Orb 587",
+   "position": [
+    1075.585,
+    67.987,
+    -2737.453
+   ]
+  },
+  {
+   "id": 73400588,
+   "ordinal": 588,
+   "type": 4,
+   "name": "Hidden Orb 588",
+   "position": [
+    1129.371,
+    53.941,
+    -2411.408
+   ]
+  },
+  {
+   "id": 73400589,
+   "ordinal": 589,
+   "type": 4,
+   "name": "Hidden Orb 589",
+   "position": [
+    874.483,
+    24.7,
+    -2995.092
+   ]
+  },
+  {
+   "id": 73400590,
+   "ordinal": 590,
+   "type": 4,
+   "name": "Hidden Orb 590",
+   "position": [
+    882.67,
+    13.371,
+    -2858.919
+   ]
+  },
+  {
+   "id": 73400591,
+   "ordinal": 591,
+   "type": 4,
+   "name": "Hidden Orb 591",
+   "position": [
+    737.128,
+    115.666,
+    -2179.508
+   ]
+  },
+  {
+   "id": 73400592,
+   "ordinal": 592,
+   "type": 4,
+   "name": "Hidden Orb 592",
+   "position": [
+    634.879,
+    68.605,
+    -2568.655
+   ]
+  },
+  {
+   "id": 73400593,
+   "ordinal": 593,
+   "type": 4,
+   "name": "Hidden Orb 593",
+   "position": [
+    827.096,
+    102.905,
+    -2264.987
+   ]
+  },
+  {
+   "id": 73400594,
+   "ordinal": 594,
+   "type": 4,
+   "name": "Hidden Orb 594",
+   "position": [
+    1209.974,
+    29.704,
+    -2424.668
+   ]
+  },
+  {
+   "id": 73400595,
+   "ordinal": 595,
+   "type": 4,
+   "name": "Hidden Orb 595",
+   "position": [
+    1197.109,
+    21.617,
+    -2803.627
+   ]
+  },
+  {
+   "id": 73400596,
+   "ordinal": 596,
+   "type": 4,
+   "name": "Hidden Orb 596",
+   "position": [
+    286.29,
+    12.299,
+    -2365.917
+   ]
+  },
+  {
+   "id": 73400597,
+   "ordinal": 597,
+   "type": 4,
+   "name": "Hidden Orb 597",
+   "position": [
+    322.609,
+    81.161,
+    -2336.582
+   ]
+  },
+  {
+   "id": 73400598,
+   "ordinal": 598,
+   "type": 4,
+   "name": "Hidden Orb 598",
+   "position": [
+    470.985,
+    15.001,
+    -2696.573
+   ]
+  },
+  {
+   "id": 73400599,
+   "ordinal": 599,
+   "type": 4,
+   "name": "Hidden Orb 599",
+   "position": [
+    609.594,
+    17.478,
+    -2126.939
+   ]
+  },
+  {
+   "id": 73400600,
+   "ordinal": 600,
+   "type": 4,
+   "name": "Hidden Orb 600",
+   "position": [
+    969.756,
+    1.526,
+    -3145.615
+   ]
+  },
+  {
+   "id": 73400601,
+   "ordinal": 601,
+   "type": 4,
+   "name": "Hidden Orb 601",
+   "position": [
+    2536.133,
+    4.103,
+    -1571.868
+   ]
+  },
+  {
+   "id": 73400602,
+   "ordinal": 602,
+   "type": 4,
+   "name": "Hidden Orb 602",
+   "position": [
+    2523.551,
+    19.217,
+    -1486.436
+   ]
+  },
+  {
+   "id": 73400603,
+   "ordinal": 603,
+   "type": 4,
+   "name": "Hidden Orb 603",
+   "position": [
+    2851.286,
+    88.737,
+    -1160.0
+   ]
+  },
+  {
+   "id": 73400604,
+   "ordinal": 604,
+   "type": 4,
+   "name": "Hidden Orb 604",
+   "position": [
+    3046.021,
+    106.416,
+    -1286.143
+   ]
+  },
+  {
+   "id": 73400605,
+   "ordinal": 605,
+   "type": 4,
+   "name": "Hidden Orb 605",
+   "position": [
+    3205.103,
+    77.705,
+    -1261.948
+   ]
+  },
+  {
+   "id": 73400606,
+   "ordinal": 606,
+   "type": 4,
+   "name": "Hidden Orb 606",
+   "position": [
+    3234.995,
+    51.164,
+    -1345.917
+   ]
+  },
+  {
+   "id": 73400607,
+   "ordinal": 607,
+   "type": 4,
+   "name": "Hidden Orb 607",
+   "position": [
+    3209.85,
+    81.094,
+    -1440.254
+   ]
+  },
+  {
+   "id": 73400608,
+   "ordinal": 608,
+   "type": 4,
+   "name": "Hidden Orb 608",
+   "position": [
+    3195.119,
+    49.58,
+    -1466.734
+   ]
+  },
+  {
+   "id": 73400609,
+   "ordinal": 609,
+   "type": 4,
+   "name": "Hidden Orb 609",
+   "position": [
+    2972.455,
+    16.029,
+    -1686.593
+   ]
+  },
+  {
+   "id": 73400610,
+   "ordinal": 610,
+   "type": 4,
+   "name": "Hidden Orb 610",
+   "position": [
+    2910.124,
+    41.58,
+    -1342.701
+   ]
+  },
+  {
+   "id": 73400611,
+   "ordinal": 611,
+   "type": 4,
+   "name": "Hidden Orb 611",
+   "position": [
+    2994.57,
+    49.883,
+    -1221.916
+   ]
+  },
+  {
+   "id": 73400612,
+   "ordinal": 612,
+   "type": 4,
+   "name": "Hidden Orb 612",
+   "position": [
+    3037.812,
+    36.0,
+    -1163.929
+   ]
+  },
+  {
+   "id": 73400613,
+   "ordinal": 613,
+   "type": 4,
+   "name": "Hidden Orb 613",
+   "position": [
+    3028.118,
+    89.089,
+    -1142.443
+   ]
+  },
+  {
+   "id": 73400614,
+   "ordinal": 614,
+   "type": 4,
+   "name": "Hidden Orb 614",
+   "position": [
+    2874.562,
+    63.956,
+    -1121.107
+   ]
+  },
+  {
+   "id": 73400615,
+   "ordinal": 615,
+   "type": 4,
+   "name": "Hidden Orb 615",
+   "position": [
+    3120.424,
+    17.338,
+    -790.155
+   ]
+  },
+  {
+   "id": 73400616,
+   "ordinal": 616,
+   "type": 4,
+   "name": "Hidden Orb 616",
+   "position": [
+    3209.524,
+    63.644,
+    -790.827
+   ]
+  },
+  {
+   "id": 73400617,
+   "ordinal": 617,
+   "type": 4,
+   "name": "Hidden Orb 617",
+   "position": [
+    3224.075,
+    63.642,
+    -901.021
+   ]
+  },
+  {
+   "id": 73400618,
+   "ordinal": 618,
+   "type": 4,
+   "name": "Hidden Orb 618",
+   "position": [
+    3226.059,
+    107.161,
+    -948.924
+   ]
+  },
+  {
+   "id": 73400619,
+   "ordinal": 619,
+   "type": 4,
+   "name": "Hidden Orb 619",
+   "position": [
+    3199.17,
+    107.171,
+    -734.841
+   ]
+  },
+  {
+   "id": 73400620,
+   "ordinal": 620,
+   "type": 4,
+   "name": "Hidden Orb 620",
+   "position": [
+    3161.281,
+    13.627,
+    -554.796
+   ]
+  },
+  {
+   "id": 73400621,
+   "ordinal": 621,
+   "type": 4,
+   "name": "Hidden Orb 621",
+   "position": [
+    3280.614,
+    10.606,
+    -469.816
+   ]
+  },
+  {
+   "id": 73400622,
+   "ordinal": 622,
+   "type": 4,
+   "name": "Hidden Orb 622",
+   "position": [
+    3693.688,
+    20.8,
+    -307.512
+   ]
+  },
+  {
+   "id": 73400623,
+   "ordinal": 623,
+   "type": 4,
+   "name": "Hidden Orb 623",
+   "position": [
+    3525.903,
+    31.939,
+    -170.428
+   ]
+  },
+  {
+   "id": 73400624,
+   "ordinal": 624,
+   "type": 4,
+   "name": "Hidden Orb 624",
+   "position": [
+    3778.187,
+    3.942,
+    -211.656
+   ]
+  },
+  {
+   "id": 73400625,
+   "ordinal": 625,
+   "type": 4,
+   "name": "Hidden Orb 625",
+   "position": [
+    2999.725,
+    42.4,
+    -275.136
+   ]
+  },
+  {
+   "id": 73400626,
+   "ordinal": 626,
+   "type": 4,
+   "name": "Hidden Orb 626",
+   "position": [
+    2878.943,
+    32.446,
+    -115.932
+   ]
+  },
+  {
+   "id": 73400627,
+   "ordinal": 627,
+   "type": 4,
+   "name": "Hidden Orb 627",
+   "position": [
+    2181.769,
+    71.725,
+    76.979
+   ]
+  },
+  {
+   "id": 73400628,
+   "ordinal": 628,
+   "type": 4,
+   "name": "Hidden Orb 628",
+   "position": [
+    2294.025,
+    50.04,
+    43.781
+   ]
+  },
+  {
+   "id": 73400629,
+   "ordinal": 629,
+   "type": 4,
+   "name": "Hidden Orb 629",
+   "position": [
+    2004.154,
+    16.186,
+    -209.515
+   ]
+  },
+  {
+   "id": 73400630,
+   "ordinal": 630,
+   "type": 4,
+   "name": "Hidden Orb 630",
+   "position": [
+    1918.358,
+    16.128,
+    30.428
+   ]
+  },
+  {
+   "id": 73400631,
+   "ordinal": 631,
+   "type": 4,
+   "name": "Hidden Orb 631",
+   "position": [
+    2008.581,
+    27.403,
+    -127.27
+   ]
+  },
+  {
+   "id": 73400632,
+   "ordinal": 632,
+   "type": 4,
+   "name": "Hidden Orb 632",
+   "position": [
+    2077.557,
+    33.715,
+    -104.384
+   ]
+  },
+  {
+   "id": 73400633,
+   "ordinal": 633,
+   "type": 4,
+   "name": "Hidden Orb 633",
+   "position": [
+    2371.649,
+    52.336,
+    258.601
+   ]
+  },
+  {
+   "id": 73400634,
+   "ordinal": 634,
+   "type": 4,
+   "name": "Hidden Orb 634",
+   "position": [
+    2573.86,
+    15.939,
+    146.99
+   ]
+  },
+  {
+   "id": 73400635,
+   "ordinal": 635,
+   "type": 4,
+   "name": "Hidden Orb 635",
+   "position": [
+    2447.82,
+    33.98,
+    -38.038
+   ]
+  },
+  {
+   "id": 73400636,
+   "ordinal": 636,
+   "type": 4,
+   "name": "Hidden Orb 636",
+   "position": [
+    1928.542,
+    16.282,
+    -278.567
+   ]
+  },
+  {
+   "id": 73400637,
+   "ordinal": 637,
+   "type": 4,
+   "name": "Hidden Orb 637",
+   "position": [
+    2726.398,
+    39.739,
+    -355.214
+   ]
+  },
+  {
+   "id": 73400638,
+   "ordinal": 638,
+   "type": 4,
+   "name": "Hidden Orb 638",
+   "position": [
+    2545.066,
+    40.047,
+    -422.76
+   ]
+  },
+  {
+   "id": 73400639,
+   "ordinal": 639,
+   "type": 4,
+   "name": "Hidden Orb 639",
+   "position": [
+    2632.811,
+    42.667,
+    -513.095
+   ]
+  },
+  {
+   "id": 73400640,
+   "ordinal": 640,
+   "type": 4,
+   "name": "Hidden Orb 640",
+   "position": [
+    2724.848,
+    32.595,
+    -524.963
+   ]
+  },
+  {
+   "id": 73400641,
+   "ordinal": 641,
+   "type": 4,
+   "name": "Hidden Orb 641",
+   "position": [
+    2672.949,
+    32.791,
+    -552.711
+   ]
+  },
+  {
+   "id": 73400642,
+   "ordinal": 642,
+   "type": 4,
+   "name": "Hidden Orb 642",
+   "position": [
+    2615.341,
+    33.091,
+    -561.542
+   ]
+  },
+  {
+   "id": 73400643,
+   "ordinal": 643,
+   "type": 4,
+   "name": "Hidden Orb 643",
+   "position": [
+    2459.314,
+    36.854,
+    -501.209
+   ]
+  },
+  {
+   "id": 73400644,
+   "ordinal": 644,
+   "type": 4,
+   "name": "Hidden Orb 644",
+   "position": [
+    2508.922,
+    63.994,
+    -457.257
+   ]
+  },
+  {
+   "id": 73400645,
+   "ordinal": 645,
+   "type": 4,
+   "name": "Hidden Orb 645",
+   "position": [
+    2419.333,
+    12.017,
+    -418.105
+   ]
+  },
+  {
+   "id": 73400646,
+   "ordinal": 646,
+   "type": 4,
+   "name": "Hidden Orb 646",
+   "position": [
+    2290.375,
+    37.524,
+    -370.322
+   ]
+  },
+  {
+   "id": 73400647,
+   "ordinal": 647,
+   "type": 4,
+   "name": "Hidden Orb 647",
+   "position": [
+    2139.192,
+    54.203,
+    -452.712
+   ]
+  },
+  {
+   "id": 73400648,
+   "ordinal": 648,
+   "type": 4,
+   "name": "Hidden Orb 648",
+   "position": [
+    2177.092,
+    22.85,
+    -370.333
+   ]
+  },
+  {
+   "id": 73400649,
+   "ordinal": 649,
+   "type": 4,
+   "name": "Hidden Orb 649",
+   "position": [
+    2214.807,
+    45.775,
+    -314.211
+   ]
+  },
+  {
+   "id": 73400650,
+   "ordinal": 650,
+   "type": 4,
+   "name": "Hidden Orb 650",
+   "position": [
+    2191.188,
+    23.995,
+    -524.844
+   ]
+  },
+  {
+   "id": 73400651,
+   "ordinal": 651,
+   "type": 4,
+   "name": "Hidden Orb 651",
+   "position": [
+    2164.787,
+    49.797,
+    -524.882
+   ]
+  },
+  {
+   "id": 73400652,
+   "ordinal": 652,
+   "type": 4,
+   "name": "Hidden Orb 652",
+   "position": [
+    2288.303,
+    37.716,
+    -650.001
+   ]
+  },
+  {
+   "id": 73400653,
+   "ordinal": 653,
+   "type": 4,
+   "name": "Hidden Orb 653",
+   "position": [
+    2239.712,
+    39.0,
+    -763.264
+   ]
+  },
+  {
+   "id": 73400654,
+   "ordinal": 654,
+   "type": 4,
+   "name": "Hidden Orb 654",
+   "position": [
+    2280.781,
+    4.0,
+    -824.585
+   ]
+  },
+  {
+   "id": 73400655,
+   "ordinal": 655,
+   "type": 4,
+   "name": "Hidden Orb 655",
+   "position": [
+    2451.732,
+    32.157,
+    -759.348
+   ]
+  },
+  {
+   "id": 73400656,
+   "ordinal": 656,
+   "type": 4,
+   "name": "Hidden Orb 656",
+   "position": [
+    2443.816,
+    8.161,
+    -835.71
+   ]
+  },
+  {
+   "id": 73400657,
+   "ordinal": 657,
+   "type": 4,
+   "name": "Hidden Orb 657",
+   "position": [
+    2404.475,
+    11.001,
+    -740.727
+   ]
+  },
+  {
+   "id": 73400658,
+   "ordinal": 658,
+   "type": 4,
+   "name": "Hidden Orb 658",
+   "position": [
+    2506.902,
+    11.001,
+    -728.334
+   ]
+  },
+  {
+   "id": 73400659,
+   "ordinal": 659,
+   "type": 4,
+   "name": "Hidden Orb 659",
+   "position": [
+    2400.965,
+    27.739,
+    -854.186
+   ]
+  },
+  {
+   "id": 73400660,
+   "ordinal": 660,
+   "type": 4,
+   "name": "Hidden Orb 660",
+   "position": [
+    2497.429,
+    31.424,
+    -733.778
+   ]
+  },
+  {
+   "id": 73400661,
+   "ordinal": 661,
+   "type": 4,
+   "name": "Hidden Orb 661",
+   "position": [
+    2821.718,
+    16.999,
+    -682.259
+   ]
+  },
+  {
+   "id": 73400662,
+   "ordinal": 662,
+   "type": 4,
+   "name": "Hidden Orb 662",
+   "position": [
+    2834.949,
+    46.974,
+    -622.264
+   ]
+  },
+  {
+   "id": 73400663,
+   "ordinal": 663,
+   "type": 4,
+   "name": "Hidden Orb 663",
+   "position": [
+    2637.781,
+    11.032,
+    -885.236
+   ]
+  },
+  {
+   "id": 73400664,
+   "ordinal": 664,
+   "type": 4,
+   "name": "Hidden Orb 664",
+   "position": [
+    2724.917,
+    9.613,
+    -781.77
+   ]
+  },
+  {
+   "id": 73400665,
+   "ordinal": 665,
+   "type": 4,
+   "name": "Hidden Orb 665",
+   "position": [
+    2793.383,
+    9.589,
+    -762.997
+   ]
+  },
+  {
+   "id": 73400666,
+   "ordinal": 666,
+   "type": 4,
+   "name": "Hidden Orb 666",
+   "position": [
+    2934.334,
+    46.357,
+    -723.318
+   ]
+  },
+  {
+   "id": 73400667,
+   "ordinal": 667,
+   "type": 4,
+   "name": "Hidden Orb 667",
+   "position": [
+    2557.388,
+    84.333,
+    -578.891
+   ]
+  },
+  {
+   "id": 73400668,
+   "ordinal": 668,
+   "type": 4,
+   "name": "Hidden Orb 668",
+   "position": [
+    2646.161,
+    46.696,
+    -652.166
+   ]
+  },
+  {
+   "id": 73400669,
+   "ordinal": 669,
+   "type": 4,
+   "name": "Hidden Orb 669",
+   "position": [
+    2150.154,
+    1.952,
+    -865.597
+   ]
+  },
+  {
+   "id": 73400670,
+   "ordinal": 670,
+   "type": 4,
+   "name": "Hidden Orb 670",
+   "position": [
+    1927.967,
+    57.038,
+    -278.207
+   ]
+  },
+  {
+   "id": 73400671,
+   "ordinal": 671,
+   "type": 4,
+   "name": "Hidden Orb 671",
+   "position": [
+    2052.583,
+    96.004,
+    -350.465
+   ]
+  },
+  {
+   "id": 73400672,
+   "ordinal": 672,
+   "type": 4,
+   "name": "Hidden Orb 672",
+   "position": [
+    2068.41,
+    80.196,
+    -423.656
+   ]
+  },
+  {
+   "id": 73400673,
+   "ordinal": 673,
+   "type": 4,
+   "name": "Hidden Orb 673",
+   "position": [
+    1989.836,
+    125.059,
+    -666.215
+   ]
+  },
+  {
+   "id": 73400674,
+   "ordinal": 674,
+   "type": 4,
+   "name": "Hidden Orb 674",
+   "position": [
+    2001.484,
+    69.332,
+    -764.54
+   ]
+  },
+  {
+   "id": 73400675,
+   "ordinal": 675,
+   "type": 4,
+   "name": "Hidden Orb 675",
+   "position": [
+    2082.884,
+    98.056,
+    -692.961
+   ]
+  },
+  {
+   "id": 73400676,
+   "ordinal": 676,
+   "type": 4,
+   "name": "Hidden Orb 676",
+   "position": [
+    2010.403,
+    9.926,
+    -539.866
+   ]
+  },
+  {
+   "id": 73400677,
+   "ordinal": 677,
+   "type": 4,
+   "name": "Hidden Orb 677",
+   "position": [
+    2032.295,
+    55.757,
+    -574.763
+   ]
+  },
+  {
+   "id": 73400678,
+   "ordinal": 678,
+   "type": 4,
+   "name": "Hidden Orb 678",
+   "position": [
+    2396.339,
+    2.0,
+    -978.937
+   ]
+  },
+  {
+   "id": 73400679,
+   "ordinal": 679,
+   "type": 4,
+   "name": "Hidden Orb 679",
+   "position": [
+    2020.042,
+    5.0,
+    -1235.753
+   ]
+  },
+  {
+   "id": 73400680,
+   "ordinal": 680,
+   "type": 4,
+   "name": "Hidden Orb 680",
+   "position": [
+    2229.086,
+    40.223,
+    -1313.902
+   ]
+  },
+  {
+   "id": 73400681,
+   "ordinal": 681,
+   "type": 4,
+   "name": "Hidden Orb 681",
+   "position": [
+    2225.538,
+    78.201,
+    -1362.148
+   ]
+  },
+  {
+   "id": 73400682,
+   "ordinal": 682,
+   "type": 4,
+   "name": "Hidden Orb 682",
+   "position": [
+    2328.465,
+    74.928,
+    -1434.146
+   ]
+  },
+  {
+   "id": 73400683,
+   "ordinal": 683,
+   "type": 4,
+   "name": "Hidden Orb 683",
+   "position": [
+    2332.149,
+    78.741,
+    -1390.696
+   ]
+  },
+  {
+   "id": 73400684,
+   "ordinal": 684,
+   "type": 4,
+   "name": "Hidden Orb 684",
+   "position": [
+    2319.916,
+    19.04,
+    -1532.293
+   ]
+  },
+  {
+   "id": 73400685,
+   "ordinal": 685,
+   "type": 4,
+   "name": "Hidden Orb 685",
+   "position": [
+    2329.557,
+    14.978,
+    -1328.319
+   ]
+  },
+  {
+   "id": 73400686,
+   "ordinal": 686,
+   "type": 4,
+   "name": "Hidden Orb 686",
+   "position": [
+    2372.754,
+    10.978,
+    -1128.912
+   ]
+  },
+  {
+   "id": 73400687,
+   "ordinal": 687,
+   "type": 4,
+   "name": "Hidden Orb 687",
+   "position": [
+    2419.138,
+    4.673,
+    -1285.498
+   ]
+  },
+  {
+   "id": 73400688,
+   "ordinal": 688,
+   "type": 4,
+   "name": "Hidden Orb 688",
+   "position": [
+    2272.607,
+    60.805,
+    -1340.657
+   ]
+  },
+  {
+   "id": 73400689,
+   "ordinal": 689,
+   "type": 4,
+   "name": "Hidden Orb 689",
+   "position": [
+    2398.159,
+    60.805,
+    -1351.645
+   ]
+  },
+  {
+   "id": 73400690,
+   "ordinal": 690,
+   "type": 4,
+   "name": "Hidden Orb 690",
+   "position": [
+    2377.245,
+    39.415,
+    -1240.552
+   ]
+  },
+  {
+   "id": 73400691,
+   "ordinal": 691,
+   "type": 4,
+   "name": "Hidden Orb 691",
+   "position": [
+    2655.763,
+    46.023,
+    -1097.149
+   ]
+  },
+  {
+   "id": 73400692,
+   "ordinal": 692,
+   "type": 4,
+   "name": "Hidden Orb 692",
+   "position": [
+    2839.045,
+    95.514,
+    -1582.885
+   ]
+  },
+  {
+   "id": 73400693,
+   "ordinal": 693,
+   "type": 4,
+   "name": "Hidden Orb 693",
+   "position": [
+    2671.579,
+    61.531,
+    -1525.608
+   ]
+  },
+  {
+   "id": 73400694,
+   "ordinal": 694,
+   "type": 4,
+   "name": "Hidden Orb 694",
+   "position": [
+    3032.567,
+    21.497,
+    -1436.677
+   ]
+  },
+  {
+   "id": 73400695,
+   "ordinal": 695,
+   "type": 4,
+   "name": "Hidden Orb 695",
+   "position": [
+    2837.55,
+    34.085,
+    -1391.686
+   ]
+  },
+  {
+   "id": 73400696,
+   "ordinal": 696,
+   "type": 4,
+   "name": "Hidden Orb 696",
+   "position": [
+    2873.535,
+    28.7,
+    -494.025
+   ]
+  },
+  {
+   "id": 73400697,
+   "ordinal": 697,
+   "type": 4,
+   "name": "Hidden Orb 697",
+   "position": [
+    3105.16,
+    10.934,
+    178.833
+   ]
+  },
+  {
+   "id": 73400698,
+   "ordinal": 698,
+   "type": 4,
+   "name": "Hidden Orb 698",
+   "position": [
+    3050.555,
+    44.932,
+    284.8
+   ]
+  },
+  {
+   "id": 73400699,
+   "ordinal": 699,
+   "type": 4,
+   "name": "Hidden Orb 699",
+   "position": [
+    3037.924,
+    72.655,
+    249.949
+   ]
+  },
+  {
+   "id": 73400700,
+   "ordinal": 700,
+   "type": 4,
+   "name": "Hidden Orb 700",
+   "position": [
+    3033.048,
+    108.1,
+    340.003
+   ]
+  },
+  {
+   "id": 73400701,
+   "ordinal": 701,
+   "type": 4,
+   "name": "Hidden Orb 701",
+   "position": [
+    2059.732,
+    23.753,
+    -80.987
+   ]
+  },
+  {
+   "id": 73400702,
+   "ordinal": 702,
+   "type": 4,
+   "name": "Hidden Orb 702",
+   "position": [
+    2021.074,
+    16.705,
+    -160.059
+   ]
+  },
+  {
+   "id": 73400703,
+   "ordinal": 703,
+   "type": 4,
+   "name": "Hidden Orb 703",
+   "position": [
+    2142.708,
+    1.588,
+    -1038.195
+   ]
+  },
+  {
+   "id": 73400704,
+   "ordinal": 704,
+   "type": 4,
+   "name": "Hidden Orb 704",
+   "position": [
+    3624.769,
+    75.0,
+    -359.544
+   ]
+  },
+  {
+   "id": 73400705,
+   "ordinal": 705,
+   "type": 4,
+   "name": "Hidden Orb 705",
+   "position": [
+    1919.582,
+    10.75,
+    -2408.62
+   ]
+  },
+  {
+   "id": 73400706,
+   "ordinal": 706,
+   "type": 4,
+   "name": "Hidden Orb 706",
+   "position": [
+    2053.509,
+    12.099,
+    -2310.418
+   ]
+  },
+  {
+   "id": 73400707,
+   "ordinal": 707,
+   "type": 4,
+   "name": "Hidden Orb 707",
+   "position": [
+    2663.64,
+    9.809,
+    -2120.993
+   ]
+  },
+  {
+   "id": 73400708,
+   "ordinal": 708,
+   "type": 4,
+   "name": "Hidden Orb 708",
+   "position": [
+    2933.786,
+    21.024,
+    -2089.621
+   ]
+  },
+  {
+   "id": 73400709,
+   "ordinal": 709,
+   "type": 4,
+   "name": "Hidden Orb 709",
+   "position": [
+    2904.35,
+    10.564,
+    -2390.497
+   ]
+  },
+  {
+   "id": 73400710,
+   "ordinal": 710,
+   "type": 4,
+   "name": "Hidden Orb 710",
+   "position": [
+    2385.353,
+    0.925,
+    -2559.482
+   ]
+  },
+  {
+   "id": 73400711,
+   "ordinal": 711,
+   "type": 4,
+   "name": "Hidden Orb 711",
+   "position": [
+    2198.128,
+    15.1,
+    -2376.895
+   ]
+  },
+  {
+   "id": 73400712,
+   "ordinal": 712,
+   "type": 4,
+   "name": "Hidden Orb 712",
+   "position": [
+    2567.345,
+    0.403,
+    -2792.649
+   ]
+  },
+  {
+   "id": 73400713,
+   "ordinal": 713,
+   "type": 4,
+   "name": "Hidden Orb 713",
+   "position": [
+    2789.92,
+    52.999,
+    -2691.918
+   ]
+  },
+  {
+   "id": 73400714,
+   "ordinal": 714,
+   "type": 4,
+   "name": "Hidden Orb 714",
+   "position": [
+    2645.821,
+    37.999,
+    -2861.776
+   ]
+  },
+  {
+   "id": 73400715,
+   "ordinal": 715,
+   "type": 4,
+   "name": "Hidden Orb 715",
+   "position": [
+    2319.352,
+    45.432,
+    -2365.378
+   ]
+  },
+  {
+   "id": 73400716,
+   "ordinal": 716,
+   "type": 4,
+   "name": "Hidden Orb 716",
+   "position": [
+    2311.29,
+    44.651,
+    -2447.739
+   ]
+  },
+  {
+   "id": 73400717,
+   "ordinal": 717,
+   "type": 4,
+   "name": "Hidden Orb 717",
+   "position": [
+    2586.311,
+    49.999,
+    -2397.749
+   ]
+  },
+  {
+   "id": 73400718,
+   "ordinal": 718,
+   "type": 4,
+   "name": "Hidden Orb 718",
+   "position": [
+    2600.21,
+    72.832,
+    -2223.486
+   ]
+  },
+  {
+   "id": 73400719,
+   "ordinal": 719,
+   "type": 4,
+   "name": "Hidden Orb 719",
+   "position": [
+    2448.781,
+    21.426,
+    -2232.577
+   ]
+  },
+  {
+   "id": 73400720,
+   "ordinal": 720,
+   "type": 4,
+   "name": "Hidden Orb 720",
+   "position": [
+    2422.777,
+    28.957,
+    -2262.141
+   ]
+  },
+  {
+   "id": 73400721,
+   "ordinal": 721,
+   "type": 4,
+   "name": "Hidden Orb 721",
+   "position": [
+    2356.623,
+    107.024,
+    -2288.972
+   ]
+  },
+  {
+   "id": 73400722,
+   "ordinal": 722,
+   "type": 4,
+   "name": "Hidden Orb 722",
+   "position": [
+    2298.372,
+    80.135,
+    -2342.962
+   ]
+  },
+  {
+   "id": 73400723,
+   "ordinal": 723,
+   "type": 4,
+   "name": "Hidden Orb 723",
+   "position": [
+    2732.729,
+    48.991,
+    -2209.221
+   ]
+  },
+  {
+   "id": 73400724,
+   "ordinal": 724,
+   "type": 4,
+   "name": "Hidden Orb 724",
+   "position": [
+    2798.93,
+    20.101,
+    -2219.678
+   ]
+  },
+  {
+   "id": 73400725,
+   "ordinal": 725,
+   "type": 4,
+   "name": "Hidden Orb 725",
+   "position": [
+    2833.217,
+    43.35,
+    -2268.291
+   ]
+  },
+  {
+   "id": 73400726,
+   "ordinal": 726,
+   "type": 4,
+   "name": "Hidden Orb 726",
+   "position": [
+    2751.641,
+    63.468,
+    -2514.909
+   ]
+  },
+  {
+   "id": 73400727,
+   "ordinal": 727,
+   "type": 4,
+   "name": "Hidden Orb 727",
+   "position": [
+    2523.006,
+    42.101,
+    -3384.955
+   ]
+  },
+  {
+   "id": 73400728,
+   "ordinal": 728,
+   "type": 4,
+   "name": "Hidden Orb 728",
+   "position": [
+    2508.797,
+    3.98,
+    -3613.97
+   ]
+  },
+  {
+   "id": 73400729,
+   "ordinal": 729,
+   "type": 4,
+   "name": "Hidden Orb 729",
+   "position": [
+    1945.32,
+    11.307,
+    -3491.756
+   ]
+  },
+  {
+   "id": 73400730,
+   "ordinal": 730,
+   "type": 4,
+   "name": "Hidden Orb 730",
+   "position": [
+    1899.078,
+    17.999,
+    -3528.839
+   ]
+  },
+  {
+   "id": 73400731,
+   "ordinal": 731,
+   "type": 4,
+   "name": "Hidden Orb 731",
+   "position": [
+    1775.842,
+    10.0,
+    -3551.64
+   ]
+  },
+  {
+   "id": 73400732,
+   "ordinal": 732,
+   "type": 4,
+   "name": "Hidden Orb 732",
+   "position": [
+    1736.815,
+    29.704,
+    -3446.146
+   ]
+  },
+  {
+   "id": 73400733,
+   "ordinal": 733,
+   "type": 4,
+   "name": "Hidden Orb 733",
+   "position": [
+    1777.874,
+    8.0,
+    -2694.371
+   ]
+  },
+  {
+   "id": 73400734,
+   "ordinal": 734,
+   "type": 4,
+   "name": "Hidden Orb 734",
+   "position": [
+    1722.043,
+    85.295,
+    -2440.856
+   ]
+  },
+  {
+   "id": 73400735,
+   "ordinal": 735,
+   "type": 4,
+   "name": "Hidden Orb 735",
+   "position": [
+    2048.414,
+    162.499,
+    -2629.157
+   ]
+  },
+  {
+   "id": 73400736,
+   "ordinal": 736,
+   "type": 4,
+   "name": "Hidden Orb 736",
+   "position": [
+    2336.012,
+    100.001,
+    -2803.463
+   ]
+  },
+  {
+   "id": 73400737,
+   "ordinal": 737,
+   "type": 4,
+   "name": "Hidden Orb 737",
+   "position": [
+    2354.221,
+    208.751,
+    -2756.095
+   ]
+  },
+  {
+   "id": 73400738,
+   "ordinal": 738,
+   "type": 4,
+   "name": "Hidden Orb 738",
+   "position": [
+    2307.115,
+    310.615,
+    -2761.589
+   ]
+  },
+  {
+   "id": 73400739,
+   "ordinal": 739,
+   "type": 4,
+   "name": "Hidden Orb 739",
+   "position": [
+    1812.152,
+    1.992,
+    -2727.706
+   ]
+  },
+  {
+   "id": 73400740,
+   "ordinal": 740,
+   "type": 4,
+   "name": "Hidden Orb 740",
+   "position": [
+    1923.012,
+    38.384,
+    -2550.589
+   ]
+  },
+  {
+   "id": 73400741,
+   "ordinal": 741,
+   "type": 4,
+   "name": "Hidden Orb 741",
+   "position": [
+    2046.986,
+    36.063,
+    -2420.072
+   ]
+  },
+  {
+   "id": 73400742,
+   "ordinal": 742,
+   "type": 4,
+   "name": "Hidden Orb 742",
+   "position": [
+    2197.449,
+    11.999,
+    -2795.974
+   ]
+  },
+  {
+   "id": 73400743,
+   "ordinal": 743,
+   "type": 4,
+   "name": "Hidden Orb 743",
+   "position": [
+    1994.242,
+    26.137,
+    -2738.72
+   ]
+  },
+  {
+   "id": 73400744,
+   "ordinal": 744,
+   "type": 4,
+   "name": "Hidden Orb 744",
+   "position": [
+    2020.28,
+    19.999,
+    -2780.152
+   ]
+  },
+  {
+   "id": 73400745,
+   "ordinal": 745,
+   "type": 4,
+   "name": "Hidden Orb 745",
+   "position": [
+    1958.691,
+    9.999,
+    -2673.069
+   ]
+  },
+  {
+   "id": 73400746,
+   "ordinal": 746,
+   "type": 4,
+   "name": "Hidden Orb 746",
+   "position": [
+    2253.293,
+    75.001,
+    -2855.782
+   ]
+  },
+  {
+   "id": 73400747,
+   "ordinal": 747,
+   "type": 4,
+   "name": "Hidden Orb 747",
+   "position": [
+    2218.678,
+    68.007,
+    -2541.172
+   ]
+  },
+  {
+   "id": 73400748,
+   "ordinal": 748,
+   "type": 4,
+   "name": "Hidden Orb 748",
+   "position": [
+    2322.826,
+    20.0,
+    -2685.928
+   ]
+  },
+  {
+   "id": 73400749,
+   "ordinal": 749,
+   "type": 4,
+   "name": "Hidden Orb 749",
+   "position": [
+    2323.664,
+    142.5,
+    -2669.491
+   ]
+  },
+  {
+   "id": 73400750,
+   "ordinal": 750,
+   "type": 4,
+   "name": "Hidden Orb 750",
+   "position": [
+    2003.485,
+    55.028,
+    -2570.836
+   ]
+  },
+  {
+   "id": 73400751,
+   "ordinal": 751,
+   "type": 4,
+   "name": "Hidden Orb 751",
+   "position": [
+    1994.462,
+    54.002,
+    -2619.473
+   ]
+  },
+  {
+   "id": 73400752,
+   "ordinal": 752,
+   "type": 4,
+   "name": "Hidden Orb 752",
+   "position": [
+    2300.004,
+    25.001,
+    -2855.067
+   ]
+  },
+  {
+   "id": 73400753,
+   "ordinal": 753,
+   "type": 4,
+   "name": "Hidden Orb 753",
+   "position": [
+    1864.649,
+    28.646,
+    -2800.968
+   ]
+  },
+  {
+   "id": 73400754,
+   "ordinal": 754,
+   "type": 4,
+   "name": "Hidden Orb 754",
+   "position": [
+    2218.69,
+    140.945,
+    -2632.557
+   ]
+  },
+  {
+   "id": 73400755,
+   "ordinal": 755,
+   "type": 4,
+   "name": "Hidden Orb 755",
+   "position": [
+    2770.532,
+    -10.9,
+    -2748.04
+   ]
+  },
+  {
+   "id": 73400756,
+   "ordinal": 756,
+   "type": 4,
+   "name": "Hidden Orb 756",
+   "position": [
+    2902.018,
+    69.332,
+    -3501.594
+   ]
+  },
+  {
+   "id": 73400757,
+   "ordinal": 757,
+   "type": 4,
+   "name": "Hidden Orb 757",
+   "position": [
+    2956.085,
+    41.716,
+    -3580.173
+   ]
+  },
+  {
+   "id": 73400758,
+   "ordinal": 758,
+   "type": 4,
+   "name": "Hidden Orb 758",
+   "position": [
+    2161.606,
+    20.949,
+    -3149.612
+   ]
+  },
+  {
+   "id": 73400759,
+   "ordinal": 759,
+   "type": 4,
+   "name": "Hidden Orb 759",
+   "position": [
+    2398.959,
+    56.1,
+    -3389.829
+   ]
+  },
+  {
+   "id": 73400760,
+   "ordinal": 760,
+   "type": 4,
+   "name": "Hidden Orb 760",
+   "position": [
+    2381.55,
+    35.896,
+    -3287.862
+   ]
+  },
+  {
+   "id": 73400761,
+   "ordinal": 761,
+   "type": 4,
+   "name": "Hidden Orb 761",
+   "position": [
+    2439.034,
+    45.363,
+    -3230.89
+   ]
+  },
+  {
+   "id": 73400762,
+   "ordinal": 762,
+   "type": 4,
+   "name": "Hidden Orb 762",
+   "position": [
+    2499.234,
+    68.1,
+    -3140.13
+   ]
+  },
+  {
+   "id": 73400763,
+   "ordinal": 763,
+   "type": 4,
+   "name": "Hidden Orb 763",
+   "position": [
+    1789.687,
+    27.718,
+    -3413.95
+   ]
+  },
+  {
+   "id": 73400764,
+   "ordinal": 764,
+   "type": 4,
+   "name": "Hidden Orb 764",
+   "position": [
+    1572.452,
+    7.0,
+    -3090.909
+   ]
+  },
+  {
+   "id": 73400765,
+   "ordinal": 765,
+   "type": 4,
+   "name": "Hidden Orb 765",
+   "position": [
+    1580.583,
+    58.0,
+    -3190.24
+   ]
+  },
+  {
+   "id": 73400766,
+   "ordinal": 766,
+   "type": 4,
+   "name": "Hidden Orb 766",
+   "position": [
+    1452.65,
+    49.77,
+    -3001.876
+   ]
+  },
+  {
+   "id": 73400767,
+   "ordinal": 767,
+   "type": 4,
+   "name": "Hidden Orb 767",
+   "position": [
+    1771.172,
+    126.108,
+    -2364.394
+   ]
+  },
+  {
+   "id": 73400768,
+   "ordinal": 768,
+   "type": 4,
+   "name": "Hidden Orb 768",
+   "position": [
+    2136.456,
+    15.999,
+    -2502.074
+   ]
+  },
+  {
+   "id": 73400769,
+   "ordinal": 769,
+   "type": 4,
+   "name": "Hidden Orb 769",
+   "position": [
+    2962.0,
+    35.399,
+    -2176.057
+   ]
+  },
+  {
+   "id": 73400770,
+   "ordinal": 770,
+   "type": 4,
+   "name": "Hidden Orb 770",
+   "position": [
+    2359.676,
+    20.0,
+    -3161.875
+   ]
+  },
+  {
+   "id": 73400771,
+   "ordinal": 771,
+   "type": 4,
+   "name": "Hidden Orb 771",
+   "position": [
+    2347.72,
+    62.099,
+    -3112.447
+   ]
+  },
+  {
+   "id": 73400772,
+   "ordinal": 772,
+   "type": 4,
+   "name": "Hidden Orb 772",
+   "position": [
+    2179.755,
+    171.578,
+    -2842.581
+   ]
+  },
+  {
+   "id": 73400773,
+   "ordinal": 773,
+   "type": 4,
+   "name": "Hidden Orb 773",
+   "position": [
+    1755.209,
+    2.058,
+    -2735.788
+   ]
+  },
+  {
+   "id": 73400774,
+   "ordinal": 774,
+   "type": 4,
+   "name": "Hidden Orb 774",
+   "position": [
+    1888.22,
+    26.328,
+    -2626.375
+   ]
+  },
+  {
+   "id": 73400775,
+   "ordinal": 775,
+   "type": 4,
+   "name": "Hidden Orb 775",
+   "position": [
+    2007.971,
+    239.854,
+    -2706.479
+   ]
+  },
+  {
+   "id": 73400776,
+   "ordinal": 776,
+   "type": 4,
+   "name": "Hidden Orb 776",
+   "position": [
+    2619.96,
+    52.21,
+    -2007.484
+   ]
+  },
+  {
+   "id": 73400777,
+   "ordinal": 777,
+   "type": 4,
+   "name": "Hidden Orb 777",
+   "position": [
+    2762.387,
+    52.999,
+    -2920.114
+   ]
+  },
+  {
+   "id": 73400778,
+   "ordinal": 778,
+   "type": 4,
+   "name": "Hidden Orb 778",
+   "position": [
+    2098.604,
+    34.877,
+    -3647.939
+   ]
+  },
+  {
+   "id": 73400779,
+   "ordinal": 779,
+   "type": 4,
+   "name": "Hidden Orb 779",
+   "position": [
+    2261.624,
+    22.074,
+    -3631.586
+   ]
+  },
+  {
+   "id": 73400780,
+   "ordinal": 780,
+   "type": 4,
+   "name": "Hidden Orb 780",
+   "position": [
+    2979.633,
+    31.004,
+    -3593.137
+   ]
+  },
+  {
+   "id": 73400781,
+   "ordinal": 781,
+   "type": 4,
+   "name": "Hidden Orb 781",
+   "position": [
+    2781.631,
+    90.911,
+    -2208.415
+   ]
+  },
+  {
+   "id": 73400782,
+   "ordinal": 782,
+   "type": 4,
+   "name": "Hidden Orb 782",
+   "position": [
+    2216.818,
+    45.753,
+    -2744.841
+   ]
+  },
+  {
+   "id": 73400783,
+   "ordinal": 783,
+   "type": 4,
+   "name": "Hidden Orb 783",
+   "position": [
+    2170.875,
+    116.0,
+    -2507.612
+   ]
+  },
+  {
+   "id": 73400784,
+   "ordinal": 784,
+   "type": 4,
+   "name": "Hidden Orb 784",
+   "position": [
+    2400.759,
+    154.501,
+    -2778.994
+   ]
+  },
+  {
+   "id": 73400785,
+   "ordinal": 785,
+   "type": 4,
+   "name": "Hidden Orb 785",
+   "position": [
+    2028.9,
+    76.001,
+    -1991.915
+   ]
+  },
+  {
+   "id": 73400786,
+   "ordinal": 786,
+   "type": 4,
+   "name": "Hidden Orb 786",
+   "position": [
+    1949.782,
+    24.0,
+    -1926.526
+   ]
+  },
+  {
+   "id": 73400787,
+   "ordinal": 787,
+   "type": 4,
+   "name": "Hidden Orb 787",
+   "position": [
+    1992.849,
+    24.001,
+    -1783.405
+   ]
+  },
+  {
+   "id": 73400788,
+   "ordinal": 788,
+   "type": 4,
+   "name": "Hidden Orb 788",
+   "position": [
+    1909.379,
+    370.084,
+    -1789.905
+   ]
+  },
+  {
+   "id": 73400789,
+   "ordinal": 789,
+   "type": 4,
+   "name": "Hidden Orb 789",
+   "position": [
+    2002.829,
+    22.627,
+    -1813.384
+   ]
+  },
+  {
+   "id": 73400790,
+   "ordinal": 790,
+   "type": 4,
+   "name": "Hidden Orb 790",
+   "position": [
+    2006.344,
+    6.202,
+    -1945.003
+   ]
+  },
+  {
+   "id": 73400791,
+   "ordinal": 791,
+   "type": 4,
+   "name": "Hidden Orb 791",
+   "position": [
+    2057.174,
+    17.999,
+    -1830.178
+   ]
+  },
+  {
+   "id": 73400792,
+   "ordinal": 792,
+   "type": 4,
+   "name": "Hidden Orb 792",
+   "position": [
+    1299.211,
+    52.69,
+    -1464.164
+   ]
+  },
+  {
+   "id": 73400793,
+   "ordinal": 793,
+   "type": 4,
+   "name": "Hidden Orb 793",
+   "position": [
+    1914.629,
+    14.458,
+    -1908.697
+   ]
+  },
+  {
+   "id": 73400794,
+   "ordinal": 794,
+   "type": 4,
+   "name": "Hidden Orb 794",
+   "position": [
+    2029.937,
+    28.001,
+    -1998.699
+   ]
+  },
+  {
+   "id": 73400795,
+   "ordinal": 795,
+   "type": 4,
+   "name": "Hidden Orb 795",
+   "position": [
+    1777.067,
+    10.67,
+    -1820.989
+   ]
+  },
+  {
+   "id": 73400796,
+   "ordinal": 796,
+   "type": 4,
+   "name": "Hidden Orb 796",
+   "position": [
+    1862.323,
+    133.942,
+    -1763.706
+   ]
+  },
+  {
+   "id": 73400797,
+   "ordinal": 797,
+   "type": 4,
+   "name": "Hidden Orb 797",
+   "position": [
+    1929.392,
+    211.209,
+    -1872.478
+   ]
+  },
+  {
+   "id": 73400798,
+   "ordinal": 798,
+   "type": 4,
+   "name": "Hidden Orb 798",
+   "position": [
+    1988.37,
+    244.062,
+    -1764.205
+   ]
+  },
+  {
+   "id": 73400799,
+   "ordinal": 799,
+   "type": 4,
+   "name": "Hidden Orb 799",
+   "position": [
+    2227.541,
+    22.005,
+    -2183.874
+   ]
+  }
+ ],
+ "dev_world_orbs": [
+  175,
+  176,
+  177,
+  178,
+  180,
+  188,
+  190,
+  259,
+  273,
+  274,
+  290,
+  508
+ ],
+ "skills": [
+  {
+   "index": 0,
+   "name": "Agility",
+   "item": 73410000,
+   "starting": 1,
+   "maximum": 5
+  },
+  {
+   "index": 1,
+   "name": "Driving",
+   "item": 73410001,
+   "starting": 1,
+   "maximum": 5
+  },
+  {
+   "index": 2,
+   "name": "Explosives",
+   "item": 73410002,
+   "starting": 1,
+   "maximum": 5
+  },
+  {
+   "index": 3,
+   "name": "Strength",
+   "item": 73410003,
+   "starting": 1,
+   "maximum": 5
+  },
+  {
+   "index": 4,
+   "name": "Firearms",
+   "item": 73410004,
+   "starting": 1,
+   "maximum": 5
+  }
+ ],
+ "world_orbs": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51,
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+  63,
+  64,
+  65,
+  66,
+  67,
+  68,
+  69,
+  70,
+  71,
+  72,
+  73,
+  74,
+  75,
+  76,
+  77,
+  78,
+  79,
+  80,
+  81,
+  82,
+  83,
+  84,
+  85,
+  86,
+  87,
+  88,
+  89,
+  90,
+  91,
+  92,
+  93,
+  94,
+  95,
+  96,
+  97,
+  98,
+  99,
+  100,
+  101,
+  102,
+  103,
+  104,
+  105,
+  106,
+  107,
+  108,
+  109,
+  110,
+  111,
+  112,
+  113,
+  114,
+  115,
+  116,
+  117,
+  118,
+  119,
+  120,
+  121,
+  122,
+  123,
+  124,
+  125,
+  126,
+  127,
+  128,
+  129,
+  130,
+  131,
+  132,
+  133,
+  134,
+  135,
+  136,
+  137,
+  138,
+  139,
+  140,
+  141,
+  142,
+  143,
+  144,
+  145,
+  146,
+  147,
+  148,
+  149,
+  150,
+  151,
+  152,
+  153,
+  154,
+  155,
+  156,
+  157,
+  158,
+  159,
+  160,
+  161,
+  162,
+  163,
+  164,
+  165,
+  166,
+  167,
+  168,
+  169,
+  170,
+  171,
+  172,
+  173,
+  174,
+  175,
+  176,
+  177,
+  178,
+  179,
+  180,
+  181,
+  182,
+  183,
+  184,
+  185,
+  186,
+  187,
+  188,
+  189,
+  190,
+  191,
+  192,
+  193,
+  194,
+  195,
+  196,
+  197,
+  198,
+  199,
+  200,
+  201,
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  210,
+  211,
+  212,
+  213,
+  214,
+  215,
+  216,
+  217,
+  218,
+  219,
+  220,
+  221,
+  222,
+  223,
+  224,
+  225,
+  226,
+  227,
+  228,
+  229,
+  230,
+  231,
+  232,
+  233,
+  234,
+  235,
+  236,
+  237,
+  238,
+  239,
+  240,
+  241,
+  242,
+  243,
+  244,
+  245,
+  246,
+  247,
+  248,
+  249,
+  250,
+  251,
+  252,
+  253,
+  254,
+  255,
+  256,
+  257,
+  258,
+  259,
+  260,
+  261,
+  262,
+  263,
+  264,
+  265,
+  266,
+  267,
+  268,
+  269,
+  270,
+  271,
+  272,
+  273,
+  274,
+  275,
+  276,
+  277,
+  278,
+  279,
+  280,
+  281,
+  282,
+  283,
+  284,
+  285,
+  286,
+  287,
+  288,
+  289,
+  290,
+  291,
+  292,
+  293,
+  294,
+  295,
+  296,
+  297,
+  298,
+  299,
+  300,
+  301,
+  302,
+  303,
+  304,
+  305,
+  306,
+  307,
+  308,
+  309,
+  310,
+  311,
+  312,
+  313,
+  314,
+  315,
+  316,
+  317,
+  318,
+  319,
+  320,
+  321,
+  322,
+  323,
+  324,
+  325,
+  326,
+  327,
+  328,
+  329,
+  330,
+  331,
+  332,
+  333,
+  334,
+  335,
+  336,
+  337,
+  338,
+  339,
+  340,
+  341,
+  342,
+  343,
+  344,
+  345,
+  346,
+  347,
+  348,
+  349,
+  350,
+  351,
+  352,
+  353,
+  354,
+  355,
+  356,
+  357,
+  358,
+  359,
+  360,
+  361,
+  362,
+  363,
+  364,
+  365,
+  366,
+  367,
+  368,
+  369,
+  370,
+  371,
+  372,
+  373,
+  374,
+  375,
+  376,
+  377,
+  378,
+  379,
+  380,
+  381,
+  382,
+  383,
+  384,
+  385,
+  386,
+  387,
+  388,
+  389,
+  390,
+  391,
+  392,
+  393,
+  394,
+  395,
+  396,
+  397,
+  398,
+  399,
+  400,
+  401,
+  402,
+  403,
+  404,
+  405,
+  406,
+  407,
+  408,
+  409,
+  410,
+  411,
+  412,
+  413,
+  414,
+  415,
+  416,
+  417,
+  418,
+  419,
+  420,
+  421,
+  422,
+  423,
+  424,
+  425,
+  426,
+  427,
+  428,
+  429,
+  430,
+  431,
+  432,
+  433,
+  434,
+  435,
+  436,
+  437,
+  438,
+  439,
+  440,
+  441,
+  442,
+  443,
+  444,
+  445,
+  446,
+  447,
+  448,
+  449,
+  450,
+  451,
+  452,
+  453,
+  454,
+  455,
+  456,
+  457,
+  458,
+  459,
+  460,
+  461,
+  462,
+  463,
+  464,
+  465,
+  466,
+  467,
+  468,
+  469,
+  470,
+  471,
+  472,
+  473,
+  474,
+  475,
+  476,
+  477,
+  478,
+  479,
+  480,
+  481,
+  482,
+  483,
+  484,
+  485,
+  486,
+  487,
+  488,
+  489,
+  490,
+  491,
+  492,
+  493,
+  494,
+  495,
+  496,
+  497,
+  498,
+  499,
+  500,
+  501,
+  502,
+  503,
+  504,
+  505,
+  506,
+  507,
+  508,
+  509,
+  510,
+  511,
+  512,
+  513,
+  514,
+  515,
+  516,
+  517,
+  518,
+  519,
+  520,
+  521,
+  522,
+  523,
+  524,
+  525,
+  526,
+  527,
+  528,
+  529,
+  530,
+  531,
+  532,
+  533,
+  534,
+  535,
+  536,
+  537,
+  538,
+  539,
+  540,
+  541,
+  542,
+  543,
+  544,
+  545,
+  546,
+  547,
+  548,
+  549,
+  550,
+  551,
+  552,
+  553,
+  554,
+  555,
+  556,
+  557,
+  558,
+  559,
+  560,
+  561,
+  562,
+  563,
+  564,
+  565,
+  566,
+  567,
+  568,
+  569,
+  570,
+  571,
+  572,
+  573,
+  574,
+  575,
+  576,
+  577,
+  578,
+  579,
+  580,
+  581,
+  582,
+  583,
+  584,
+  585,
+  586,
+  587,
+  588,
+  589,
+  590,
+  591,
+  592,
+  593,
+  594,
+  595,
+  596,
+  597,
+  598,
+  599,
+  600,
+  601,
+  602,
+  603,
+  604,
+  605,
+  606,
+  607,
+  608,
+  609,
+  610,
+  611,
+  612,
+  613,
+  614,
+  615,
+  616,
+  617,
+  618,
+  619,
+  620,
+  621,
+  622,
+  623,
+  624,
+  625,
+  626,
+  627,
+  628,
+  629,
+  630,
+  631,
+  632,
+  633,
+  634,
+  635,
+  636,
+  637,
+  638,
+  639,
+  640,
+  641,
+  642,
+  643,
+  644,
+  645,
+  646,
+  647,
+  648,
+  649,
+  650,
+  651,
+  652,
+  653,
+  654,
+  655,
+  656,
+  657,
+  658,
+  659,
+  660,
+  661,
+  662,
+  663,
+  664,
+  665,
+  666,
+  667,
+  668,
+  669,
+  670,
+  671,
+  672,
+  673,
+  674,
+  675,
+  676,
+  677,
+  678,
+  679,
+  680,
+  681,
+  682,
+  683,
+  684,
+  685,
+  686,
+  687,
+  688,
+  689,
+  690,
+  691,
+  692,
+  693,
+  694,
+  695,
+  696,
+  697,
+  698,
+  699,
+  700,
+  701,
+  702,
+  703,
+  704,
+  705,
+  706,
+  707,
+  708,
+  709,
+  710,
+  711,
+  712,
+  713,
+  714,
+  715,
+  716,
+  717,
+  718,
+  719,
+  720,
+  721,
+  722,
+  723,
+  724,
+  725,
+  726,
+  727,
+  728,
+  729,
+  730,
+  731,
+  732,
+  733,
+  734,
+  735,
+  736,
+  737,
+  738,
+  739,
+  740,
+  741,
+  742,
+  743,
+  744,
+  745,
+  746,
+  747,
+  748,
+  749,
+  750,
+  751,
+  752,
+  753,
+  754,
+  755,
+  756,
+  757,
+  758,
+  759,
+  760,
+  761,
+  762,
+  763,
+  764,
+  765,
+  766,
+  767,
+  768,
+  769,
+  770,
+  771,
+  772,
+  773,
+  774,
+  775,
+  776,
+  777,
+  778,
+  779,
+  780,
+  781,
+  782,
+  783,
+  784,
+  785,
+  786,
+  787,
+  788,
+  789,
+  790,
+  791,
+  792,
+  793,
+  794,
+  795,
+  796,
+  797,
+  798,
+  799
+ ],
+ "filler_item": 73411000,
+ "supply_points": [
+  {
+   "id": 73401000,
+   "index": 0,
+   "name": "Secure Supply Point 00",
+   "position": [
+    1304.342,
+    39.357,
+    -1476.225
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401001,
+   "index": 1,
+   "name": "Secure Supply Point 01",
+   "position": [
+    861.573,
+    69.156,
+    -1539.212
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401002,
+   "index": 2,
+   "name": "Secure Supply Point 02",
+   "position": [
+    1224.675,
+    61.737,
+    -1868.113
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401003,
+   "index": 3,
+   "name": "Secure Supply Point 03",
+   "position": [
+    956.833,
+    65.811,
+    -1109.927
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401004,
+   "index": 4,
+   "name": "Secure Supply Point 04",
+   "position": [
+    781.484,
+    105.586,
+    -2213.754
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401005,
+   "index": 5,
+   "name": "Secure Supply Point 05",
+   "position": [
+    1033.806,
+    58.1,
+    -2737.525
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401006,
+   "index": 6,
+   "name": "Secure Supply Point 06",
+   "position": [
+    2732.776,
+    24.531,
+    -200.992
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401007,
+   "index": 7,
+   "name": "Secure Supply Point 07",
+   "position": [
+    1992.788,
+    111.126,
+    -552.534
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401008,
+   "index": 8,
+   "name": "Secure Supply Point 08",
+   "position": [
+    2417.495,
+    52.081,
+    -467.364
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401009,
+   "index": 9,
+   "name": "Secure Supply Point 09",
+   "position": [
+    2783.307,
+    55.276,
+    -645.79
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401010,
+   "index": 10,
+   "name": "Secure Supply Point 10",
+   "position": [
+    1827.336,
+    49.98,
+    -2812.073
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401011,
+   "index": 11,
+   "name": "Secure Supply Point 11",
+   "position": [
+    2173.188,
+    125.753,
+    -2606.618
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401012,
+   "index": 12,
+   "name": "Secure Supply Point 12",
+   "position": [
+    2050.812,
+    38.508,
+    -3289.846
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401013,
+   "index": 13,
+   "name": "Secure Supply Point 13",
+   "position": [
+    2550.222,
+    70.026,
+    -3259.941
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401014,
+   "index": 14,
+   "name": "Secure Supply Point 14",
+   "position": [
+    2759.432,
+    89.314,
+    -2446.872
+   ],
+   "starting": false
+  },
+  {
+   "id": 73401015,
+   "index": 15,
+   "name": "Secure Supply Point 15",
+   "position": [
+    1894.513,
+    10.899,
+    -1821.82
+   ],
+   "starting": true
+  }
+ ],
+ "bosses": [
+  {
+   "id": 73402000,
+   "native_id": 0,
+   "name": "Defeat Rodrigo Alvarez",
+   "kingpin": false
+  },
+  {
+   "id": 73402001,
+   "native_id": 1,
+   "name": "Defeat Violetta Sanchez",
+   "kingpin": false
+  },
+  {
+   "id": 73402002,
+   "native_id": 2,
+   "name": "Defeat Juan Martinez",
+   "kingpin": false
+  },
+  {
+   "id": 73402003,
+   "native_id": 3,
+   "name": "Defeat Don Domingo Garcia",
+   "kingpin": true
+  },
+  {
+   "id": 73402004,
+   "native_id": 4,
+   "name": "Defeat Jose Guerra",
+   "kingpin": false
+  },
+  {
+   "id": 73402005,
+   "native_id": 5,
+   "name": "Defeat Ramon Gonzalez",
+   "kingpin": false
+  },
+  {
+   "id": 73402006,
+   "native_id": 6,
+   "name": "Defeat Rafael Diaz",
+   "kingpin": false
+  },
+  {
+   "id": 73402007,
+   "native_id": 7,
+   "name": "Defeat Natalya Gryzunova",
+   "kingpin": false
+  },
+  {
+   "id": 73402008,
+   "native_id": 8,
+   "name": "Defeat Igor Biragov",
+   "kingpin": false
+  },
+  {
+   "id": 73402009,
+   "native_id": 9,
+   "name": "Defeat Boris Mikhailov",
+   "kingpin": false
+  },
+  {
+   "id": 73402010,
+   "native_id": 10,
+   "name": "Defeat Sergei Sovetnik",
+   "kingpin": false
+  },
+  {
+   "id": 73402011,
+   "native_id": 11,
+   "name": "Defeat Vladimir Golyak",
+   "kingpin": true
+  },
+  {
+   "id": 73402012,
+   "native_id": 12,
+   "name": "Defeat Olga Drankov",
+   "kingpin": false
+  },
+  {
+   "id": 73402013,
+   "native_id": 13,
+   "name": "Defeat Viktor Rabotnikov",
+   "kingpin": false
+  },
+  {
+   "id": 73402014,
+   "native_id": 14,
+   "name": "Defeat Mrs Timbol",
+   "kingpin": false
+  },
+  {
+   "id": 73402015,
+   "native_id": 15,
+   "name": "Defeat Baltazar Czernenko",
+   "kingpin": false
+  },
+  {
+   "id": 73402016,
+   "native_id": 16,
+   "name": "Defeat Melissa Fang Yin",
+   "kingpin": false
+  },
+  {
+   "id": 73402017,
+   "native_id": 17,
+   "name": "Defeat Zhuang Lun Wang",
+   "kingpin": true
+  },
+  {
+   "id": 73402018,
+   "native_id": 18,
+   "name": "Defeat Colonel Axton Powell",
+   "kingpin": false
+  },
+  {
+   "id": 73402019,
+   "native_id": 19,
+   "name": "Defeat Thadeous Oakley",
+   "kingpin": false
+  },
+  {
+   "id": 73402020,
+   "native_id": 20,
+   "name": "Defeat Vitaly Rzeznik",
+   "kingpin": false
+  }
+ ],
+ "weapons": [
+  {
+   "id": 73403001,
+   "native_id": 1,
+   "index": 0,
+   "item": 73410101,
+   "name": "Colby EAR50 Machine Gun",
+   "location_name": "Deposit Colby EAR50 Machine Gun",
+   "starting": true
+  },
+  {
+   "id": 73403002,
+   "native_id": 2,
+   "index": 1,
+   "item": 73410102,
+   "name": "Colby Enforcer Pistol",
+   "location_name": "Deposit Colby Enforcer Pistol",
+   "starting": true
+  },
+  {
+   "id": 73403003,
+   "native_id": 3,
+   "index": 2,
+   "item": 73410103,
+   "name": "Colby Limpet Charge",
+   "location_name": "Deposit Colby Limpet Charge",
+   "starting": true
+  },
+  {
+   "id": 73403004,
+   "native_id": 4,
+   "index": 3,
+   "item": 73410104,
+   "name": "Smithson 'Punisher'",
+   "location_name": "Deposit Smithson 'Punisher'",
+   "starting": false
+  },
+  {
+   "id": 73403005,
+   "native_id": 5,
+   "index": 4,
+   "item": 73410105,
+   "name": "Ishkov 'Diktat'",
+   "location_name": "Deposit Ishkov 'Diktat'",
+   "starting": false
+  },
+  {
+   "id": 73403006,
+   "native_id": 6,
+   "index": 5,
+   "item": 73410106,
+   "name": "Harman MP-50",
+   "location_name": "Deposit Harman MP-50",
+   "starting": false
+  },
+  {
+   "id": 73403007,
+   "native_id": 7,
+   "index": 6,
+   "item": 73410107,
+   "name": "Ankram X80 SMG",
+   "location_name": "Deposit Ankram X80 SMG",
+   "starting": false
+  },
+  {
+   "id": 73403008,
+   "native_id": 8,
+   "index": 7,
+   "item": 73410108,
+   "name": "Ankram MG-60",
+   "location_name": "Deposit Ankram MG-60",
+   "starting": false
+  },
+  {
+   "id": 73403009,
+   "native_id": 9,
+   "index": 8,
+   "item": 73410109,
+   "name": "Harlington HMG-90",
+   "location_name": "Deposit Harlington HMG-90",
+   "starting": false
+  },
+  {
+   "id": 73403010,
+   "native_id": 10,
+   "index": 9,
+   "item": 73410110,
+   "name": "Dempsey 190 'Equalizer'",
+   "location_name": "Deposit Dempsey 190 'Equalizer'",
+   "starting": false
+  },
+  {
+   "id": 73403011,
+   "native_id": 11,
+   "index": 10,
+   "item": 73410111,
+   "name": "Dempsey SO-6 'Stub'",
+   "location_name": "Deposit Dempsey SO-6 'Stub'",
+   "starting": false
+  },
+  {
+   "id": 73403012,
+   "native_id": 12,
+   "index": 11,
+   "item": 73410112,
+   "name": "Bastion S600 'Hawkeye'",
+   "location_name": "Deposit Bastion S600 'Hawkeye'",
+   "starting": false
+  },
+  {
+   "id": 73403013,
+   "native_id": 13,
+   "index": 12,
+   "item": 73410113,
+   "name": "Bastion SX900 'Longshot'",
+   "location_name": "Deposit Bastion SX900 'Longshot'",
+   "starting": false
+  },
+  {
+   "id": 73403014,
+   "native_id": 14,
+   "index": 13,
+   "item": 73410114,
+   "name": "Watson HE79 'Grenadier'",
+   "location_name": "Deposit Watson HE79 'Grenadier'",
+   "starting": false
+  },
+  {
+   "id": 73403015,
+   "native_id": 15,
+   "index": 14,
+   "item": 73410115,
+   "name": "Watson HE99 'Hotshot'",
+   "location_name": "Deposit Watson HE99 'Hotshot'",
+   "starting": false
+  },
+  {
+   "id": 73403016,
+   "native_id": 16,
+   "index": 15,
+   "item": 73410116,
+   "name": "Watson HE99-X 'Firefly'",
+   "location_name": "Deposit Watson HE99-X 'Firefly'",
+   "starting": false
+  },
+  {
+   "id": 73403017,
+   "native_id": 17,
+   "index": 16,
+   "item": 73410117,
+   "name": "Shrapnel Grenade",
+   "location_name": "Deposit Shrapnel Grenade",
+   "starting": false
+  },
+  {
+   "id": 73403018,
+   "native_id": 18,
+   "index": 17,
+   "item": 73410118,
+   "name": "Grenade",
+   "location_name": "Deposit Grenade",
+   "starting": true
+  },
+  {
+   "id": 73403019,
+   "native_id": 19,
+   "index": 18,
+   "item": 73410119,
+   "name": "Cluster Grenade",
+   "location_name": "Deposit Cluster Grenade",
+   "starting": false
+  }
+ ],
+ "reserved_items": {
+  "Los Muertos Kingpin Access": 73412003,
+  "Volk Kingpin Access": 73412011,
+  "Shai-Gen Kingpin Access": 73412017
+ }
+}

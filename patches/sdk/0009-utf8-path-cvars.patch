@@ -1,0 +1,46 @@
+From 7b481da7736b22bcfaf85c18346debb71ad243f5 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Tue, 13 Oct 2026 00:03:54 +0000
+Subject: [PATCH] ui: decode UTF-8 path cvars before resolving runtime roots
+
+Use rex::to_path, which decodes UTF-8 to UTF-16 on Windows and retains
+UTF-8 on POSIX, for all five filesystem path cvars in SetupEnvironment.
+Host path handling only; no guest addresses or instruction changes.
+Validated against the pinned SDK with patches 0001-0008: the apply script
+passes from a clean scratch checkout and every patch reverse-applies alone.
+Windows Unicode runtime validation remains with Claude Code on the PC.
+
+Author: Codex. Claude Code review/test pending.
+---
+ src/ui/rex_app.cpp | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/ui/rex_app.cpp b/src/ui/rex_app.cpp
+index b94fe9e..61f2c7d 100644
+--- a/src/ui/rex_app.cpp
++++ b/src/ui/rex_app.cpp
+@@ -110,3 +110,3 @@ bool ReXApp::SetupEnvironment() {
+   if (!game_data_cvar.empty()) {
+-    game_dir = game_data_cvar;
++    game_dir = rex::to_path(game_data_cvar);
+   }
+@@ -117,3 +117,3 @@ bool ReXApp::SetupEnvironment() {
+   if (!user_data_cvar.empty()) {
+-    user_dir = user_data_cvar;
++    user_dir = rex::to_path(user_data_cvar);
+   } else {
+@@ -126,3 +126,3 @@ bool ReXApp::SetupEnvironment() {
+   if (!update_data_cvar.empty()) {
+-    update_dir = update_data_cvar;
++    update_dir = rex::to_path(update_data_cvar);
+   }
+@@ -133,3 +133,3 @@ bool ReXApp::SetupEnvironment() {
+   if (!cache_root_cvar.empty()) {
+-    cache_dir = cache_root_cvar;
++    cache_dir = rex::to_path(cache_root_cvar);
+   } else {
+@@ -141,3 +141,3 @@ bool ReXApp::SetupEnvironment() {
+   if (!metadata_root_cvar.empty()) {
+-    metadata_dir = metadata_root_cvar;
++    metadata_dir = rex::to_path(metadata_root_cvar);
+   }

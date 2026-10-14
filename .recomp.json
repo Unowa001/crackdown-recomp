@@ -1,0 +1,18 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Crackdown",
+  "wikidata": "Q1138424",
+  "system": "Xbox 360",
+  "type": "recomp",
+  "original": { "region": "World" },
+  "project": "Crackdown Recomp",
+  "status": "released",
+  "targets": ["Windows"],
+  "toolchain": "Rexglue",
+  "approach": "Static recompilation of the Xbox 360 executable on the ReXGlue SDK, Xenos GPU emulated on the host",
+  "maintainers": [{ "name": "Unowa001", "link": "https://github.com/Unowa001" }],
+  "links": [{ "label": "Releases", "url": "https://github.com/Unowa001/crackdown-recomp/releases" }],
+  "help": ["Audio timing at 60 fps", "Ocean water rendering", "Testing on Linux"],
+  "tags": ["60fps", "co-op"],
+  "notes": "Native PC port of Crackdown (2007). Public beta: title screen, menus and the open city are playable, 60 fps by default (stock 30 fps optional), controller input, a launcher, and System Link co-op (30 fps). No game data is included; you supply your own copy of the game. Next: higher resolutions and frame rates, in-game PC options, then an Archipelago randomizer."
+}

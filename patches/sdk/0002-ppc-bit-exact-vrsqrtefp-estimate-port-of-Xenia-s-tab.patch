@@ -1,0 +1,228 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sun, 11 Oct 2026 16:55:11 -0400
+Subject: [PATCH 2/4] ppc: bit-exact vrsqrtefp estimate (port of Xenia's table)
+
+vrsqrtefp/vrsqrtefp128 were generated as an exact 1/sqrt. Titles refine
+the hardware estimate with one Newton-Raphson step, which from the real
+12-bit estimate lands just below the true value. Starting from the exact
+value the refined result can round above it, so a normalized dot product
+comes out as 1.0000001 and an arccos approximation turns it into NaN.
+
+Seen in Crackdown: the 3D sound code (sub_82252150 -> arccos
+sub_8225F910) produced NaN gains that poisoned the XAudio mix; front L/R
+stayed NaN for the rest of the session (audio died with a pop).
+
+rex::ppc::simde_mm_vrsqrtefp is a bit-exact port of Xenia Canary's
+ComputeNormalVRsqrteTableValue / EmitScalarVRsqrteHelper
+(src/xenia/cpu/backend/x64/x64_backend.cc, BSD license).
+
+Tests: instr_vrsqrtefp.s / instr_vrsqrtefp128.s from Xenia's PPC tests
+with real-hardware expected values (20/20 match).
+---
+ include/rex/ppc/intrinsics.h       | 83 ++++++++++++++++++++++++++++++
+ src/codegen/builders/vector.cpp    |  7 +--
+ tests/ppc/asm/instr_vrsqrtefp.s    | 34 ++++++++++++
+ tests/ppc/asm/instr_vrsqrtefp128.s | 39 ++++++++++++++
+ 4 files changed, 160 insertions(+), 3 deletions(-)
+ create mode 100644 tests/ppc/asm/instr_vrsqrtefp.s
+ create mode 100644 tests/ppc/asm/instr_vrsqrtefp128.s
+
+diff --git a/include/rex/ppc/intrinsics.h b/include/rex/ppc/intrinsics.h
+index 3c2fe09..f1c9261 100644
+--- a/include/rex/ppc/intrinsics.h
++++ b/include/rex/ppc/intrinsics.h
+@@ -393,6 +393,89 @@ inline simde__m128i simde_mm_sllv_epi8(simde__m128i a, simde__m128i count) {
+   return simde_mm_packus_epi16(r_lo, r_hi);
+ }
+ 
++//=============================================================================
++// Vector Reciprocal Square Root Estimate (vrsqrtefp / vrsqrtefp128)
++//=============================================================================
++// Bit-exact model of the VMX estimate, ported from Xenia
++// (xenia-canary src/xenia/cpu/backend/x64/x64_backend.cc,
++// ComputeNormalVRsqrteTableValue / EmitScalarVRsqrteHelper, BSD license).
++// Titles refine the estimate with one Newton-Raphson step, which from a 12-bit
++// estimate always lands just below the true value; an exact 1/sqrt lets the
++// refined value round above it, so a normalized dot product can come out as
++// 1.0000001 and the arccos that follows turns it into NaN.
++
++namespace detail {
++inline constexpr uint32_t kVRsqrteCoefficients[32] = {
++    0x568B4FD, 0x4F3AF97, 0x48DAAA5, 0x435A618, 0x3E7A1E4, 0x3A29DFE, 0x3659A5C, 0x32E96F8,
++    0x2FC93CA, 0x2D090CE, 0x2A88DFE, 0x2838B57, 0x26188D4, 0x2438673, 0x2268431, 0x20B820B,
++    0x3D27FFA, 0x3807C29, 0x33878AA, 0x2F97572, 0x2C27279, 0x2926FB7, 0x2666D26, 0x23F6AC0,
++    0x21D6881, 0x1FD6665, 0x1E16468, 0x1C76287, 0x1AF60C1, 0x1995F12, 0x1855D79, 0x1735BF4,
++};
++
++// The estimate ignores the low 9 mantissa bits, so the next 14 mantissa bits
++// and the exponent's low bit select one of 32768 results.
++inline uint32_t VRsqrteTableValue(uint32_t input) {
++  const uint32_t mantissa = input & 0x7FFFFF;
++  const uint32_t coefficient =
++      kVRsqrteCoefficients[(((input >> 23) & 1) << 4) | (mantissa >> 19)];
++  uint32_t estimate =
++      ((coefficient << 10) & 0x3FFFC00) - (((mantissa >> 9) & 1023) * (coefficient >> 16));
++  int32_t exponent_adjust = 0;
++  if (!(estimate & 0x02000000)) {
++    const uint32_t normalized = estimate & 0x1FFFFFF;
++    uint32_t leading_zeros = 0;
++    for (uint32_t bit = 0x80000000; !(normalized & bit); bit >>= 1) {
++      ++leading_zeros;
++    }
++    exponent_adjust += 6 - int32_t(leading_zeros);
++    estimate <<= leading_zeros - 6;
++  }
++  if ((estimate & 5) && (estimate & 2)) {
++    estimate += 4;
++  }
++  return (0x3F800000 + uint32_t(exponent_adjust) * 0x00800000) | ((estimate >> 2) & 0x7FFFFF);
++}
++
++inline const uint32_t* VRsqrteTable() {
++  static const struct Table {
++    alignas(64) uint32_t v[1 << 15];
++    Table() {
++      for (uint32_t i = 0; i < (1u << 15); ++i) {
++        v[i] = VRsqrteTableValue(((126 + (i >> 14)) << 23) | ((i & 0x3FFF) << 9));
++      }
++    }
++  } table;
++  return table.v;
++}
++}  // namespace detail
++
++// One lane. Denormal inputs are treated as zero, as with VSCR[NJ] set.
++inline uint32_t vrsqrtefp_bits(uint32_t b) {
++  if (b - 0x00800000u <= 0x7EFFFFFFu) {  // positive normal
++    return detail::VRsqrteTable()[(b >> 9) & 0x7FFF] - (((b >> 24) - 63) << 23);
++  }
++  const uint32_t exponent = (b >> 23) & 0xFF;
++  if (exponent == 0) {
++    return (b >> 31) ? 0xFF800000 : 0x7F800000;  // +-0 or denormal -> +-inf
++  }
++  if (exponent == 0xFF && (b & 0x7FFFFF)) {
++    return b | 0x00400000;  // NaN, quieted
++  }
++  if (b == 0x7F800000) {
++    return 0;  // +inf -> +0
++  }
++  return 0x7FC00000;  // negative -> default NaN
++}
++
++inline simde__m128 simde_mm_vrsqrtefp(simde__m128 src) {
++  alignas(16) uint32_t lanes[4];
++  simde_mm_store_ps(reinterpret_cast<float*>(lanes), src);
++  for (uint32_t& lane : lanes) {
++    lane = vrsqrtefp_bits(lane);
++  }
++  return simde_mm_load_ps(reinterpret_cast<const float*>(lanes));
++}
++
+ }  // namespace rex::ppc
+ 
+ //=============================================================================
+diff --git a/src/codegen/builders/vector.cpp b/src/codegen/builders/vector.cpp
+index ff0fca9..8d63427 100644
+--- a/src/codegen/builders/vector.cpp
++++ b/src/codegen/builders/vector.cpp
+@@ -133,10 +133,11 @@ bool build_vrefp(BuilderContext& ctx) {
+ }
+ 
+ bool build_vrsqrtefp(BuilderContext& ctx) {
+-  // TODO: see if we can use rsqrt safely
++  // Bit-exact estimate, not an exact 1/sqrt: titles refine it with a
++  // Newton-Raphson step and rely on the result staying below the true value
++  // (see rex::ppc::simde_mm_vrsqrtefp).
+   ctx.emit_set_flush_mode(true);
+-  ctx.emit_vec_fp_unary_expr(
+-      "simde_mm_div_ps(simde_mm_set1_ps(1), simde_mm_sqrt_ps(simde_mm_load_ps({vA}.f32)))");
++  ctx.emit_vec_fp_unary_expr("rex::ppc::simde_mm_vrsqrtefp(simde_mm_load_ps({vA}.f32))");
+   return true;
+ }
+ 
+diff --git a/tests/ppc/asm/instr_vrsqrtefp.s b/tests/ppc/asm/instr_vrsqrtefp.s
+new file mode 100644
+index 0000000..390dfb1
+--- /dev/null
++++ b/tests/ppc/asm/instr_vrsqrtefp.s
+@@ -0,0 +1,34 @@
++test_vrsqrtefp_1:
++  #_ REGISTER_IN v4 [3F800000, 40000000, 40800000, 41000000]
++  vrsqrtefp v5, v4
++  blr
++  #_ REGISTER_OUT v4 [3F800000, 40000000, 40800000, 41000000]
++  #_ REGISTER_OUT v5 [3F7FF400, 3F34FD00, 3EFFF400, 3EB4FD00]
++
++test_vrsqrtefp_2:
++  #_ REGISTER_IN v4 [40400000, 40A00000, 41200000, 41800000]
++  vrsqrtefp v5, v4
++  blr
++  #_ REGISTER_OUT v4 [40400000, 40A00000, 41200000, 41800000]
++  #_ REGISTER_OUT v5 [3F13CA00, 3EE4F200, 3EA1E400, 3E7FF400]
++
++test_vrsqrtefp_3:
++  #_ REGISTER_IN v4 [41900000, 41A00000, 41B00000, 41C00000]
++  vrsqrtefp v5, v4
++  blr
++  #_ REGISTER_OUT v4 [41900000, 41A00000, 41B00000, 41C00000]
++  #_ REGISTER_OUT v5 [3E715400, 3E64F200, 3E5A4C00, 3E510200]
++
++test_vrsqrtefp_4:
++  #_ REGISTER_IN v4 [3E800000, 3F000000, 3F400000, 3F600000]
++  vrsqrtefp v5, v4
++  blr
++  #_ REGISTER_OUT v4 [3E800000, 3F000000, 3F400000, 3F600000]
++  #_ REGISTER_OUT v5 [3FFFF400, 3FB4FD00, 3F93CA00, 3F88D400]
++
++test_vrsqrtefp_5:
++  #_ REGISTER_IN v4 [42480000, 42C80000, 43480000, 43C80000]
++  vrsqrtefp v5, v4
++  blr
++  #_ REGISTER_OUT v4 [42480000, 42C80000, 43480000, 43C80000]
++  #_ REGISTER_OUT v5 [3E10CE00, 3DCCCA00, 3D90CE00, 3D4CCA00]
+diff --git a/tests/ppc/asm/instr_vrsqrtefp128.s b/tests/ppc/asm/instr_vrsqrtefp128.s
+new file mode 100644
+index 0000000..a0bb894
+--- /dev/null
++++ b/tests/ppc/asm/instr_vrsqrtefp128.s
+@@ -0,0 +1,39 @@
++test_vrsqrtefp128_1:
++  # Reciprocal square root: 1/sqrt([1.0, 4.0, 9.0, 16.0]) ≈ [1.0, 0.5, 0.333, 0.25]
++  #_ REGISTER_IN v4 [3F800000, 40800000, 41100000, 41800000]
++  vrsqrtefp128 v5, v4
++  blr
++  #_ REGISTER_OUT v4 [3F800000, 40800000, 41100000, 41800000]
++  #_ REGISTER_OUT v5 [3F7FF400, 3EFFF400, 3EAAA500, 3E7FF400]
++
++test_vrsqrtefp128_2:
++  # Reciprocal square root of larger values
++  #_ REGISTER_IN v4 [41C80000, 42480000, 42C80000, 43480000]
++  vrsqrtefp128 v5, v4
++  blr
++  #_ REGISTER_OUT v4 [41C80000, 42480000, 42C80000, 43480000]
++  #_ REGISTER_OUT v5 [3E4CCA00, 3E10CE00, 3DCCCA00, 3D90CE00]
++
++test_vrsqrtefp128_3:
++  # Reciprocal square root of fractions
++  #_ REGISTER_IN v4 [3F000000, 3E800000, 3E000000, 3D800000]
++  vrsqrtefp128 v5, v4
++  blr
++  #_ REGISTER_OUT v4 [3F000000, 3E800000, 3E000000, 3D800000]
++  #_ REGISTER_OUT v5 [3FB4FD00, 3FFFF400, 4034FD00, 407FF400]
++
++test_vrsqrtefp128_4:
++  # Reciprocal square root of unity variations
++  #_ REGISTER_IN v4 [3F800000, 3F800000, 3F800000, 3F800000]
++  vrsqrtefp128 v5, v4
++  blr
++  #_ REGISTER_OUT v4 [3F800000, 3F800000, 3F800000, 3F800000]
++  #_ REGISTER_OUT v5 [3F7FF400, 3F7FF400, 3F7FF400, 3F7FF400]
++
++test_vrsqrtefp128_5:
++  # Reciprocal square root of very small values
++  #_ REGISTER_IN v4 [3C23D70A, 3BA3D70A, 3B23D70A, 3AA3D70A]
++  vrsqrtefp128 v5, v4
++  blr
++  #_ REGISTER_OUT v4 [3C23D70A, 3BA3D70A, 3B23D70A, 3AA3D70A]
++  #_ REGISTER_OUT v5 [412004FD, 41624CF5, 41A004FD, 41E24CF5]

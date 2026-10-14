@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.25)
+project(coop_transport_fixture LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 23)
+find_package(rexglue 0.10.0 REQUIRED CONFIG)
+add_executable(coop_transport_fixture transport_fixture.cpp)
+target_link_libraries(coop_transport_fixture PRIVATE rex::runtime ws2_32)

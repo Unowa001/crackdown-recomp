@@ -1,0 +1,21 @@
+# Function-start corrections for codegen. Every entry cites why it exists.
+# SDK v0.9.0, Default.xex sha256 7aaa7a89...7e5a
+
+[functions]
+# Thunk chains (C++ multiple-inheritance this-adjustors: `addi r3,r3,-N; b next`).
+# The target thunk is only reachable via a `b` from another thunk, so analysis
+# left it unclaimed between functions. Evidence: out/codegen1.log UnresolvedCall list;
+# generated sub_8252FD68 shows the `addi r3,r3,-364; b 0x8252e050` pattern.
+0x8252E050 = {}  # from 0x8252FD6C
+0x8247FF30 = {}  # from 0x824F2124
+0x82A1DD18 = {}  # from 0x82B66F08
+0x825322D8 = {}  # from 0x8253293C
+0x82357EE8 = {}  # from 0x8236B9D4
+0x82516A88 = {}  # from 0x8252DDE4
+0x8252FD70 = {}  # from 0x82530AA4
+
+# Shared tail: sub_823F0640 and sub_823F0660 both set r4 then `b 0x823F0668`.
+# Analysis folded the body into sub_823F0660, so the branch from 0x823F0658
+# landed mid-function. Evidence: out/codegen3.log recompile warning.
+0x823F0660 = { size = 8 }
+0x823F0668 = {}

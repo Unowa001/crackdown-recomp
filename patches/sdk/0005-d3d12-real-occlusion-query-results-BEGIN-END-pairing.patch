@@ -1,0 +1,413 @@
+From 574c8fa312e923fc7f791bbf3f242d94c4aeb271 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sun, 11 Oct 2026 19:06:59 -0400
+Subject: [PATCH] d3d12: real occlusion query results (BEGIN/END pairing,
+ deferred write)
+
+Host occlusion queries were in place but the guest almost never got
+their result; it got the fake count (1000 = fully visible) instead:
+
+1. D3D gives BEGIN and END their own sample count structs. In Crackdown
+   END's is 0x20 bytes before BEGIN's (BEGIN zpd at 0x1D9531A0, END at
+   0x1D953180); the GPU writes a counter snapshot into each and D3D takes
+   END minus BEGIN. The handler required the same address for both, so
+   every END was a "mismatch" and got the fake count. Now END pairs with
+   the active query, BEGIN's struct is zeroed (snapshot 0), and END's
+   gets the host count.
+2. The result was read right after submitting the query, before the GPU
+   had run it, so the fence check failed and the fallback was written.
+   Now ended queries wait in a FIFO and their results are written when
+   their submission completes (checked on every ZPD and on every pass of
+   the idle loop through the new CommandProcessor::OnWaitPoll). Until
+   then the struct keeps D3D's 0xFFFFFEED marker, so the guest sees the
+   query as not finished, as on hardware. PrepareForWait submits the
+   open work when results are pending, so a guest spinning in GetData
+   can't deadlock.
+3. EndSubmission ended any active query and dropped it, and the next END
+   then called DisableHostOcclusionQueries, which turned host queries
+   off for the rest of the session. Now a guest query that spans
+   submissions is split into one host query per submission and the
+   counts are summed; a mismatch abandons only that query.
+
+Seen in Crackdown: traffic light coronas showed through buildings.
+Verified on PC (RTX 5080, 2026-10-11): with
+--query_occlusion_fake_sample_count=0 they vanish everywhere (and the
+ocean flickers); with this fix they are hidden behind buildings and
+visible in the open, and the ocean is fine. An F10-triggered log of 400
+query events confirmed the BEGIN/END address pattern.
+
+The Vulkan backend has the same design and is not changed here.
+---
+ include/rex/graphics/command_processor.h      |   2 +
+ .../rex/graphics/d3d12/command_processor.h    |  25 ++-
+ src/graphics/command_processor.cpp            |   7 +
+ src/graphics/d3d12/command_processor.cpp      | 171 +++++++++++-------
+ 4 files changed, 141 insertions(+), 64 deletions(-)
+
+diff --git a/include/rex/graphics/command_processor.h b/include/rex/graphics/command_processor.h
+index da8e432..f881711 100644
+--- a/include/rex/graphics/command_processor.h
++++ b/include/rex/graphics/command_processor.h
+@@ -167,6 +167,8 @@ class CommandProcessor {
+ 
+   virtual void MakeCoherent();
+   virtual void PrepareForWait();
++  // Called on every pass of the idle loop that follows PrepareForWait.
++  virtual void OnWaitPoll() {}
+   virtual void ReturnFromWait();
+ 
+   uint32_t ExecutePrimaryBuffer(uint32_t start_index, uint32_t end_index);
+diff --git a/include/rex/graphics/d3d12/command_processor.h b/include/rex/graphics/d3d12/command_processor.h
+index 96d362b..27d955a 100644
+--- a/include/rex/graphics/d3d12/command_processor.h
++++ b/include/rex/graphics/d3d12/command_processor.h
+@@ -211,6 +211,8 @@ class D3D12CommandProcessor : public CommandProcessor {
+                  uint32_t frontbuffer_height) override;
+ 
+   void OnPrimaryBufferEnd() override;
++  void PrepareForWait() override;
++  void OnWaitPoll() override;
+ 
+   Shader* LoadShader(xenos::ShaderType shader_type, uint32_t guest_address,
+                      const uint32_t* host_address, uint32_t dword_count) override;
+@@ -408,7 +410,12 @@ class D3D12CommandProcessor : public CommandProcessor {
+   bool EndGuestOcclusionQuery(uint32_t sample_count_address,
+                               xenos::xe_gpu_depth_sample_counts* sample_counts);
+   bool AcquireOcclusionQueryIndex(uint32_t& host_index_out);
+-  void DisableHostOcclusionQueries();
++  void AbandonActiveOcclusionQuery();
++  void BeginOcclusionQuerySegment();
++  void EndOcclusionQuerySegment();
++  // Writes the results of pending queries whose submissions have completed;
++  // with await_submission, first waits for that submission.
++  void WritePendingOcclusionResults(uint64_t await_submission = 0);
+   uint64_t NormalizeOcclusionSamples(uint64_t samples) const;
+   void WriteGuestOcclusionResult(xenos::xe_gpu_depth_sample_counts* sample_counts,
+                                  uint64_t samples);
+@@ -654,11 +661,25 @@ class D3D12CommandProcessor : public CommandProcessor {
+   uint64_t* occlusion_query_readback_mapping_ = nullptr;
+   uint32_t occlusion_query_cursor_ = 0;
+   bool occlusion_query_resources_available_ = false;
++  // A guest query can span submissions, but a host query can't span command
++  // lists: each submission gets its own host query (segment), and the guest
++  // result is the sum of the segments.
+   struct ActiveOcclusionQuery {
+     uint32_t sample_count_address = 0;
+-    uint32_t host_index = UINT32_MAX;
++    uint32_t host_index = UINT32_MAX;  // the segment open in this submission
++    bool host_open = false;
++    std::vector<uint32_t> ended_segments;  // resolved into the readback buffer
+     bool valid = false;
+   } active_occlusion_query_;
++  // Ended guest queries waiting for their submission to complete. Results are
++  // written to guest memory then, like the real GPU writing them when it gets
++  // there; until then the guest sees the query as not finished.
++  struct PendingOcclusionQuery {
++    uint32_t sample_count_address;
++    std::vector<uint32_t> host_indices;
++    uint64_t submission;
++  };
++  std::deque<PendingOcclusionQuery> pending_occlusion_queries_;
+   struct VertexBufferState {
+     uint32_t address = UINT32_MAX;
+     uint32_t size = UINT32_MAX;
+diff --git a/src/graphics/command_processor.cpp b/src/graphics/command_processor.cpp
+index a744375..d9115e0 100644
+--- a/src/graphics/command_processor.cpp
++++ b/src/graphics/command_processor.cpp
+@@ -227,6 +227,7 @@ void CommandProcessor::WorkerThreadMain() {
+         }
+ 
+         rex::thread::MaybeYield();
++        OnWaitPoll();
+         loop_count++;
+         write_ptr_index = write_ptr_index_.load();
+       } while (worker_running_ && pending_fns_.empty() &&
+@@ -1040,6 +1041,10 @@ bool CommandProcessor::ExecutePacketType3_WAIT_REG_MEM(memory::RingBuffer* reade
+           rex::thread::Sleep(std::chrono::milliseconds(wait / 0x100));
+         }
+         rex::thread::SyncMemory();
++        // The awaited value may be a result the backend writes once the GPU
++        // is done (occlusion queries), and this loop doesn't return to the
++        // worker's idle poll until it matches.
++        OnWaitPoll();
+         ReturnFromWait();
+ 
+         if (!worker_running_) {
+@@ -1047,7 +1052,9 @@ bool CommandProcessor::ExecutePacketType3_WAIT_REG_MEM(memory::RingBuffer* reade
+           return false;
+         }
+       } else {
++        PrepareForWait();
+         rex::thread::MaybeYield();
++        OnWaitPoll();
+       }
+     }
+   } while (!matched);
+diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
+index 19874a5..00f712b 100644
+--- a/src/graphics/d3d12/command_processor.cpp
++++ b/src/graphics/d3d12/command_processor.cpp
+@@ -165,7 +165,7 @@ bool D3D12CommandProcessor::ExecutePacketType3_EVENT_WRITE_ZPD(memory::RingBuffe
+   auto* sample_counts =
+       memory_->TranslatePhysical<xenos::xe_gpu_depth_sample_counts*>(sample_count_addr);
+   if (!sample_counts) {
+-    DisableHostOcclusionQueries();
++    AbandonActiveOcclusionQuery();
+     return true;
+   }
+ 
+@@ -192,21 +192,20 @@ bool D3D12CommandProcessor::ExecutePacketType3_EVENT_WRITE_ZPD(memory::RingBuffe
+       sample_counts->ZFail_A == kQueryFinished || sample_counts->ZFail_B == kQueryFinished;
+   bool is_end = is_end_via_z_pass || is_end_via_z_fail;
+ 
++  // D3D gives BEGIN and END their own sample count structs (seen in
++  // Crackdown: END's is 0x20 bytes before BEGIN's). The GPU writes a snapshot
++  // of the counters into each, and the result is END minus BEGIN. Host
++  // queries count from zero, so BEGIN's snapshot is 0 and END's is the count.
+   if (!is_end) {
+-    if (active_occlusion_query_.valid &&
+-        active_occlusion_query_.sample_count_address != sample_count_addr) {
+-      DisableHostOcclusionQueries();
+-      return write_fallback_result();
+-    }
++    AbandonActiveOcclusionQuery();  // a BEGIN that never got its END
++    std::memset(sample_counts, 0, sizeof(xenos::xe_gpu_depth_sample_counts));
+     if (!BeginGuestOcclusionQuery(sample_count_addr)) {
+       return write_fallback_result();
+     }
+     return true;
+   }
+ 
+-  if (!active_occlusion_query_.valid ||
+-      active_occlusion_query_.sample_count_address != sample_count_addr) {
+-    DisableHostOcclusionQueries();
++  if (!active_occlusion_query_.valid) {
+     return write_fallback_result();
+   }
+ 
+@@ -2263,6 +2262,17 @@ void D3D12CommandProcessor::OnPrimaryBufferEnd() {
+   }
+ }
+ 
++void D3D12CommandProcessor::PrepareForWait() {
++  // Out of guest commands. The guest may be waiting for an occlusion result
++  // (D3D's GetData spins until the GPU writes it), so submit the work it is in
++  // and let OnWaitPoll write it when the GPU is done.
++  if (!pending_occlusion_queries_.empty() && submission_open_) {
++    EndSubmission(false);
++  }
++}
++
++void D3D12CommandProcessor::OnWaitPoll() { WritePendingOcclusionResults(); }
++
+ Shader* D3D12CommandProcessor::LoadShader(xenos::ShaderType shader_type, uint32_t guest_address,
+                                           const uint32_t* host_address, uint32_t dword_count) {
+   return pipeline_cache_->LoadShader(shader_type, host_address, dword_count);
+@@ -3327,6 +3337,10 @@ bool D3D12CommandProcessor::BeginSubmission(bool is_guest_command) {
+     primitive_processor_->BeginSubmission();
+ 
+     texture_cache_->BeginSubmission(submission_current_);
++
++    if (active_occlusion_query_.valid && !active_occlusion_query_.host_open) {
++      BeginOcclusionQuerySegment();
++    }
+   }
+ 
+   if (is_opening_frame) {
+@@ -3402,11 +3416,9 @@ bool D3D12CommandProcessor::EndSubmission(bool is_swap) {
+   if (submission_open_) {
+     assert_false(scratch_buffer_used_);
+ 
+-    if (active_occlusion_query_.valid && occlusion_query_heap_) {
+-      deferred_command_list_.D3DEndQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
+-                                         active_occlusion_query_.host_index);
+-      active_occlusion_query_ = {};
+-    }
++    // A host query can't span command lists; the guest query continues in a
++    // new segment when the next submission begins.
++    EndOcclusionQuerySegment();
+ 
+     pipeline_cache_->EndSubmission();
+ 
+@@ -4856,7 +4868,9 @@ bool D3D12CommandProcessor::InitializeOcclusionQueryResources() {
+ }
+ 
+ void D3D12CommandProcessor::ShutdownOcclusionQueryResources() {
+-  DisableHostOcclusionQueries();
++  AbandonActiveOcclusionQuery();
++  pending_occlusion_queries_.clear();
++  occlusion_query_resources_available_ = false;
+ 
+   if (occlusion_query_readback_ && occlusion_query_readback_mapping_) {
+     occlusion_query_readback_->Unmap(0, nullptr);
+@@ -4874,22 +4888,45 @@ bool D3D12CommandProcessor::AcquireOcclusionQueryIndex(uint32_t& host_index_out)
+   return true;
+ }
+ 
+-void D3D12CommandProcessor::DisableHostOcclusionQueries() {
+-  if (active_occlusion_query_.valid && occlusion_query_heap_) {
+-    uint32_t host_index = active_occlusion_query_.host_index;
+-    // Clear before EndSubmission to prevent the EndSubmission safety net from issuing a second
+-    // EndQuery for the same index.
+-    active_occlusion_query_ = {};
+-    if (BeginSubmission(true)) {
+-      deferred_command_list_.D3DEndQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
+-                                         host_index);
+-      EndSubmission(false);
+-    }
+-  } else {
+-    active_occlusion_query_ = {};
++void D3D12CommandProcessor::BeginOcclusionQuerySegment() {
++  if (occlusion_query_cursor_ >= kMaxOcclusionQueries) {
++    // A query spanning more submissions than BeginGuestOcclusionQuery reserved
++    // room for: wrapping here could reuse indices whose results haven't been
++    // read back. Drop it; its END then writes the fallback result.
++    AbandonActiveOcclusionQuery();
++    return;
+   }
+-  occlusion_query_cursor_ = 0;
+-  occlusion_query_resources_available_ = false;
++  uint32_t host_index = 0;
++  AcquireOcclusionQueryIndex(host_index);
++  deferred_command_list_.D3DBeginQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
++                                       host_index);
++  active_occlusion_query_.host_index = host_index;
++  active_occlusion_query_.host_open = true;
++}
++
++void D3D12CommandProcessor::EndOcclusionQuerySegment() {
++  if (!active_occlusion_query_.valid || !active_occlusion_query_.host_open ||
++      !occlusion_query_heap_) {
++    return;
++  }
++  uint32_t host_index = active_occlusion_query_.host_index;
++  deferred_command_list_.D3DEndQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
++                                     host_index);
++  deferred_command_list_.D3DResolveQueryData(
++      occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION, host_index, 1,
++      occlusion_query_readback_.Get(), sizeof(uint64_t) * host_index);
++  active_occlusion_query_.ended_segments.push_back(host_index);
++  active_occlusion_query_.host_open = false;
++}
++
++void D3D12CommandProcessor::AbandonActiveOcclusionQuery() {
++  // An open segment means the submission is open too (EndSubmission ends it).
++  if (active_occlusion_query_.valid && active_occlusion_query_.host_open &&
++      occlusion_query_heap_) {
++    deferred_command_list_.D3DEndQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
++                                       active_occlusion_query_.host_index);
++  }
++  active_occlusion_query_ = {};
+ }
+ 
+ bool D3D12CommandProcessor::BeginGuestOcclusionQuery(uint32_t sample_count_address) {
+@@ -4899,63 +4936,73 @@ bool D3D12CommandProcessor::BeginGuestOcclusionQuery(uint32_t sample_count_addre
+   if (active_occlusion_query_.valid) {
+     REXGPU_WARN(
+         "D3D12CommandProcessor: Occlusion query begin issued while another query is active");
+-    DisableHostOcclusionQueries();
++    AbandonActiveOcclusionQuery();
+     return false;
+   }
+ 
+-  uint32_t host_index = 0;
+-  if (!AcquireOcclusionQueryIndex(host_index)) {
+-    return false;
++  // Don't let the index cursor wrap onto results still being read back.
++  if (occlusion_query_cursor_ + 64 >= kMaxOcclusionQueries) {
++    if (!pending_occlusion_queries_.empty()) {
++      WritePendingOcclusionResults(pending_occlusion_queries_.back().submission);
++    }
++    occlusion_query_cursor_ = 0;
+   }
++
+   if (!BeginSubmission(true)) {
+     return false;
+   }
+-
+-  deferred_command_list_.D3DBeginQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
+-                                       host_index);
++  active_occlusion_query_ = {};
+   active_occlusion_query_.sample_count_address = sample_count_address;
+-  active_occlusion_query_.host_index = host_index;
+   active_occlusion_query_.valid = true;
++  BeginOcclusionQuerySegment();
+   return true;
+ }
+ 
+ bool D3D12CommandProcessor::EndGuestOcclusionQuery(
+     uint32_t sample_count_address, xenos::xe_gpu_depth_sample_counts* sample_counts) {
+   if (!REXCVAR_GET(occlusion_query_enable) || !occlusion_query_resources_available_ ||
+-      !active_occlusion_query_.valid || !occlusion_query_heap_ || !occlusion_query_readback_) {
++      !active_occlusion_query_.valid || !occlusion_query_heap_ || !occlusion_query_readback_ ||
++      !occlusion_query_readback_mapping_) {
+     return false;
+   }
+-
+-  uint32_t host_index = active_occlusion_query_.host_index;
+-  active_occlusion_query_ = {};
+-
+   if (!BeginSubmission(true)) {
++    AbandonActiveOcclusionQuery();
+     return false;
+   }
+-
+-  deferred_command_list_.D3DEndQuery(occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION,
+-                                     host_index);
+-  deferred_command_list_.D3DResolveQueryData(
+-      occlusion_query_heap_.Get(), D3D12_QUERY_TYPE_OCCLUSION, host_index, 1,
+-      occlusion_query_readback_.Get(), sizeof(uint64_t) * host_index);
+-
+-  if (!EndSubmission(false)) {
++  if (!active_occlusion_query_.valid) {
++    // Opening the submission couldn't start a segment (out of indices, see
++    // BeginOcclusionQuerySegment) and dropped the query: use the fallback.
+     return false;
+   }
++  EndOcclusionQuerySegment();
++  pending_occlusion_queries_.push_back(PendingOcclusionQuery{
++      sample_count_address, std::move(active_occlusion_query_.ended_segments),
++      submission_current_});
++  active_occlusion_query_ = {};
++  // The result is written once the GPU has run this submission; until then
++  // the guest's sample count struct keeps D3D's "not finished" marker.
++  WritePendingOcclusionResults();
++  return true;
++}
+ 
+-  uint64_t query_submission = submission_current_ ? submission_current_ - 1 : 0;
+-  CheckSubmissionFence(query_submission);
+-  if (submission_completed_ < query_submission) {
+-    return false;
++void D3D12CommandProcessor::WritePendingOcclusionResults(uint64_t await_submission) {
++  if (pending_occlusion_queries_.empty()) {
++    return;
+   }
+-  if (!occlusion_query_readback_mapping_) {
+-    return false;
++  // Awaiting the open submission ends it first (see CheckSubmissionFence).
++  CheckSubmissionFence(await_submission);
++  while (!pending_occlusion_queries_.empty() &&
++         pending_occlusion_queries_.front().submission <= submission_completed_) {
++    const PendingOcclusionQuery& query = pending_occlusion_queries_.front();
++    uint64_t samples = 0;
++    for (uint32_t host_index : query.host_indices) {
++      samples += occlusion_query_readback_mapping_[host_index];
++    }
++    auto* sample_counts =
++        memory_->TranslatePhysical<xenos::xe_gpu_depth_sample_counts*>(query.sample_count_address);
++    WriteGuestOcclusionResult(sample_counts, NormalizeOcclusionSamples(samples));
++    pending_occlusion_queries_.pop_front();
+   }
+-
+-  uint64_t samples = occlusion_query_readback_mapping_[host_index];
+-  samples = NormalizeOcclusionSamples(samples);
+-  WriteGuestOcclusionResult(sample_counts, samples);
+-  return true;
+ }
+ 
+ uint64_t D3D12CommandProcessor::NormalizeOcclusionSamples(uint64_t samples) const {
+-- 
+2.54.0.windows.1
+

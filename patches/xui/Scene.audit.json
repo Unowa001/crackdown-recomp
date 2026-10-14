@@ -1,0 +1,20 @@
+{
+  "path": "XUIFrontEnd/Scene.xzp",
+  "patch": "XUIFrontEnd/Scene.xzp.xpatch",
+  "original_sha256": "9ca02bfedd706fce30197156edeb7aeea6751f0cdd6c111fac56ef020ae5f95d",
+  "result_sha256": "a539651e377bd1a96c176079b75d0cd7ba10ec42ddd5f91a9265ba2ad3265f95",
+  "result_bytes": 25918624,
+  "entries": 698,
+  "scenes": 111,
+  "localizations": 0,
+  "patch_bytes": 3276,
+  "literal_bytes": 1300,
+  "copy_bytes": 25917324,
+  "operations": 140,
+  "longest_insert": 596,
+  "original_match_threshold": 16,
+  "original_matching_literal_windows": 0,
+  "patch_sha256": "2c0a6e9734fc29961c21c11e2355d724ec714ffd2da4b20f35bb540753e07c00",
+  "recipe": "python3 -m tools.xui.mod_menus /path/to/game --manifest tools/game-manifest.txt",
+  "scope": "Add options.xur; every existing global Scene.xzp entry is byte-identical."
+}

@@ -1,0 +1,27 @@
+# Game data — never commit (user supplies their own dump)
+*.iso
+*.zip
+*.xex
+game/
+extracted/
+
+# Generated recomp output (reproducible from the user's own default.xex)
+**/generated/*
+!**/generated/rexglue.cmake
+*_recomp.*.cpp
+
+# Build
+out/
+build/
+run.log
+
+# Benchmark captures (Tracy, PresentMon, --perf_log_csv)
+*.tracy
+crackdown/*.csv
+crackdown/bench/
+# XUI packages/scenes and Python bytecode
+*.xzp
+*.xur
+*.xus
+__pycache__/
+*.py[cod]

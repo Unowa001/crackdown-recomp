@@ -1,0 +1,451 @@
+From 0b458392dbc3fa9eea286b2fcd82b9e6d858ca2e Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Tue, 13 Oct 2026 20:20:01 -0400
+Subject: [PATCH] socket-address-routing
+
+Guest broadcasts 0x82462CBC (140 bytes), 0x82462A8C (16 bytes); UDP/VDP/TCP binds 0x8246238C,0x82462B6C,0x82462560. Disassembly: generated .45/.165/.177/.117.cpp per plan-coop section 3; source: pinned xsocket.cpp and netplay kernel/xsocket.cc boundaries. Validation: transport fixtures and runtime still pending. Author: Codex.
+---
+ src/kernel/CMakeLists.txt              |   1 +
+ src/kernel/xam/coop_socket_queries.cpp |  65 ++++++++++
+ src/kernel/xam/xam_net.cpp             |  88 ++++---------
+ src/system/xsocket.cpp                 | 166 +++++++++++--------------
+ 4 files changed, 159 insertions(+), 161 deletions(-)
+ create mode 100644 src/kernel/xam/coop_socket_queries.cpp
+
+diff --git a/src/kernel/CMakeLists.txt b/src/kernel/CMakeLists.txt
+index 984b97d..0d54106 100644
+--- a/src/kernel/CMakeLists.txt
++++ b/src/kernel/CMakeLists.txt
+@@ -3,6 +3,7 @@ set(REXKERNEL_SOURCES
+ 
+     # XAM subsystem - provides __imp__Xam* symbols
+     xam/xam_module.cpp
++    xam/coop_socket_queries.cpp
+     xam/xam_avatar.cpp
+     xam/xam_content.cpp
+     xam/xam_content_aggregate.cpp
+diff --git a/src/kernel/xam/coop_socket_queries.cpp b/src/kernel/xam/coop_socket_queries.cpp
+new file mode 100644
+index 0000000..8e691d1
+--- /dev/null
++++ b/src/kernel/xam/coop_socket_queries.cpp
+@@ -0,0 +1,65 @@
++// Guest/native query boundaries. Original ReXGlue co-op implementation.
++#include <rex/hook.h>
++#include <rex/system/kernel_state.h>
++#include <rex/system/xsocket.h>
++#include <rex/system/xthread.h>
++#if REX_PLATFORM_WIN32
++using socklen_t = int;
++#else
++#include <sys/socket.h>
++#endif
++namespace rex::kernel::xam {
++using namespace rex::system;
++u32 CoopSocketName(u32 handle,ppc_ptr_t<XSOCKADDR_IN> address,mapped_u32 length,bool peer) {
++  auto socket=REX_KERNEL_OBJECTS()->LookupObject<XSocket>(handle);
++  if (!socket) { XThread::SetLastError(10038); return -1; }
++  if (!address || !length || *length<16) { XThread::SetLastError(10014); return -1; }
++  sockaddr_in native{}; socklen_t len=sizeof(native);
++  int ret=peer?getpeername(socket->native_handle(),reinterpret_cast<sockaddr*>(&native),&len):
++               getsockname(socket->native_handle(),reinterpret_cast<sockaddr*>(&native),&len);
++  if (ret<0) {
++#if REX_PLATFORM_WIN32
++    XThread::SetLastError(WSAGetLastError());
++#else
++    XThread::SetLastError(10057);
++#endif
++    return -1;
++  }
++  auto& net=REX_KERNEL_STATE()->coop_network();
++  CoopEndpoint endpoint{ntohl(native.sin_addr.s_addr),ntohs(native.sin_port)};
++  if (peer) endpoint=net.Source(endpoint);
++  else if (socket->bound_port()) endpoint.port=socket->bound_port();
++  address->sin_family=2; address->sin_port=endpoint.port; address->sin_addr=endpoint.ip;
++  std::memset(address->x_sin_zero,0,8); *length=16; return 0;
++}
++u32 NetDll_getsockname_entry(u32 caller,u32 handle,ppc_ptr_t<XSOCKADDR_IN> address,mapped_u32 length) { return CoopSocketName(handle,address,length,false); }
++u32 NetDll_getpeername_entry(u32 caller,u32 handle,ppc_ptr_t<XSOCKADDR_IN> address,mapped_u32 length) { return CoopSocketName(handle,address,length,true); }
++u32 NetDll_getsockopt_entry(u32 caller,u32 handle,u32 level,u32 option,mapped_void value,mapped_u32 length) {
++  auto socket=REX_KERNEL_OBJECTS()->LookupObject<XSocket>(handle);
++  if (!socket) { XThread::SetLastError(10038); return -1; }
++  if (!value || !length || *length<4) { XThread::SetLastError(10014); return -1; }
++  int native_option;
++  if (level!=0xffff) { XThread::SetLastError(10042); return -1; }
++  switch (uint32_t(option)) {
++    case 0x1007: native_option=SO_ERROR; break;
++    case 0x1008: native_option=SO_TYPE; break;
++    case 0x1001: native_option=SO_SNDBUF; break;
++    case 0x1002: native_option=SO_RCVBUF; break;
++    case 0x20: native_option=SO_BROADCAST; break;
++    default: XThread::SetLastError(10042); return -1;
++  }
++  int out=0; socklen_t len=sizeof(out);
++  if (getsockopt(socket->native_handle(),SOL_SOCKET,native_option,reinterpret_cast<char*>(&out),&len)<0) {
++#if REX_PLATFORM_WIN32
++    XThread::SetLastError(WSAGetLastError());
++#else
++    XThread::SetLastError(10022);
++#endif
++    return -1;
++  }
++  memory::store_and_swap<uint32_t>(value,out); *length=4; return 0;
++}
++}
++REX_EXPORT(__imp__NetDll_getsockname,rex::kernel::xam::NetDll_getsockname_entry)
++REX_EXPORT(__imp__NetDll_getpeername,rex::kernel::xam::NetDll_getpeername_entry)
++REX_EXPORT(__imp__NetDll_getsockopt,rex::kernel::xam::NetDll_getsockopt_entry)
+diff --git a/src/kernel/xam/xam_net.cpp b/src/kernel/xam/xam_net.cpp
+index e6afced..27b7163 100644
+--- a/src/kernel/xam/xam_net.cpp
++++ b/src/kernel/xam/xam_net.cpp
+@@ -641,7 +641,6 @@ u32 NetDll_bind_entry(u32 caller, u32 socket_handle, ppc_ptr_t<XSOCKADDR_IN> nam
+   N_XSOCKADDR_IN native_name(name);
+   X_STATUS status = socket->Bind(&native_name, namelen);
+   if (XFAILED(status)) {
+-    XThread::SetLastError(xboxkrnl::xeRtlNtStatusToDosError(status));
+     return -1;
+   }
+ 
+@@ -659,7 +658,6 @@ u32 NetDll_connect_entry(u32 caller, u32 socket_handle, ppc_ptr_t<XSOCKADDR> nam
+   N_XSOCKADDR native_name(name);
+   X_STATUS status = socket->Connect(&native_name, namelen);
+   if (XFAILED(status)) {
+-    XThread::SetLastError(xboxkrnl::xeRtlNtStatusToDosError(status));
+     return -1;
+   }
+ 
+@@ -676,7 +674,6 @@ u32 NetDll_listen_entry(u32 caller, u32 socket_handle, i32 backlog) {
+ 
+   X_STATUS status = socket->Listen(backlog);
+   if (XFAILED(status)) {
+-    XThread::SetLastError(xboxkrnl::xeRtlNtStatusToDosError(status));
+     return -1;
+   }
+ 
+@@ -685,31 +682,17 @@ u32 NetDll_listen_entry(u32 caller, u32 socket_handle, i32 backlog) {
+ 
+ u32 NetDll_accept_entry(u32 caller, u32 socket_handle, ppc_ptr_t<XSOCKADDR> addr_ptr,
+                         mapped_u32 addrlen_ptr) {
+-  if (!addr_ptr) {
+-    // WSAEFAULT
+-    XThread::SetLastError(0x271E);
+-    return -1;
+-  }
+-
+-  auto socket = REX_KERNEL_OBJECTS()->LookupObject<XSocket>(socket_handle);
+-  if (!socket) {
+-    // WSAENOTSOCK
+-    XThread::SetLastError(0x2736);
+-    return -1;
+-  }
+-
+-  N_XSOCKADDR native_addr(addr_ptr);
+-  int native_len = *addrlen_ptr;
+-  auto new_socket = socket->Accept(&native_addr, &native_len);
+-  if (new_socket) {
+-    addr_ptr->address_family = native_addr.address_family;
+-    std::memcpy(addr_ptr->sa_data, native_addr.sa_data, *addrlen_ptr - 2);
+-    *addrlen_ptr = native_len;
+-
+-    return new_socket->handle();
+-  } else {
+-    return -1;
++  if (bool(addr_ptr)!=bool(addrlen_ptr) || (addrlen_ptr && *addrlen_ptr<16)) {
++    XThread::SetLastError(10014); return -1;
+   }
++  auto socket=REX_KERNEL_OBJECTS()->LookupObject<XSocket>(socket_handle);
++  if (!socket) { XThread::SetLastError(10038); return -1; }
++  N_XSOCKADDR native{}; int len=16;
++  auto accepted=socket->Accept(addr_ptr?&native:nullptr,addrlen_ptr?&len:nullptr);
++  if (!accepted) return -1;
++  if (addr_ptr) { addr_ptr->address_family=native.address_family;
++    std::memcpy(addr_ptr->sa_data,native.sa_data,14); *addrlen_ptr=16; }
++  return accepted->handle();
+ }
+ 
+ struct x_fd_set {
+@@ -826,42 +809,17 @@ u32 NetDll_recv_entry(u32 caller, u32 socket_handle, mapped_void buf_ptr, u32 bu
+ 
+ u32 NetDll_recvfrom_entry(u32 caller, u32 socket_handle, mapped_void buf_ptr, u32 buf_len,
+                           u32 flags, ppc_ptr_t<XSOCKADDR_IN> from_ptr, mapped_u32 fromlen_ptr) {
+-  auto socket = REX_KERNEL_OBJECTS()->LookupObject<XSocket>(socket_handle);
+-  if (!socket) {
+-    // WSAENOTSOCK
+-    XThread::SetLastError(0x2736);
+-    return -1;
++  if (bool(from_ptr)!=bool(fromlen_ptr) || (fromlen_ptr && *fromlen_ptr<16)) {
++    XThread::SetLastError(10014); return -1;
+   }
+-
+-  N_XSOCKADDR_IN native_from;
+-  if (from_ptr) {
+-    native_from = *from_ptr;
+-  }
+-  uint32_t native_fromlen = fromlen_ptr ? fromlen_ptr.value() : 0;
+-  int ret =
+-      socket->RecvFrom(buf_ptr, buf_len, flags, &native_from, fromlen_ptr ? &native_fromlen : 0);
+-
+-  if (from_ptr) {
+-    from_ptr->sin_family = native_from.sin_family;
+-    from_ptr->sin_port = native_from.sin_port;
+-    from_ptr->sin_addr = native_from.sin_addr;
+-    std::memset(from_ptr->x_sin_zero, 0, sizeof(from_ptr->x_sin_zero));
+-  }
+-  if (fromlen_ptr) {
+-    *fromlen_ptr = native_fromlen;
+-  }
+-
+-  if (ret == -1) {
+-// TODO: Better way of getting the error code
+-#if REX_PLATFORM_WIN32
+-    uint32_t error_code = WSAGetLastError();
+-    XThread::SetLastError(error_code);
+-#else
+-    XThread::SetLastError(0x0);
+-#endif
+-  }
+-
+-  return ret;
++  auto socket=REX_KERNEL_OBJECTS()->LookupObject<XSocket>(socket_handle);
++  if (!socket) { XThread::SetLastError(10038); return -1; }
++  N_XSOCKADDR_IN from{}; uint32_t len=16;
++  int result=socket->RecvFrom(buf_ptr,buf_len,flags,from_ptr?&from:nullptr,fromlen_ptr?&len:nullptr);
++  if (result>=0 && from_ptr) { from_ptr->sin_family=from.sin_family;
++    from_ptr->sin_port=from.sin_port; from_ptr->sin_addr=from.sin_addr;
++    std::memset(from_ptr->x_sin_zero,0,8); *fromlen_ptr=len; }
++  return result;
+ }
+ 
+ u32 NetDll_send_entry(u32 caller, u32 socket_handle, mapped_void buf_ptr, u32 buf_len, u32 flags) {
+@@ -1066,6 +1024,6 @@ REX_EXPORT_STUB(__imp__NetDll_XnpToolIpProxyInject);
+ REX_EXPORT_STUB(__imp__NetDll_XnpToolSetCallbacks);
+ REX_EXPORT_STUB(__imp__NetDll_XnpUnregisterKeyForCallerType);
+ REX_EXPORT_STUB(__imp__NetDll_XnpUpdateConfigParams);
+-REX_EXPORT_STUB(__imp__NetDll_getpeername);
+-REX_EXPORT_STUB(__imp__NetDll_getsockname);
+-REX_EXPORT_STUB(__imp__NetDll_getsockopt);
++
++
++
+diff --git a/src/system/xsocket.cpp b/src/system/xsocket.cpp
+index 49cdd70..60ea1fb 100644
+--- a/src/system/xsocket.cpp
++++ b/src/system/xsocket.cpp
+@@ -17,7 +17,22 @@
+ #include <rex/platform.h>
+ #include <rex/system/kernel_state.h>
+ #include <rex/system/xsocket.h>
+-// #include <rex/system/xnet.h>
++namespace rex::system {
++namespace {
++sockaddr_in NativeAddress(CoopEndpoint endpoint) {
++  sockaddr_in result{}; result.sin_family=AF_INET;
++  result.sin_addr.s_addr=htonl(endpoint.ip); result.sin_port=htons(endpoint.port);
++  return result;
++}
++CoopEndpoint GuestEndpoint(const N_XSOCKADDR_IN& address) {
++  return {uint32_t(address.sin_addr),uint16_t(address.sin_port)};
++}
++void StoreEndpoint(N_XSOCKADDR_IN& out,CoopEndpoint endpoint) {
++  std::memset(out.x_sin_zero,0,8); out.sin_family=AF_INET; out.sin_addr=endpoint.ip; out.sin_port=endpoint.port;
++}
++}
++}
++
+ 
+ #include <rex/net/socket.h>
+ 
+@@ -156,56 +171,50 @@ X_STATUS XSocket::IOControl(uint32_t cmd, uint8_t* arg_ptr) {
+ }
+ 
+ X_STATUS XSocket::Connect(N_XSOCKADDR* name, int name_len) {
+-  int ret = connect(native_handle_, (sockaddr*)name, name_len);
+-  if (ret < 0) {
+-    return X_STATUS_UNSUCCESSFUL;
++  if (!name || name_len!=16 || name->address_family!=AF_INET) {
++    XThread::SetLastError(10014); return X_STATUS_UNSUCCESSFUL;
++  }
++  auto& net=kernel_state_->coop_network();
++  auto endpoints=net.Destinations(GuestEndpoint(*reinterpret_cast<N_XSOCKADDR_IN*>(name)));
++  if (endpoints.size()!=1) { XThread::SetLastError(10049); return X_STATUS_UNSUCCESSFUL; }
++  auto native=NativeAddress(endpoints[0]);
++  if (connect(native_handle_,reinterpret_cast<sockaddr*>(&native),sizeof(native))<0) {
++    SocketError(); return X_STATUS_UNSUCCESSFUL;
+   }
+-
+   return X_STATUS_SUCCESS;
+ }
+ 
+ X_STATUS XSocket::Bind(N_XSOCKADDR_IN* name, int name_len) {
+-  int ret = bind(native_handle_, (sockaddr*)name, name_len);
+-  if (ret < 0) {
+-    return X_STATUS_UNSUCCESSFUL;
++  if (!name || name_len!=16 || name->sin_family!=AF_INET) {
++    XThread::SetLastError(10014); return X_STATUS_UNSUCCESSFUL;
+   }
+-
+-  bound_ = true;
+-  bound_port_ = name->sin_port;
+-
++  auto& net=kernel_state_->coop_network();
++  auto endpoint=net.BindEndpoint(GuestEndpoint(*name));
++  auto native=NativeAddress(endpoint);
++  if (bind(native_handle_,reinterpret_cast<sockaddr*>(&native),sizeof(native))<0) {
++    SocketError(); return X_STATUS_UNSUCCESSFUL;
++  }
++  bound_=true; bound_port_=name->sin_port;
++  if (REXCVAR_GET(net_trace)) REXLOG_INFO("net bind handle={} guest={:08X}:{} native={:08X}:{}",handle(),uint32_t(name->sin_addr),uint16_t(name->sin_port),endpoint.ip,endpoint.port);
+   return X_STATUS_SUCCESS;
+ }
+ 
+ X_STATUS XSocket::Listen(int backlog) {
+-  int ret = listen(native_handle_, backlog);
+-  if (ret < 0) {
+-    return X_STATUS_UNSUCCESSFUL;
+-  }
+-
++  if (listen(native_handle_,backlog)<0) { SocketError(); return X_STATUS_UNSUCCESSFUL; }
+   return X_STATUS_SUCCESS;
+ }
+ 
+ object_ref<XSocket> XSocket::Accept(N_XSOCKADDR* name, int* name_len) {
+-  sockaddr n_sockaddr;
+-  socklen_t n_name_len = sizeof(sockaddr);
+-  uintptr_t ret = accept(native_handle_, &n_sockaddr, &n_name_len);
+-  if (ret == -1) {
+-    std::memset(name, 0, *name_len);
+-    *name_len = 0;
+-    return nullptr;
+-  }
+-
+-  std::memcpy(name, &n_sockaddr, n_name_len);
+-  *name_len = n_name_len;
+-
+-  // Create a kernel object to represent the new socket, and copy parameters
+-  // over.
+-  auto socket = object_ref<XSocket>(new XSocket(kernel_state_, ret));
+-  socket->af_ = af_;
+-  socket->type_ = type_;
+-  socket->proto_ = proto_;
+-
+-  return socket;
++  if (name && (!name_len || *name_len<16)) { XThread::SetLastError(10014); return nullptr; }
++  sockaddr_in native{}; socklen_t len=sizeof(native);
++  auto accepted=accept(native_handle_,reinterpret_cast<sockaddr*>(&native),&len);
++  if (accepted==decltype(accepted)(-1)) { SocketError(); return nullptr; }
++  auto endpoint=kernel_state_->coop_network().Source({ntohl(native.sin_addr.s_addr),ntohs(native.sin_port)});
++  if (name) { StoreEndpoint(*reinterpret_cast<N_XSOCKADDR_IN*>(name),endpoint); *name_len=16; }
++  auto result=object_ref<XSocket>(new XSocket(kernel_state_,accepted));
++  result->af_=af_; result->type_=type_; result->proto_=proto_;
++  result->bound_=bound_; result->bound_port_=bound_port_; result->secure_=secure_;
++  return result;
+ }
+ 
+ int XSocket::Shutdown(int how) {
+@@ -213,78 +222,43 @@ int XSocket::Shutdown(int how) {
+ }
+ 
+ int XSocket::Recv(uint8_t* buf, uint32_t buf_len, uint32_t flags) {
+-  return recv(native_handle_, reinterpret_cast<char*>(buf), buf_len, flags);
++  int result=recv(native_handle_,reinterpret_cast<char*>(buf),buf_len,flags);
++  if (result<0) SocketError();
++  return result;
+ }
+ 
+ int XSocket::RecvFrom(uint8_t* buf, uint32_t buf_len, uint32_t flags, N_XSOCKADDR_IN* from,
+                       uint32_t* from_len) {
+-  // Pop from secure packets first
+-  // TODO(DrChat): Enable when I commit XNet
+-  /*
+-  {
+-    std::lock_guard<std::mutex> lock(incoming_packet_mutex_);
+-    if (incoming_packets_.size()) {
+-      packet* pkt = (packet*)incoming_packets_.front();
+-      int data_len = pkt->data_len;
+-      std::memcpy(buf, pkt->data, std::min((uint32_t)pkt->data_len, buf_len));
+-
+-      from->sin_family = 2;
+-      from->sin_addr = pkt->src_ip;
+-      from->sin_port = pkt->src_port;
+-
+-      incoming_packets_.pop();
+-      uint8_t* pkt_ui8 = (uint8_t*)pkt;
+-      delete[] pkt_ui8;
+-
+-      return data_len;
+-    }
+-  }
+-  */
+-
+-  sockaddr_in nfrom;
+-  socklen_t nfromlen = sizeof(sockaddr_in);
+-  int ret = recvfrom(native_handle_, reinterpret_cast<char*>(buf), buf_len, flags,
+-                     (sockaddr*)&nfrom, &nfromlen);
+-  if (from) {
+-    from->sin_family = nfrom.sin_family;
+-    from->sin_addr = ntohl(nfrom.sin_addr.s_addr);  // BE <- BE
+-    from->sin_port = nfrom.sin_port;
+-    std::memset(from->x_sin_zero, 0, sizeof(from->x_sin_zero));
+-  }
+-
+-  if (from_len) {
+-    *from_len = nfromlen;
+-  }
+-
++  if (from && (!from_len || *from_len<16)) { XThread::SetLastError(10014); return -1; }
++  sockaddr_in native{}; socklen_t len=sizeof(native);
++  int ret=recvfrom(native_handle_,reinterpret_cast<char*>(buf),buf_len,flags,
++                   reinterpret_cast<sockaddr*>(&native),&len);
++  if (ret<0) { SocketError(); return ret; }
++  auto endpoint=kernel_state_->coop_network().Source({ntohl(native.sin_addr.s_addr),ntohs(native.sin_port)});
++  if (from) { StoreEndpoint(*from,endpoint); *from_len=16; }
++  if (REXCVAR_GET(net_trace)) REXLOG_INFO("net recvfrom handle={} bytes={} guest={:08X}:{} native={:08X}:{}",handle(),ret,endpoint.ip,endpoint.port,ntohl(native.sin_addr.s_addr),ntohs(native.sin_port));
+   return ret;
+ }
+ 
+ int XSocket::Send(const uint8_t* buf, uint32_t buf_len, uint32_t flags) {
+-  return send(native_handle_, reinterpret_cast<const char*>(buf), buf_len, flags);
++  int result=send(native_handle_,reinterpret_cast<const char*>(buf),buf_len,flags);
++  if (result<0) SocketError();
++  return result;
+ }
+ 
+ int XSocket::SendTo(uint8_t* buf, uint32_t buf_len, uint32_t flags, N_XSOCKADDR_IN* to,
+                     uint32_t to_len) {
+-  // Send 2 copies of the packet: One to XNet (for network security) and an
+-  // unencrypted copy for other Xenia hosts.
+-  // TODO(DrChat): Enable when I commit XNet.
+-  /*
+-  auto xam = kernel_state()->GetKernelModule<xam::XamModule>("xam.xex");
+-  auto xnet = xam->xnet();
+-  if (xnet) {
+-    xnet->SendPacket(this, to, buf, buf_len);
+-  }
+-  */
+-
+-  sockaddr_in nto;
+-  if (to) {
+-    nto.sin_addr.s_addr = to->sin_addr;
+-    nto.sin_family = to->sin_family;
+-    nto.sin_port = to->sin_port;
++  if (!to || to_len!=16 || to->sin_family!=AF_INET) { XThread::SetLastError(10014); return -1; }
++  auto endpoints=kernel_state_->coop_network().Destinations(GuestEndpoint(*to));
++  if (endpoints.empty()) { XThread::SetLastError(10049); return -1; }
++  for (auto endpoint:endpoints) {
++    auto native=NativeAddress(endpoint);
++    int ret=sendto(native_handle_,reinterpret_cast<char*>(buf),buf_len,flags,
++                   reinterpret_cast<sockaddr*>(&native),sizeof(native));
++    if (ret<0) { SocketError(); return ret; }
++    if (REXCVAR_GET(net_trace)) REXLOG_INFO("net sendto handle={} bytes={} guest={:08X}:{} native={:08X}:{}",handle(),ret,uint32_t(to->sin_addr),uint16_t(to->sin_port),endpoint.ip,endpoint.port);
+   }
+-
+-  return sendto(native_handle_, reinterpret_cast<char*>(buf), buf_len, flags,
+-                to ? (sockaddr*)&nto : nullptr, to_len);
++  return int(buf_len);
+ }
+ 
+ bool XSocket::QueuePacket(uint32_t src_ip, uint16_t src_port, const uint8_t* buf, size_t len) {
+-- 
+2.54.0.windows.1
+

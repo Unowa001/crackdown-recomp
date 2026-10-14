@@ -1,0 +1,221 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sun, 11 Oct 2026 16:55:11 -0400
+Subject: [PATCH 1/4] codegen: vpkd3d128 reads a copy of vB when vD == vB
+
+vD is also an input (words outside the packed slot are kept), and the
+generated code writes vD piecewise while still reading vB. For an
+in-place pack such as `vpkd3d128 v0,v0,5,2,2` the early writes clobber
+source bits not yet read, including the float16_4 x sign.
+
+Seen in Crackdown: ~130 in-place sites (mostly sub_826012D0 and
+sub_82719CA0) pack the NPC head mesh to float16 every frame; with the
+sign lost the heads were drawn ~600 px off screen (RenderDoc capture,
+head VB x/y/z all >= 0). With the fix the heads render.
+
+Tests: instr_vpkd3d128.s *_inplace_0 / *_inplace_2.
+---
+ src/codegen/builders/vector.cpp | 61 +++++++++++++++++++--------------
+ tests/ppc/asm/instr_vpkd3d128.s | 14 ++++++++
+ 2 files changed, 50 insertions(+), 25 deletions(-)
+
+diff --git a/src/codegen/builders/vector.cpp b/src/codegen/builders/vector.cpp
+index cbdd7f7..ff0fca9 100644
+--- a/src/codegen/builders/vector.cpp
++++ b/src/codegen/builders/vector.cpp
+@@ -1171,6 +1171,15 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+   // TODO(tomc): vectorize
+   // NOTE: handling vector reversal here too
+   ctx.emit_set_flush_mode(true);
++  // vD is also an input (words outside the packed slot are kept), and the
++  // cases below write vD piecewise while still reading vB. For an in-place
++  // pack (vD == vB, e.g. vpkd3d128 v0,v0,5,2,2) those writes would clobber
++  // source bits not yet read -- the float16_4 x sign among them -- so read a
++  // copy instead.
++  const bool aliased = ctx.insn.operands[0] == ctx.insn.operands[1];
++  if (aliased)
++    ctx.println("\t{{ PPCVRegister vPkSrc = {};", ctx.v(ctx.insn.operands[1]));
++  const std::string src = aliased ? std::string("vPkSrc") : ctx.v(ctx.insn.operands[1]);
+   switch (ctx.insn.operands[2]) {
+     case 0:  // D3D color
+     {
+@@ -1185,8 +1194,8 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+         ctx.println(
+             "\t{}.f32[{}] = !({}.f32[{}] >= 3.0f) ? 3.0f : ({}.f32[{}] > {}.f32[{}] ? {}.f32[{}] : "
+             "{}.f32[{}]);",
+-            ctx.v_temp(), i, ctx.v(ctx.insn.operands[1]), i, ctx.v(ctx.insn.operands[1]), i,
+-            ctx.v_temp(), i, ctx.v_temp(), i, ctx.v(ctx.insn.operands[1]), i);
++            ctx.v_temp(), i, src, i, src, i,
++            ctx.v_temp(), i, ctx.v_temp(), i, src, i);
+         ctx.println("\t{}.u32 {}= uint32_t({}.u8[{}]) << {};", ctx.temp(), i == 0 ? "" : "|",
+                     ctx.v_temp(), i * 4, indices[i] * 8);
+       }
+@@ -1216,12 +1225,12 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+       // We need to saturate to signed 16-bit range [-32767, 32767] (NOT -32768, based on tests)
+       // NOTE: Guest element 0 is at array index 3, element 1 is at index 2 (reversed for host)
+       // Element 0 (index 3) goes to HIGH word, element 1 (index 2) goes to LOW word
+-      ctx.println("\t{}.s32 = {}.s32[3] - 0x40400000;", ctx.temp(), ctx.v(ctx.insn.operands[1]));
++      ctx.println("\t{}.s32 = {}.s32[3] - 0x40400000;", ctx.temp(), src);
+       ctx.println("\t{}.s32 = {}.s32 > 32767 ? 32767 : ({}.s32 < -32767 ? -32767 : {}.s32);",
+                   ctx.temp(), ctx.temp(), ctx.temp(), ctx.temp());
+       ctx.println("\t{}.u32[0] = uint32_t(uint16_t({}.s32)) << 16;", ctx.v_temp(),
+                   ctx.temp());  // element 0 to high word
+-      ctx.println("\t{}.s32 = {}.s32[2] - 0x40400000;", ctx.temp(), ctx.v(ctx.insn.operands[1]));
++      ctx.println("\t{}.s32 = {}.s32[2] - 0x40400000;", ctx.temp(), src);
+       ctx.println("\t{}.s32 = {}.s32 > 32767 ? 32767 : ({}.s32 < -32767 ? -32767 : {}.s32);",
+                   ctx.temp(), ctx.temp(), ctx.temp(), ctx.temp());
+       ctx.println("\t{}.u32[0] |= uint16_t({}.s32);", ctx.v_temp(),
+@@ -1243,32 +1252,32 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+       ctx.println(
+           "\t{}.f32 = {}.f32[3] < kPack2101010_Min10 ? kPack2101010_Min10 : ({}.f32[3] > "
+           "kPack2101010_Max10 ? kPack2101010_Max10 : {}.f32[3]);",
+-          ctx.temp(), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[1]),
+-          ctx.v(ctx.insn.operands[1]));
++          ctx.temp(), src, src,
++          src);
+       ctx.println("\t{}.u32[0] = {}.u32 & 0x3FF;", ctx.v_temp(), ctx.temp());
+ 
+       // Pack y (10 bits, position 10-19) - Guest element 1 is at index 2
+       ctx.println(
+           "\t{}.f32 = {}.f32[2] < kPack2101010_Min10 ? kPack2101010_Min10 : ({}.f32[2] > "
+           "kPack2101010_Max10 ? kPack2101010_Max10 : {}.f32[2]);",
+-          ctx.temp(), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[1]),
+-          ctx.v(ctx.insn.operands[1]));
++          ctx.temp(), src, src,
++          src);
+       ctx.println("\t{}.u32[0] |= ({}.u32 & 0x3FF) << 10;", ctx.v_temp(), ctx.temp());
+ 
+       // Pack z (10 bits, position 20-29) - Guest element 2 is at index 1
+       ctx.println(
+           "\t{}.f32 = {}.f32[1] < kPack2101010_Min10 ? kPack2101010_Min10 : ({}.f32[1] > "
+           "kPack2101010_Max10 ? kPack2101010_Max10 : {}.f32[1]);",
+-          ctx.temp(), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[1]),
+-          ctx.v(ctx.insn.operands[1]));
++          ctx.temp(), src, src,
++          src);
+       ctx.println("\t{}.u32[0] |= ({}.u32 & 0x3FF) << 20;", ctx.v_temp(), ctx.temp());
+ 
+       // Pack w (2 bits, position 30-31) - Guest element 3 is at index 0
+       ctx.println(
+           "\t{}.f32 = {}.f32[0] < kPack2101010_Min2 ? kPack2101010_Min2 : ({}.f32[0] > "
+           "kPack2101010_Max2 ? kPack2101010_Max2 : {}.f32[0]);",
+-          ctx.temp(), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[1]),
+-          ctx.v(ctx.insn.operands[1]));
++          ctx.temp(), src, src,
++          src);
+       ctx.println("\t{}.u32[0] |= ({}.u32 & 0x3) << 30;", ctx.v_temp(), ctx.temp());
+ 
+       ctx.println("\t{}.u32[{}] = {}.u32[0];", ctx.v(ctx.insn.operands[0]), ctx.insn.operands[4],
+@@ -1285,21 +1294,21 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+         size_t srcIdx = 3 - i;  // Guest element i is at host array index 3-i
+         size_t dstIdx =
+             (1 - i) + (2 * ctx.insn.operands[4]);  // Output reversed: elem 0 to high, elem 1 to low
+-        ctx.println("\t{}.u32 = ({}.u32[{}]&0x7FFFFFFF);", ctx.temp(), ctx.v(ctx.insn.operands[1]),
++        ctx.println("\t{}.u32 = ({}.u32[{}]&0x7FFFFFFF);", ctx.temp(), src,
+                     srcIdx);
+         ctx.println(
+             "\t{0}.u8[0] = ({1}.f32 != {1}.f32) || ({1}.f32 > 65504.0f) ? 0xFF : "
+             "(({2}.u32[{3}]&0x7f800000)>>23);",
+-            ctx.v_temp(), ctx.temp(), ctx.v(ctx.insn.operands[1]), srcIdx);
++            ctx.v_temp(), ctx.temp(), src, srcIdx);
+         ctx.println("\t{}.u16 = {}.u8[0] != 0xFF ? (({}.u32[{}]&0x7FE000)>>13) : 0x0;", ctx.temp(),
+-                    ctx.v_temp(), ctx.v(ctx.insn.operands[1]), srcIdx);
++                    ctx.v_temp(), src, srcIdx);
+         ctx.println(
+             "\t{0}.u16[{1}] = {2}.u8[0] != 0xFF ? ({2}.u8[0] > 0x70 ? "
+             "((({2}.u8[0]-0x70)<<10)+{3}.u16) : (0x71-{2}.u8[0] > 31 ? 0x0 : "
+             "((0x400+{3}.u16)>>(0x71-{2}.u8[0])))) : 0x7FFF;",
+             ctx.v(ctx.insn.operands[0]), dstIdx, ctx.v_temp(), ctx.temp());
+         ctx.println("\t{}.u16[{}] |= (({}.u32[{}]&0x80000000)>>16);", ctx.v(ctx.insn.operands[0]),
+-                    dstIdx, ctx.v(ctx.insn.operands[1]), srcIdx);
++                    dstIdx, src, srcIdx);
+       }
+       break;
+     }
+@@ -1312,7 +1321,7 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+       for (size_t i = 0; i < 4; i++) {
+         size_t srcIdx = 3 - i;  // Guest element i is at host array index 3-i
+         size_t dstIdx = (3 - i) + (2 * ctx.insn.operands[4]);  // Output also reversed
+-        ctx.println("\t{}.s32 = {}.s32[{}] - 0x40400000;", ctx.temp(), ctx.v(ctx.insn.operands[1]),
++        ctx.println("\t{}.s32 = {}.s32[{}] - 0x40400000;", ctx.temp(), src,
+                     srcIdx);
+         ctx.println("\t{}.s32 = {}.s32 > 32767 ? 32767 : ({}.s32 < -32767 ? -32767 : {}.s32);",
+                     ctx.temp(), ctx.temp(), ctx.temp(), ctx.temp());
+@@ -1333,21 +1342,21 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+       for (size_t i = 0; i < 4; i++) {
+         size_t srcIdx = 3 - i;  // Guest element i is at host array index 3-i
+         size_t dstIdx = (3 - i) + (2 * ctx.insn.operands[4]);  // Output also reversed
+-        ctx.println("\t{}.u32 = ({}.u32[{}]&0x7FFFFFFF);", ctx.temp(), ctx.v(ctx.insn.operands[1]),
++        ctx.println("\t{}.u32 = ({}.u32[{}]&0x7FFFFFFF);", ctx.temp(), src,
+                     srcIdx);
+         ctx.println(
+             "\t{0}.u8[0] = ({1}.f32 != {1}.f32) || ({1}.f32 > 65504.0f) ? 0xFF : "
+             "(({2}.u32[{3}]&0x7f800000)>>23);",
+-            ctx.v_temp(), ctx.temp(), ctx.v(ctx.insn.operands[1]), srcIdx);
++            ctx.v_temp(), ctx.temp(), src, srcIdx);
+         ctx.println("\t{}.u16 = {}.u8[0] != 0xFF ? (({}.u32[{}]&0x7FE000)>>13) : 0x0;", ctx.temp(),
+-                    ctx.v_temp(), ctx.v(ctx.insn.operands[1]), srcIdx);
++                    ctx.v_temp(), src, srcIdx);
+         ctx.println(
+             "\t{0}.u16[{1}] = {2}.u8[0] != 0xFF ? ({2}.u8[0] > 0x70 ? "
+             "((({2}.u8[0]-0x70)<<10)+{3}.u16) : (0x71-{2}.u8[0] > 31 ? 0x0 : "
+             "((0x400+{3}.u16)>>(0x71-{2}.u8[0])))) : 0x7FFF;",
+             ctx.v(ctx.insn.operands[0]), dstIdx, ctx.v_temp(), ctx.temp());
+         ctx.println("\t{}.u16[{}] |= (({}.u32[{}]&0x80000000)>>16);", ctx.v(ctx.insn.operands[0]),
+-                    dstIdx, ctx.v(ctx.insn.operands[1]), srcIdx);
++                    dstIdx, src, srcIdx);
+       }
+       break;
+     }
+@@ -1357,16 +1366,16 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+       // Format: 4 bits for w, 20 bits each for x, y, z (packed into 64 bits)
+       ctx.println("\t{}.u64[0] = 0;", ctx.v_temp());
+       // Pack x (20 bits, position 0-19)
+-      ctx.println("\t{}.s32 = int32_t({}.f32[0]);", ctx.temp(), ctx.v(ctx.insn.operands[1]));
++      ctx.println("\t{}.s32 = int32_t({}.f32[0]);", ctx.temp(), src);
+       ctx.println("\t{}.u64[0] = uint64_t({}.s32 & 0xFFFFF);", ctx.v_temp(), ctx.temp());
+       // Pack y (20 bits, position 20-39)
+-      ctx.println("\t{}.s32 = int32_t({}.f32[1]);", ctx.temp(), ctx.v(ctx.insn.operands[1]));
++      ctx.println("\t{}.s32 = int32_t({}.f32[1]);", ctx.temp(), src);
+       ctx.println("\t{}.u64[0] |= uint64_t({}.s32 & 0xFFFFF) << 20;", ctx.v_temp(), ctx.temp());
+       // Pack z (20 bits, position 40-59)
+-      ctx.println("\t{}.s32 = int32_t({}.f32[2]);", ctx.temp(), ctx.v(ctx.insn.operands[1]));
++      ctx.println("\t{}.s32 = int32_t({}.f32[2]);", ctx.temp(), src);
+       ctx.println("\t{}.u64[0] |= uint64_t({}.s32 & 0xFFFFF) << 40;", ctx.v_temp(), ctx.temp());
+       // Pack w (4 bits, position 60-63)
+-      ctx.println("\t{}.s32 = int32_t({}.f32[3]);", ctx.temp(), ctx.v(ctx.insn.operands[1]));
++      ctx.println("\t{}.s32 = int32_t({}.f32[3]);", ctx.temp(), src);
+       ctx.println("\t{}.u64[0] |= uint64_t({}.s32 & 0xF) << 60;", ctx.v_temp(), ctx.temp());
+       ctx.println("\t{}.u64[{}] = {}.u64[0];", ctx.v(ctx.insn.operands[0]),
+                   ctx.insn.operands[4] >> 1, ctx.v_temp());
+@@ -1377,6 +1386,8 @@ bool build_vpkd3d128(BuilderContext& ctx) {
+       ctx.println("\t__builtin_debugtrap();");
+       break;
+   }
++  if (aliased)
++    ctx.println("\t}}");
+   return true;
+ }
+ 
+diff --git a/tests/ppc/asm/instr_vpkd3d128.s b/tests/ppc/asm/instr_vpkd3d128.s
+index e4acd59..0d2872f 100644
+--- a/tests/ppc/asm/instr_vpkd3d128.s
++++ b/tests/ppc/asm/instr_vpkd3d128.s
+@@ -256,3 +256,17 @@ test_vpkd3d128_float16_4_0:
+   blr
+   #_ REGISTER_OUT v3 [3F000000, BF000000, 3F800000, BF800000]
+   #_ REGISTER_OUT v4 [CDCDCDCD, CDCDCDCD, 3800B800, 3C00BC00]
++test_vpkd3d128_float16_4_inplace_0:
++  # in place (vD == vB): the pack must read every source element, signs
++  # included, before it overwrites them
++  #_ REGISTER_IN v3 [BF000000, 3F000000, BF800000, 3F800000]
++  # vpkd3d128 v3, v3, 5, 2, 0
++  .long 0x18761E10
++  blr
++  #_ REGISTER_OUT v3 [BF000000, 3F000000, B8003800, BC003C00]
++test_vpkd3d128_float16_4_inplace_2:
++  #_ REGISTER_IN v3 [BF000000, 3F000000, BF800000, 3F800000]
++  # vpkd3d128 v3, v3, 5, 2, 2
++  .long 0x18761E90
++  blr
++  #_ REGISTER_OUT v3 [B8003800, BC003C00, BF800000, 3F800000]

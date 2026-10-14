@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sun, 11 Oct 2026 16:55:11 -0400
+Subject: [PATCH 4/4] xboxkrnl: silent KeSave/RestoreFloatingPointState
+
+Host threads keep their own FP/VMX state, so there is nothing to save or
+restore. Titles call these around every graphics interrupt; as logging
+stubs they produced ~225 log lines per second. Return STATUS_SUCCESS
+without logging.
+---
+ src/kernel/xboxkrnl/xboxkrnl_threading.cpp | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/src/kernel/xboxkrnl/xboxkrnl_threading.cpp b/src/kernel/xboxkrnl/xboxkrnl_threading.cpp
+index 57fd161..3768b64 100644
+--- a/src/kernel/xboxkrnl/xboxkrnl_threading.cpp
++++ b/src/kernel/xboxkrnl/xboxkrnl_threading.cpp
+@@ -1536,11 +1536,11 @@ REX_EXPORT_STUB(__imp__KeIpiGenericCall);
+ REX_EXPORT_STUB(__imp__KeQueryBackgroundProcessors);
+ REX_EXPORT_STUB(__imp__KeQueryInterruptTime);
+ REX_EXPORT_STUB(__imp__KeRegisterDriverNotification);
+-REX_EXPORT_STUB(__imp__KeRestoreFloatingPointState);
++// REX_EXPORT_STUB(__imp__KeRestoreFloatingPointState); -- implemented below
+ REX_EXPORT_STUB(__imp__KeRestoreVectorUnitState);
+ REX_EXPORT_STUB(__imp__KeRetireDpcList);
+ REX_EXPORT_STUB(__imp__KeRundownQueue);
+-REX_EXPORT_STUB(__imp__KeSaveFloatingPointState);
++// REX_EXPORT_STUB(__imp__KeSaveFloatingPointState); -- implemented below
+ REX_EXPORT_STUB(__imp__KeSaveVectorUnitState);
+ REX_EXPORT_STUB(__imp__KeSetBackgroundProcessors);
+ REX_EXPORT_STUB(__imp__KeSetPriorityClassThread);
+@@ -1552,3 +1552,20 @@ REX_EXPORT_STUB(__imp__KeSweepDcacheRange);
+ REX_EXPORT_STUB(__imp__KeSweepIcacheRange);
+ REX_EXPORT_STUB(__imp__KeTestAlertThread);
+ REX_EXPORT(__imp__KfRaiseIrql, rex::kernel::xboxkrnl::KfRaiseIrql_entry)
++
++// Host threads each keep their own FP/VMX state, so there is nothing to save
++// or restore. Titles call these around every graphics interrupt (hundreds of
++// times a second), so report success without logging.
++extern "C" REX_FUNC(__imp__KeSaveFloatingPointState) {
++  (void)base;
++  ctx.r3.u64 = 0;  // STATUS_SUCCESS
++}
++static rex::ppc::detail::PPCFuncRegistrar _ppc_reg___imp__KeSaveFloatingPointState(
++    "__imp__KeSaveFloatingPointState", &__imp__KeSaveFloatingPointState);
++
++extern "C" REX_FUNC(__imp__KeRestoreFloatingPointState) {
++  (void)base;
++  ctx.r3.u64 = 0;  // STATUS_SUCCESS
++}
++static rex::ppc::detail::PPCFuncRegistrar _ppc_reg___imp__KeRestoreFloatingPointState(
++    "__imp__KeRestoreFloatingPointState", &__imp__KeRestoreFloatingPointState);

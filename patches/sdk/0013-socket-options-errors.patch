@@ -1,0 +1,187 @@
+From 67c11cbd8799d9bd5dd60da3f1d5bad2a92c5436 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Tue, 13 Oct 2026 20:18:38 -0400
+Subject: [PATCH] socket-options-errors
+
+Guest socket path 0x829295E0; System Link bind calls 0x8246238C/0x82462B6C. Source: pinned xsocket.cpp SetOption/IOControl, netplay kernel/xsocket.cc native error and scalar conversion comparison. Validation: pending native build and nonblocking byte fixture; runtime unverified. Author: Codex.
+---
+ src/kernel/xam/xam_net.cpp |   5 +-
+ src/system/xsocket.cpp     | 103 ++++++++++++++++++++++++++++---------
+ 2 files changed, 80 insertions(+), 28 deletions(-)
+
+diff --git a/src/kernel/xam/xam_net.cpp b/src/kernel/xam/xam_net.cpp
+index 0a2ee24..e6afced 100644
+--- a/src/kernel/xam/xam_net.cpp
++++ b/src/kernel/xam/xam_net.cpp
+@@ -575,9 +575,7 @@ u32 NetDll_closesocket_entry(u32 caller, u32 socket_handle) {
+     return -1;
+   }
+ 
+-  // TODO: Absolutely delete this object. It is no longer valid after calling
+-  // closesocket.
+-  socket->Close();
++  if (XFAILED(socket->Close())) return -1;
+   socket->ReleaseHandle();
+   return 0;
+ }
+@@ -625,7 +623,6 @@ u32 NetDll_ioctlsocket_entry(u32 caller, u32 socket_handle, u32 cmd, mapped_void
+ 
+   X_STATUS status = socket->IOControl(cmd, arg_ptr);
+   if (XFAILED(status)) {
+-    XThread::SetLastError(xboxkrnl::xeRtlNtStatusToDosError(status));
+     return -1;
+   }
+ 
+diff --git a/src/system/xsocket.cpp b/src/system/xsocket.cpp
+index 2d13ac8..49cdd70 100644
+--- a/src/system/xsocket.cpp
++++ b/src/system/xsocket.cpp
+@@ -10,6 +10,8 @@
+  */
+ 
+ #include <cstring>
++#include <cerrno>
++#include <rex/system/xthread.h>
+ 
+ #include <rex/kernel/xam/module.h>
+ #include <rex/platform.h>
+@@ -29,9 +31,37 @@
+ #include <netinet/in.h>
+ #include <netinet/ip.h>
+ #include <sys/socket.h>
++#include <sys/ioctl.h>
+ #endif
+ 
+ namespace rex::system {
++namespace {
++void SocketError() {
++#if REX_PLATFORM_WIN32
++  XThread::SetLastError(WSAGetLastError());
++#else
++  uint32_t error=10022;
++  switch (errno) {
++    case EAGAIN: error=10035; break;
++    case EINPROGRESS: error=10036; break;
++    case EALREADY: error=10037; break;
++    case EBADF: case ENOTSOCK: error=10038; break;
++    case EADDRINUSE: error=10048; break;
++    case EADDRNOTAVAIL: error=10049; break;
++    case ECONNRESET: error=10054; break;
++    case ECONNREFUSED: error=10061; break;
++    case ENOTCONN: error=10057; break;
++    case EMSGSIZE: error=10040; break;
++    case EACCES: error=10013; break;
++    case EFAULT: error=10014; break;
++    case ETIMEDOUT: error=10060; break;
++    case EOPNOTSUPP: error=10045; break;
++  }
++  XThread::SetLastError(error);
++#endif
++}
++}
++
+ 
+ XSocket::XSocket(KernelState* kernel_state) : XObject(kernel_state, kObjectType) {}
+ 
+@@ -54,6 +84,7 @@ X_STATUS XSocket::Initialize(AddressFamily af, Type type, Protocol proto) {
+ 
+   native_handle_ = socket(af, type, proto);
+   if (native_handle_ == -1) {
++    SocketError();
+     return X_STATUS_UNSUCCESSFUL;
+   }
+ 
+@@ -61,42 +92,66 @@ X_STATUS XSocket::Initialize(AddressFamily af, Type type, Protocol proto) {
+ }
+ 
+ X_STATUS XSocket::Close() {
+-  int ret = rex::net::socket_close(native_handle_);
+-  if (ret != 0) {
+-    return X_STATUS_UNSUCCESSFUL;
+-  }
+-
++  if (native_handle_==uint64_t(-1)) return X_STATUS_SUCCESS;
++  auto handle=native_handle_; native_handle_=uint64_t(-1);
++  if (rex::net::socket_close(handle)) { SocketError(); return X_STATUS_UNSUCCESSFUL; }
+   return X_STATUS_SUCCESS;
+ }
+ 
+ X_STATUS XSocket::SetOption(uint32_t level, uint32_t optname, void* optval_ptr, uint32_t optlen) {
+-  if (level == 0xFFFF && (optname == 0x5801 || optname == 0x5802)) {
+-    // Disable socket encryption
+-    secure_ = false;
+-    return X_STATUS_SUCCESS;
++  if (level==0xffff && (optname==0x5801 || optname==0x5802)) {
++    secure_=false; return X_STATUS_SUCCESS;
+   }
+-
+-  int ret = setsockopt(native_handle_, level, optname, (char*)optval_ptr, optlen);
+-  if (ret < 0) {
+-    // TODO: WSAGetLastError()
+-    return X_STATUS_UNSUCCESSFUL;
++  if (!optval_ptr) { XThread::SetLastError(10014); return X_STATUS_UNSUCCESSFUL; }
++  int native_level=level, native_option=optname;
++  bool linger_option=false;
++  if (level==0xffff) {
++    native_level=SOL_SOCKET;
++    switch (optname) {
++      case 0x0004: native_option=SO_REUSEADDR; break;
++      case 0x0008: native_option=SO_KEEPALIVE; break;
++      case 0x0010: native_option=SO_DONTROUTE; break;
++      case 0x0020: native_option=SO_BROADCAST; break;
++      case 0x0080: native_option=SO_LINGER; linger_option=true; break;
++      case 0x0100: native_option=SO_OOBINLINE; break;
++      case 0x1001: native_option=SO_SNDBUF; break;
++      case 0x1002: native_option=SO_RCVBUF; break;
++      default: XThread::SetLastError(10042); return X_STATUS_UNSUCCESSFUL;
++    }
++  } else if (!(level==6 && optname==1)) {
++    XThread::SetLastError(10042); return X_STATUS_UNSUCCESSFUL;
+   }
+-
+-  // SO_BROADCAST
+-  if (level == 0xFFFF && optname == 0x0020) {
+-    broadcast_socket_ = true;
++  if (optlen!=4) { XThread::SetLastError(10014); return X_STATUS_UNSUCCESSFUL; }
++  int value=memory::load_and_swap<uint32_t>(optval_ptr);
++  linger native_linger{};
++  if (linger_option) {
++    native_linger.l_onoff=memory::load_and_swap<uint16_t>(optval_ptr);
++    native_linger.l_linger=memory::load_and_swap<uint16_t>(static_cast<uint8_t*>(optval_ptr)+2);
+   }
+-
++  auto data=linger_option?reinterpret_cast<const char*>(&native_linger):reinterpret_cast<const char*>(&value);
++  int len=linger_option?sizeof(native_linger):sizeof(value);
++  if (setsockopt(native_handle_,native_level,native_option,data,len)<0) {
++    SocketError(); return X_STATUS_UNSUCCESSFUL;
++  }
++  if (level==0xffff && optname==0x20) broadcast_socket_=value!=0;
+   return X_STATUS_SUCCESS;
+ }
+ 
+ X_STATUS XSocket::IOControl(uint32_t cmd, uint8_t* arg_ptr) {
+-  int ret = rex::net::socket_ioctl(native_handle_, cmd, arg_ptr);
+-  if (ret < 0) {
+-    // TODO: Get last error
+-    return X_STATUS_UNSUCCESSFUL;
++  if (!arg_ptr) { XThread::SetLastError(10014); return X_STATUS_UNSUCCESSFUL; }
++  if (cmd!=0x8004667e && cmd!=0x4004667f) {
++    XThread::SetLastError(10022); return X_STATUS_UNSUCCESSFUL;
+   }
+-
++  uint32_t value=memory::load_and_swap<uint32_t>(arg_ptr);
++#if REX_PLATFORM_WIN32
++  uint32_t native_cmd=cmd;
++#else
++  uint32_t native_cmd=cmd==0x8004667e?FIONBIO:FIONREAD;
++#endif
++  if (rex::net::socket_ioctl(native_handle_,native_cmd,reinterpret_cast<uint8_t*>(&value))<0) {
++    SocketError(); return X_STATUS_UNSUCCESSFUL;
++  }
++  memory::store_and_swap<uint32_t>(arg_ptr,value);
+   return X_STATUS_SUCCESS;
+ }
+ 
+-- 
+2.54.0.windows.1
+

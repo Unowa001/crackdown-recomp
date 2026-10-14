@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Tue, 13 Oct 2026 22:10:00 -0400
+Subject: [PATCH] xam: XamEnumerate reports zero items on every error
+
+XamEnumerate_entry copied an uninitialized local into the guest's
+items_returned when xeXamEnumerate failed early (invalid handle), and
+xeXamEnumerate itself left the count untouched on that path. Crackdown's
+Massive ad-server thread (guest sub_82AA0920) ignores the error code of
+XamEnumerate on the never-valid handle from XTitleServerCreateEnumerator
+and loops over the returned count through 208-byte records in a 10-record
+stack buffer. With a nonzero garbage count (seen on Linux) it reads past
+its stack top into the guard page (guest 0x706A0008, record 11) on every
+iteration. Zero the count on entry and initialize the local.
+---
+ src/kernel/xam/xam_enum.cpp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/kernel/xam/xam_enum.cpp b/src/kernel/xam/xam_enum.cpp
+index 9dcab94..be4a4a5 100644
+--- a/src/kernel/xam/xam_enum.cpp
++++ b/src/kernel/xam/xam_enum.cpp
+@@ -35,6 +35,11 @@ using namespace rex::system::xam;
+ uint32_t xeXamEnumerate(uint32_t handle, uint32_t flags, mapped_void buffer_ptr,
+                         uint32_t buffer_size, uint32_t* items_returned, uint32_t overlapped_ptr) {
+   assert_true(flags == 0);
++  // Every return path reports a count: callers that ignore the error code
++  // (Crackdown's Massive server lookup) loop over items_returned.
++  if (items_returned) {
++    *items_returned = 0;
++  }
+ 
+   auto e = REX_KERNEL_OBJECTS()->LookupObject<XEnumerator>(handle);
+   if (!e) {
+@@ -73,7 +78,7 @@ uint32_t xeXamEnumerate(uint32_t handle, uint32_t flags, mapped_void buffer_ptr,
+ 
+ u32 XamEnumerate_entry(u32 handle, u32 flags, mapped_void buffer, u32 buffer_length,
+                        mapped_u32 items_returned, ppc_ptr_t<XAM_OVERLAPPED> overlapped) {
+-  uint32_t dummy;
++  uint32_t dummy = 0;
+   auto result =
+       xeXamEnumerate(handle, flags, buffer, buffer_length,
+                      !overlapped.guest_address() ? &dummy : nullptr, overlapped.guest_address());
+-- 
+2.51.0
+

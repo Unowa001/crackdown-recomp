@@ -1,0 +1,139 @@
+From 0285a8446e1078175f44bdf97ffc5e574b6f0b1d Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Tue, 13 Oct 2026 20:16:47 -0400
+Subject: [PATCH] coop-network-abi
+
+Guest: 0x8292AAE0 create (28 bytes), 0x82462758 XNADDR conversion. Source: xenia-netplay ef09406 src/xenia/kernel/xnet.h:472-587, xsession.h:73-215; plan-coop section 8. Validation: compile-time layout assertions; runtime trace not yet collected, unverified in game. Author: Codex.
+---
+ include/rex/system/coop_network_abi.h | 64 +++++++++++++++++++++++++++
+ src/kernel/xam/xam_net.cpp            | 30 +------------
+ 2 files changed, 65 insertions(+), 29 deletions(-)
+ create mode 100644 include/rex/system/coop_network_abi.h
+
+diff --git a/include/rex/system/coop_network_abi.h b/include/rex/system/coop_network_abi.h
+new file mode 100644
+index 0000000..6f1132b
+--- /dev/null
++++ b/include/rex/system/coop_network_abi.h
+@@ -0,0 +1,64 @@
++// Copyright 2026 Xenia Canary. All rights reserved.
++// Released under the BSD license - see LICENSE in the root for more details.
++// ABI definitions adapted from xenia-netplay ef09406, kernel/xnet.h and xsession.h.
++#pragma once
++#include <cstddef>
++#include <rex/types.h>
++#include <rex/system/xio.h>
++#if REX_PLATFORM_WIN32
++#include <winsock2.h>
++#else
++#include <netinet/in.h>
++#endif
++namespace rex::system {
++#pragma pack(push, 4)
++struct XNKID { uint8_t ab[8]; };
++struct XNKEY { uint8_t ab[16]; };
++struct XNADDR {
++  in_addr ina, inaOnline;
++  be<uint16_t> wPortOnline;
++  uint8_t abEnet[6], abOnline[20];
++};
++struct XSESSION_INFO { XNKID sessionID; XNADDR hostAddress; XNKEY keyExchangeKey; };
++struct X_KSESSION { be<uint32_t> handle; };
++struct XGI_SESSION_CREATE {
++  be<uint32_t> obj_ptr, flags, num_slots_public, num_slots_private, user_index,
++               session_info_ptr, nonce_ptr;
++};
++struct XGI_SESSION_MANAGE {
++  be<uint32_t> obj_ptr, array_count, xuid_array_ptr, indices_array_ptr, private_slots_array_ptr;
++};
++struct XGI_SESSION_SEARCH {
++  be<uint32_t> proc_index, user_index, num_results;
++  be<uint16_t> num_props, num_ctx;
++  be<uint32_t> props_ptr, ctx_ptr, results_buffer_size, search_results_ptr;
++};
++struct XGI_SESSION_SEARCH_EX { XGI_SESSION_SEARCH session_search; be<uint32_t> num_users; };
++struct XSESSION_SEARCHRESULT {
++  XSESSION_INFO info;
++  be<uint32_t> open_public_slots, open_private_slots, filled_public_slots, filled_private_slots,
++               properties_count, contexts_count, properties_ptr, contexts_ptr;
++};
++struct XSESSION_SEARCHRESULT_HEADER { be<uint32_t> search_results_count, search_results_ptr; };
++struct XNQOSINFO {
++  uint8_t flags, reserved;
++  be<uint16_t> probes_xmit, probes_recv, data_len;
++  be<uint32_t> data_ptr;
++  be<uint16_t> rtt_min_in_msecs, rtt_med_in_msecs;
++  be<uint32_t> up_bits_per_sec, down_bits_per_sec;
++};
++struct XNQOS { be<uint32_t> count, count_pending; XNQOSINFO info[1]; };
++#pragma pack(pop)
++static_assert(sizeof(XNKID)==8 && sizeof(XNKEY)==16 && sizeof(XNADDR)==36);
++static_assert(offsetof(XNADDR,ina)==0 && offsetof(XNADDR,inaOnline)==4);
++static_assert(offsetof(XNADDR,wPortOnline)==8 && offsetof(XNADDR,abEnet)==10);
++static_assert(offsetof(XNADDR,abOnline)==16);
++static_assert(sizeof(XSESSION_INFO)==60 && offsetof(XSESSION_INFO,hostAddress)==8);
++static_assert(offsetof(XSESSION_INFO,keyExchangeKey)==44 && sizeof(X_KSESSION)==4);
++static_assert(sizeof(XGI_SESSION_CREATE)==28 && sizeof(XGI_SESSION_MANAGE)==20);
++static_assert(sizeof(XGI_SESSION_SEARCH)==32 && sizeof(XGI_SESSION_SEARCH_EX)==36);
++static_assert(sizeof(XSESSION_SEARCHRESULT)==92 && sizeof(XSESSION_SEARCHRESULT_HEADER)==8);
++static_assert(sizeof(XNQOSINFO)==24 && sizeof(XNQOS)==32 && offsetof(XNQOS,info)==8);
++static_assert(sizeof(XAM_OVERLAPPED)==28 && offsetof(XAM_OVERLAPPED,event)==12);
++static_assert(offsetof(XAM_OVERLAPPED,extended_error)==24);
++} // namespace rex::system
+diff --git a/src/kernel/xam/xam_net.cpp b/src/kernel/xam/xam_net.cpp
+index 58e36a4..0a2ee24 100644
+--- a/src/kernel/xam/xam_net.cpp
++++ b/src/kernel/xam/xam_net.cpp
+@@ -18,6 +18,7 @@
+ #include <sys/select.h>
+ #endif
+ 
++#include <rex/system/coop_network_abi.h>
+ #include <rex/chrono/clock.h>
+ #include <rex/kernel/xam/module.h>
+ #include <rex/kernel/xam/private.h>
+@@ -60,41 +61,12 @@ enum {
+   NUM_XNCALLER_TYPES = 0x4,
+ };
+ 
+-// https://github.com/pmrowla/hl2sdk-csgo/blob/master/common/xbox/xboxstubs.h
+-typedef struct {
+-  // FYI: IN_ADDR should be in network-byte order.
+-  in_addr ina;                    // IP address (zero if not static/DHCP)
+-  in_addr inaOnline;              // Online IP address (zero if not online)
+-  rex::be<uint16_t> wPortOnline;  // Online port
+-  uint8_t abEnet[6];              // Ethernet MAC address
+-  uint8_t abOnline[20];           // Online identification
+-} XNADDR;
+-
+ typedef struct {
+   rex::be<int32_t> status;
+   rex::be<uint32_t> cina;
+   in_addr aina[8];
+ } XNDNS;
+ 
+-typedef struct {
+-  uint8_t flags;
+-  uint8_t reserved;
+-  rex::be<uint16_t> probes_xmit;
+-  rex::be<uint16_t> probes_recv;
+-  rex::be<uint16_t> data_len;
+-  rex::be<uint32_t> data_ptr;
+-  rex::be<uint16_t> rtt_min_in_msecs;
+-  rex::be<uint16_t> rtt_med_in_msecs;
+-  rex::be<uint32_t> up_bits_per_sec;
+-  rex::be<uint32_t> down_bits_per_sec;
+-} XNQOSINFO;
+-
+-typedef struct {
+-  rex::be<uint32_t> count;
+-  rex::be<uint32_t> count_pending;
+-  XNQOSINFO info[1];
+-} XNQOS;
+-
+ struct Xsockaddr_t {
+   rex::be<uint16_t> sa_family;
+   char sa_data[14];
+-- 
+2.54.0.windows.1
+

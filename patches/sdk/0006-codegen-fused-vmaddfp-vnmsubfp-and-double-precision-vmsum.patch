@@ -1,0 +1,177 @@
+From 1c19d2e18e27914e76850c20b2f66811e922dba0 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Mon, 12 Oct 2026 12:00:00 -0400
+Subject: [PATCH] codegen: fused vmaddfp/vnmsubfp, double-precision
+ vmsum3/4fp128
+
+vmaddfp/vnmsubfp (and the 128 forms) were generated as a separate
+multiply and add (two roundings); the hardware fuses them, and Xenia
+emits vfmadd213ps/vfmsub213ps. vmsum3fp128/vmsum4fp128 used dpps, which
+rounds after every product and partial sum; Xenia (DOT_PRODUCT_3/4 in
+src/xenia/cpu/backend/x64/x64_sequences.cc, BSD license) multiplies and
+sums in double and rounds to float once, in the same order used here,
+and turns a float overflow into the default NaN.
+
+Fixes the Crackdown slope bug:
+running down slopes/stairs built up speed that carried
+on afterwards, in the stock build at 30 fps but not in Xenia Canary.
+Verified: PC stock run 2026-10-12 (crackdown_023), stairs clean.
+(Same class as 0002: last-bit float differences in movement math.)
+
+Build: guest/host targets now compile with -mfma (FMA3 CPU required)
+and -ffp-contract=off, so only the fused guest ops are fused.
+---
+ cmake/rexglue_helpers.cmake     |  5 +++-
+ include/rex/ppc/intrinsics.h    | 46 +++++++++++++++++++++++++++++++++
+ src/codegen/builders/vector.cpp | 24 ++++++++++-------
+ 3 files changed, 64 insertions(+), 11 deletions(-)
+
+diff --git a/cmake/rexglue_helpers.cmake b/cmake/rexglue_helpers.cmake
+index 41e6dce..97db84f 100644
+--- a/cmake/rexglue_helpers.cmake
++++ b/cmake/rexglue_helpers.cmake
+@@ -57,7 +57,10 @@ function(rexglue_apply_target_settings target_name)
+ 
+     if(NOT MSVC)
+         if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+-            target_compile_options(${target_name} PRIVATE -msse4.1)
++            # FMA: vmaddfp/vnmsubfp are fused on the hardware (simde falls back
++            # to a separate multiply and add without it). No contraction, so
++            # only the guest ops that are fused get fused.
++            target_compile_options(${target_name} PRIVATE -msse4.1 -mfma -ffp-contract=off)
+         endif()
+     endif()
+ endfunction()
+diff --git a/include/rex/ppc/intrinsics.h b/include/rex/ppc/intrinsics.h
+index f1c9261..ca0a5f7 100644
+--- a/include/rex/ppc/intrinsics.h
++++ b/include/rex/ppc/intrinsics.h
+@@ -16,9 +16,11 @@
+ #include <climits>
+ #include <cmath>
+ #include <cstring>
++#include <limits>
+ 
+ #include <simde/x86/avx.h>
+ #include <simde/x86/avx2.h>
++#include <simde/x86/fma.h>
+ #include <simde/x86/sse.h>
+ #include <simde/x86/sse4.1.h>
+ 
+@@ -353,6 +355,50 @@ inline simde__m128i simde_mm_sllv_epi16(simde__m128i a, simde__m128i count) {
+   return simde_mm_packus_epi32(r_lo, r_hi);
+ }
+ 
++//=============================================================================
++// Vector Dot Products (vmsum3fp128 / vmsum4fp128)
++//=============================================================================
++// Products and sums in double, rounded to float once, like Xenia's
++// DOT_PRODUCT_3/4 (xenia-canary src/xenia/cpu/backend/x64/x64_sequences.cc,
++// BSD license). dpps rounds after every multiply and add, so a length squared
++// or a dot product of unit vectors can land an ulp away from the hardware result.
++// Same summation order as Xenia; runs under the VMX flush mode, so denormal
++// inputs read as zero and a denormal result flushes to zero.
++
++namespace detail {
++inline simde__m128 VmsumResult(double sum) {
++  float result = float(sum);
++  // Four float products can't overflow double: an infinite float result from a
++  // finite sum is a float overflow, which gives the default NaN (as in Xenia).
++  if (std::isinf(result) && std::isfinite(sum)) {
++    result = std::numeric_limits<float>::quiet_NaN();
++  }
++  return simde_mm_set1_ps(result);
++}
++}  // namespace detail
++
++// Host lane 3 - i holds guest element i.
++inline simde__m128 simde_mm_vmsum3fp(simde__m128 a, simde__m128 b) {
++  alignas(16) float fa[4], fb[4];
++  simde_mm_store_ps(fa, a);
++  simde_mm_store_ps(fb, b);
++  const double x = double(fa[3]) * fb[3];
++  const double y = double(fa[2]) * fb[2];
++  const double z = double(fa[1]) * fb[1];
++  return detail::VmsumResult((x + z) + y);
++}
++
++inline simde__m128 simde_mm_vmsum4fp(simde__m128 a, simde__m128 b) {
++  alignas(16) float fa[4], fb[4];
++  simde_mm_store_ps(fa, a);
++  simde_mm_store_ps(fb, b);
++  const double x = double(fa[3]) * fb[3];
++  const double y = double(fa[2]) * fb[2];
++  const double z = double(fa[1]) * fb[1];
++  const double w = double(fa[0]) * fb[0];
++  return detail::VmsumResult((x + z) + (y + w));
++}
++
+ // Variable 16-bit logical right shift: widen to 32-bit, shift, narrow back
+ inline simde__m128i simde_mm_srlv_epi16(simde__m128i a, simde__m128i count) {
+   simde__m128i zero = simde_mm_setzero_si128();
+diff --git a/src/codegen/builders/vector.cpp b/src/codegen/builders/vector.cpp
+index 8d63427..c700edc 100644
+--- a/src/codegen/builders/vector.cpp
++++ b/src/codegen/builders/vector.cpp
+@@ -91,10 +91,11 @@ bool build_vmulfp128(BuilderContext& ctx) {
+ }
+ 
+ bool build_vmaddfp(BuilderContext& ctx) {
++  // Fused (one rounding), like the hardware and Xenia's MUL_ADD_V128.
+   ctx.emit_set_flush_mode(true);
+   ctx.println(
+-      "\tsimde_mm_store_ps({}.f32, simde_mm_add_ps(simde_mm_mul_ps(simde_mm_load_ps({}.f32), "
+-      "simde_mm_load_ps({}.f32)), simde_mm_load_ps({}.f32)));",
++      "\tsimde_mm_store_ps({}.f32, simde_mm_fmadd_ps(simde_mm_load_ps({}.f32), "
++      "simde_mm_load_ps({}.f32), simde_mm_load_ps({}.f32)));",
+       ctx.v(ctx.insn.operands[0]), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[2]),
+       ctx.v(ctx.insn.operands[3]));
+   return true;
+@@ -102,11 +103,12 @@ bool build_vmaddfp(BuilderContext& ctx) {
+ 
+ bool build_vnmsubfp(BuilderContext& ctx) {
+   // vnmsubfp: vD = -(vA * vB - vC) - negation done by XOR with sign bit (0x80000000)
++  // Fused (one rounding), like the hardware and Xenia's MUL_SUB_V128.
+   ctx.emit_set_flush_mode(true);
+   ctx.println(
+       "\tsimde_mm_store_ps({}.f32, "
+-      "simde_mm_xor_ps(simde_mm_sub_ps(simde_mm_mul_ps(simde_mm_load_ps({}.f32), "
+-      "simde_mm_load_ps({}.f32)), simde_mm_load_ps({}.f32)), "
++      "simde_mm_xor_ps(simde_mm_fmsub_ps(simde_mm_load_ps({}.f32), "
++      "simde_mm_load_ps({}.f32), simde_mm_load_ps({}.f32)), "
+       "simde_mm_castsi128_ps(simde_mm_set1_epi32(int(0x80000000)))));",
+       ctx.v(ctx.insn.operands[0]), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[2]),
+       ctx.v(ctx.insn.operands[3]));
+@@ -186,21 +188,23 @@ bool build_vlogefp(BuilderContext& ctx) {
+ 
+ bool build_vmsum3fp128(BuilderContext& ctx) {
+   // 3-element dot product accounting for guest->host vector element reversal
+-  // 0xEF = dot(yzw) with result broadcast to all elements (see constants doc)
++  // (guest xyz = host lanes 3..1), result broadcast to all elements
++  // Computed in double and rounded once (see rex::ppc::simde_mm_vmsum3fp).
+   ctx.emit_set_flush_mode(true);
+   ctx.println(
+-      "\tsimde_mm_store_ps({}.f32, simde_mm_dp_ps(simde_mm_load_ps({}.f32), "
+-      "simde_mm_load_ps({}.f32), 0xEF));",
++      "\tsimde_mm_store_ps({}.f32, rex::ppc::simde_mm_vmsum3fp(simde_mm_load_ps({}.f32), "
++      "simde_mm_load_ps({}.f32)));",
+       ctx.v(ctx.insn.operands[0]), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[2]));
+   return true;
+ }
+ 
+ bool build_vmsum4fp128(BuilderContext& ctx) {
+-  // 4-element dot product: 0xFF = all 4 elements, result to all (see constants doc)
++  // 4-element dot product, result broadcast to all elements
++  // Computed in double and rounded once (see rex::ppc::simde_mm_vmsum4fp).
+   ctx.emit_set_flush_mode(true);
+   ctx.println(
+-      "\tsimde_mm_store_ps({}.f32, simde_mm_dp_ps(simde_mm_load_ps({}.f32), "
+-      "simde_mm_load_ps({}.f32), 0xFF));",
++      "\tsimde_mm_store_ps({}.f32, rex::ppc::simde_mm_vmsum4fp(simde_mm_load_ps({}.f32), "
++      "simde_mm_load_ps({}.f32)));",
+       ctx.v(ctx.insn.operands[0]), ctx.v(ctx.insn.operands[1]), ctx.v(ctx.insn.operands[2]));
+   return true;
+ }
+-- 
+2.54.0.windows.1
+

@@ -1,0 +1,20 @@
+CrackdownLauncher uses the SDL3 (zlib), Dear ImGui (MIT), and toml++ (MIT)
+dependencies from the pinned ReXGlue SDK. Their full licenses accompany the beta.
+
+SHA256 implementation compiled from sdk/thirdparty/crypto/sha256.cpp and .h:
+Copyright (c) 2014,2015 Stephan Brumme. All rights reserved.
+Altered for use in Xenia. Licensed under zlib license when acquired.
+Original notice: http://create.stephan-brumme.com/disclaimer.html
+
+XDVDFS format and Xbox disc partition offsets were checked against extract-xiso:
+https://github.com/XboxDev/extract-xiso/blob/master/extract-xiso.c
+Copyright (c) 2003 in <in@fishtank.com>. All rights reserved.
+The launcher implements its own reader. No extract-xiso source or executable
+is incorporated. This reference attribution accompanies the format offsets.
+
+Launcher v2 uses stb_image (public domain or MIT), from sdk/thirdparty/stb.
+Barlow and Barlow Condensed: Copyright 2017 The Barlow Project Authors,
+SIL Open Font License 1.1 (LICENSES/Barlow-OFL.txt).
+Controller and keyboard prompts: Nicolae (Xelu) Berbece, CC0
+(LICENSES/Controller-prompts-CC0.txt). Only ps5, xbox_series and keyboard ship.
+No King Kong launcher code, text or game art is incorporated.

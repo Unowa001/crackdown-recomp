@@ -175,7 +175,20 @@ foreach ($file in Get-ChildItem $stage -Recurse -File) {
     $relative = $file.FullName.Substring($stage.Length + 1)
     if ($relative -match '(^|[\\/])(game|generated)([\\/]|$)|\.xex$|\.iso$|_recomp\..*\.cpp$') { throw "Forbidden package input: $relative" }
 }
-Compress-Archive -LiteralPath $stage -DestinationPath $zip -CompressionLevel Optimal
+# Not Compress-Archive: under Windows PowerShell 5.1 it writes '\' separators, which the
+# launcher's updater rejects as unsafe ZIP paths. Entry names here always use '/'.
+Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+$archive = [IO.Compression.ZipFile]::Open($zip, [IO.Compression.ZipArchiveMode]::Create)
+try {
+    foreach ($file in Get-ChildItem $stage -Recurse -File | Sort-Object FullName) {
+        $entry = $packageName + '/' + $file.FullName.Substring($stage.Length + 1).Replace('\', '/')
+        [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $file.FullName, $entry, [IO.Compression.CompressionLevel]::Optimal) | Out-Null
+    }
+} finally { $archive.Dispose() }
+$archive = [IO.Compression.ZipFile]::OpenRead($zip)
+try {
+    if (@($archive.Entries | Where-Object { $_.FullName.Contains('\') }).Count) { throw 'ZIP entry names must use forward slashes' }
+} finally { $archive.Dispose() }
 # Companion digest is required by the launcher's update flow. Upload both assets together.
 $zipHash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 "$zipHash  $packageName.zip" | Set-Content -LiteralPath "$zip.sha256" -Encoding ASCII

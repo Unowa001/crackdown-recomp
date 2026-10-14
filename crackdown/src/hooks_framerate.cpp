@@ -130,6 +130,13 @@ const SimFlags& Sim() {
 constexpr float kGroundSnapMaxDt = 1.0f / 32.0f;
 }  // namespace
 
+// Consumers of 30 Hz counters use the same clamped simulation
+// step as the game update. Stock clocks must advance exactly one tick.
+double CrackdownMeasuredStepSeconds() {
+  if (!Sim().variable_step && !Sim().game_clock) return 1.0 / 30.0;
+  return double(g_step.load(std::memory_order_relaxed));
+}
+
 // Leaves the 33 in place unless the site's bit is set. g_frame_ms stays 33
 // while --sim_game_clock is off.
 #define CRACKDOWN_DEFINE_FRAME_MS(bit, addr)                  \

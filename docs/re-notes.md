@@ -85,6 +85,164 @@ A thread that serves 8 request slots. **Unconfirmed** whether these are streamin
 | 0x82252150 | 3D sound code that feeds a normalized dot product into the arccos below (exact role unconfirmed) | NaN store/birth probes 2026-10-11 | unconfirmed |
 | 0x8225F910 | arccos approximation; returns NaN for an input just above 1.0 (this is where the `vrsqrtefp` bug became NaN audio) | NaN probes; 9.5 min session clean after SDK patch 0002 | confirmed (fix verified in game) |
 
+### Director VO timeout investigation (2026-10-14)
+
+Private worktree `out/director-vo`, branch `wip/director-vo`; Release,
+`bench/stand60.rec`, approximately 86 s per run. SDK and game junctions were
+read only. SDK `ReXApp::SetupEnvironment` chooses `GetUserFolder()/GetName()`;
+on Windows this is `%USERPROFILE%/Documents/crackdown`. Saves/profiles were
+copied into `out/director-vo/out/director-vo-live/user-seed`, then a separate
+user root per run; all runs used a private cache. Only one game ran at a time.
+
+Flag bisect, original diagnostic executable copied from the main checkout
+into the private `out/director-vo-live/baseline` directory (no main build or
+userdata writes). All runs below exited 0. Buckets count released XMA contexts,
+excluding unmatched lifetimes; gameplay/SFX churn varies between runs.
+
+| Mode | <0.5 s | 0.5–1 s | 1–2 s | 2–4 s | 4–8 s | 8 s+ | Baseline log |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Default 60 | 1114 | 174 | 735 | 73 | 40 | 27 | `baseline/logs/crackdown_005.log` |
+| `--sim_anim_step=false` | 691 | 95 | 558 | 70 | 89 | 23 | `baseline/logs/crackdown_001.log` |
+| `--sim_game_clock=false` | 785 | 94 | 591 | 74 | 32 | 9 | `baseline/logs/crackdown_002.log` |
+| `--sim_step_literal=false` | 1173 | 147 | 765 | 84 | 57 | 36 | `baseline/logs/crackdown_003.log` |
+| `--fps_cap=30`, vsync off | 461 | 119 | 585 | 131 | 41 | 35 | `baseline/logs/crackdown_004.log` |
+| `--vsync=true`, stock 30 | 545 | 101 | 400 | 120 | 84 | 29 | `baseline/logs/crackdown_006.log` |
+
+Baseline log paths are relative to
+`out/director-vo/out/director-vo-live/`.
+The isolated sim switches do not change the timeout's increment: it is once
+per update, independently of dt, shared literals, or the ms/frame clock.
+Aggregate buckets alone are insufficient to identify speech; the extended
+diagnostic below supplies the decisive same-clip comparison.
+
+**Game wave lifetime:** `0x8225AB30(instance r3, bank r4, index r5, loop r6)`
+sets `instance+8 = floor(samples/48000)*30+70` for non-looping clips under
+45 s, otherwise `0xFFFFFFFF`, and zeros elapsed at +12. `0x8225BBD8` reads
+the sample count (compact metadata: table+index*8+4; full metadata:
+table+index*24, shifted right 4). Bank +8 points to the wave-bank header
+(count +4, name +8); bank +12 points to entries. Creation calls
+`0x82A4A030` -> `0x82A53DE8` -> `0x82A53690` -> XMA setup `0x82A524F8`.
+The diagnostic joins bank/index/sample length and instance to the XMA voice,
+then snapshots stream/context words **before** `0x82A51AA0` releases them.
+
+Disassembly excerpt (loaded Default.xex SHA256 `7aaa7a89...7e5a`, generated
+PPC comments; no generated code committed):
+
+```text
+8225ABB8  mulhwu r11,r11,r10  ; r10=0x057619F1, division by 48000
+8225ABBC  rlwinm r11,r11,22,10,31
+8225ABC0  mulli r11,r11,30
+8225ABC4  addi r11,r11,70
+8225ABC8  stw r11,8(r25)
+...
+8225B250  lwz r11,12(r30)
+8225B254  addi r11,r11,1
+8225B258  stw r11,12(r30)
+8225B25C  lwz r11,12(r30)
+8225B260  lwz r10,8(r30)
+8225B264  lwz r3,0(r30)
+8225B268  cmplw cr6,r11,r10
+8225B26C  ble cr6,0x8225B290
+8225B270  li r4,0
+8225B274  bl 0x82A49AC0       ; source Stop, vtable slot +60
+8225B278  li r11,3
+8225B27C  stb r11,16(r30)
+```
+
+State 2 is playing, 3 stopping, 4 completed. The timeout increment is skipped
+for some streaming/looping paths; ordinary sample-driven completion also
+sets state 4 before reaching the timeout. `0x82A53EE8` is **Start**, reached
+through `0x82A49A78`; early exploratory logs incorrectly called its tag
+`request_stop`. The corrected diagnostic calls it `request_start`. Stop is
+the distinct `0x82A49AC0` wrapper above. The original seven-frame teardown
+chain describes deferred destruction, not the stop decision. The extended
+chain reaches `0x8225B4CC` (instance release) / `0x82251314` (game update).
+
+**Same Director-bank wave:** `VOA_Eng[656]`, 253567 samples / 5282.6 ms.
+Unfixed 60: voice `EC485080`, setup 00:40:55.309, timeout +12=220->221
+against +8=220 at 00:40:58.898, release 00:40:58.981, lifetime 3671 ms.
+Stock 30: voice `EC482080`, setup 00:42:23.477, release 00:42:28.881,
+lifetime 5404 ms, no timeout. At unfixed release, XMA context DWORD0
+`07D0002A` has input0 valid and output write/read 0/7; stock release has
+DWORD0 `DFC00000`, DWORD9 `0000001B`: both inputs invalid and write/read
+27/27 (empty). This demonstrates pending playback being discarded at 60 and
+sample completion at 30, rather than inferring it from anonymous voice buckets.
+The bank identifies Agency narration; the words of the line and audible
+completion still require the owner's listening check. Codex cannot hear audio.
+
+Evidence logs (both clean exit 0):
+`out/director-vo/crackdown/out/build/win-amd64-release/logs/crackdown_004.log`
+(unfixed, `--sim_audio_timeout_30hz=false`, snapshot `diag60c.log`) and
+`crackdown_005.log` (stock 30, snapshot `diag30c.log`) in the same directory.
+`tools/diag/audio_lifetimes.py` joins reused voice addresses and summarizes
+buckets, bank identity, timeout transitions and XMA ring state.
+
+Diagnostic development crashes were confined to opt-in tracing. CDB
+`out/director-vo-live/diag-crash-debug.txt` identifies a root stack link equal
+to the exclusive high stack address `0x70310000` (unmapped). The walk now
+bounds each link using KPCR +0x70/+0x74, as defined/set in SDK
+`include/rex/system/xthread.h` / `src/system/xthread.cpp`; it never follows
+the root into the unmapped page. Failed runs `diagnostic/logs/crackdown_001`
+and `_002`, worktree `_001`–`_003`, are **not** validation receipts.
+
+**Fix and repeated verification:** `--sim_audio_timeout_30hz` (defaulted by
+`ApplyGameDefaults`, existing source-precedence checks preserve explicit
+overrides) changes only the increment after `0x8225B254`. The mid-ASM hook
+gets elapsed r11 and instance r30, replaces the original +1 with whole ticks
+of `measured_step_seconds*30`, and carries the fraction per instance. The
+creation hook at `0x8225AB30` resets carry when the pooled instance is reused.
+The same step/clamp already used by `hooks_framerate.cpp` supplies the clock;
+the global frame counter, sample decoder, clip duration/deadline, and completion
+paths are unchanged. Stock vsync applies none of the sim defaults and disables
+this hook. Explicit enable with no measured clock still yields exactly +1.
+
+Two fixed 60 / stock 30 pairs, same cloned seed and stand60 input, all exited
+0. Tables below include rotated `.1.log` parts (the verbose diagnostic can
+exceed the SDK's default 5 MB limit).
+
+| Mode | <0.5 s | 0.5–1 s | 1–2 s | 2–4 s | 4–8 s | 8 s+ | Log |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Unfixed 60, identified | 746 | 77 | 427 | 115 | 62 | 27 | `_004` |
+| Stock 30, identified | 583 | 99 | 402 | 116 | 85 | 28 | `_005` |
+| Fixed 60, A | 941 | 198 | 483 | 80 | 85 | 29 | `_006` + `_006.1` |
+| Stock 30, A | 546 | 98 | 398 | 122 | 84 | 29 | `_007` |
+| Fixed 60, B | 698 | 103 | 601 | 119 | 41 | 29 | `_008` + `_008.1` |
+| Stock 30, B | 498 | 100 | 328 | 112 | 100 | 24 | `_009` |
+
+Log names mean `crackdown_NNN.log` / `crackdown_NNN.1.log` under
+`out/director-vo/crackdown/out/build/win-amd64-release/logs/`.
+Snapshots in the private live directory are `diag60c`, `diag30c`, `fixed60a`,
+`stock30a`, `fixed60b`, `stock30b` with `.log` / `.1.log` suffixes.
+
+| `VOA_Eng[656]` | Life ms | Forced timeout | XMA inputs valid | Output write/read |
+|---|---:|---|---:|---|
+| Unfixed 60 (`_004`, EC485080) | 3671 | 221 > 220 | 1 | 0/7 |
+| Stock 30 (`_005`, EC482080) | 5404 | no | 0 | 27/27 |
+| Fixed 60 A (`_006.1`, EC452080) | 5367 | no | 0 | 27/27 |
+| Stock 30 A (`_007`, FFA7F080) | 5401 | no | 0 | 27/27 |
+| Fixed 60 B (`_008.1`, EC3AA080) | 5369 | no | 0 | 27/27 |
+| Stock 30 B (`_009`, EC476080) | 5402 | no | 0 | 27/27 |
+
+Unfixed `_004` has 99 observed deadline-driven stops; `_005`–`_009` have
+zero. This is strong evidence for the stop cause and same-clip completion.
+It is **not** proof that every lifetime bucket matches 30 fps: anonymous SFX
+counts and bank mixes differ (e.g. Materials has 736/373 releases in the two
+fixed runs versus 254 in stock A; traffic model banks differ too). The full
+distribution-equivalence acceptance criterion remains unmet; this patch
+does not attempt to alter unrelated SFX creation/churn. Long-session,
+pause/resume, uncapped high fps and co-op behavior have not been tested.
+
+`drive60.rec`, default fixed 60 fps, **diag_audio off**, completed gameplay
+and exited 0 in 104 s: worktree `logs/crackdown_010.log` (snapshot
+`out/director-vo-live/drive-fixed60.log`). Normalized error-message set is
+identical to the unfixed default baseline (existing VFS fallback errors);
+no new error, fatal, access violation or audio error. Existing GPU resolve
+sample warnings persist. Release configure/build succeeded using vcvars64,
+standalone LLVM and the installed SDK; `build-final.log` records the final
+rebuild. After the replays, only the exploratory Start log tag/comment was
+corrected; the measured timeout implementation is the one tested above.
+No SDK edits/rebuild, generated-code commits, push or merge were performed.
+
 ## Rendering
 
 | Address | What | Evidence | Status |

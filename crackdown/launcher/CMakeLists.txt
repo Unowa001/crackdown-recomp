@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(CrackdownLauncher VERSION 0.3.1 LANGUAGES C CXX)
+project(CrackdownLauncher VERSION 0.3.2 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SDK_THIRDPARTY "${CMAKE_CURRENT_SOURCE_DIR}/../../sdk/thirdparty" CACHE PATH "SDK dependencies")

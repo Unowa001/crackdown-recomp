@@ -91,6 +91,19 @@ name = "CrackdownFrameMs_826A78F4"
 registers = ["r11"]
 after_instruction = true
 
+# Wave safety timeout (hooks_diag_audio.cpp, --sim_audio_timeout_30hz).
+# 0x8225AB30 sets instance+8 = floor(samples/48000)*30+70. At
+# 0x8225B250..0x8225B274 the update loads elapsed at +12, adds one, stores
+# it, compares against +8, and calls Stop if greater. Retiming only this
+# increment preserves normal sample-driven completion and the safety timeout.
+# Evidence: generated PPC at these addresses; stand60 diag60/diag30 logs
+# under out/director-vo-live (receipt in docs/re-notes.md).
+[[midasm_hook]]  # sub_8225B0A8
+address = 0x8225B254
+name = "CrackdownAudioTimeoutTick"
+registers = ["r11", "r30"]
+after_instruction = true
+
 # Co-op HDD gates (crackdown/src/hooks_storage.cpp). Each address is the
 # `lbz rX,16282(rX)` that reads the HDD-cache flag 0x82DE3F9A, which the storage
 # hook keeps clear so loaders stream from game:\. With co-op networking on,

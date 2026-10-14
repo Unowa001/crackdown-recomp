@@ -7,6 +7,9 @@
 
 #include <rex/ppc/context.h>
 
+double CrackdownMeasuredStepSeconds();
+void CrackdownAudioTimeoutTick(PPCRegister& elapsed, PPCRegister& instance);
+
 // hooks_framerate.cpp: replaces the game's fixed 33 ms per frame with the
 // measured frame ms when --sim_game_clock is on. One hook per site (bit index,
 // guest address of the `li rX,33`) so --sim_game_clock_sites can bisect them.

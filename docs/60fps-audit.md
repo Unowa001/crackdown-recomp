@@ -35,6 +35,18 @@ Checked so far:
   match 30 fps. Without `--sim_step_literal` the car accelerates faster (the "a little fast" report). The "car totaled at the
   bottom of the stairs" report (crackdown_024/033, no `--sim_step_literal`) did not reproduce in any configuration.
 - sub_823FF3B8: t += 0.033 (0x82CFF2B4) per frame, then fmod. Cosmetic timer, runs 2x at 60 fps.
+- **Director VO / wave safety timeout** (2026-10-14): `0x8225AB30` initializes
+  `deadline = floor(samples/48000)*30+70`; `0x8225B254` advances elapsed by one
+  per update, and `0x8225B274` calls source Stop when elapsed exceeds deadline.
+  `--sim_audio_timeout_30hz` (60 fps default, user override wins) retimes only
+  that increment to the measured simulation step, with fractional carry per
+  wave instance. Stock `--vsync=true` leaves the hook disabled. `VOA_Eng[656]`
+  (5282.6 ms) was cut at 3671 ms with pending XMA input/output; fixed 60 fps
+  runs complete at 5367/5369 ms versus 5401/5402 ms at stock 30, with empty
+  rings. Whole anonymous SFX bucket totals still differ across frame rates;
+  same-clip completion is proven, full distribution equivalence is not.
+  Addresses, disassembly, all bucket tables and log receipts: `re-notes.md`,
+  "Director VO timeout investigation". Audible confirmation remains with owner.
 
 ```
 sub_82142158 30@82072038

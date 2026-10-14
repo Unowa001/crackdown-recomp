@@ -98,6 +98,7 @@ void ApplyGameDefaults() {
       {"sim_game_clock", "true"},
       {"sim_step_literal", "true"},
       {"sim_anim_step", "true"},
+      {"sim_audio_timeout_30hz", "true"},
   };
   auto user_set = [](const char* name) {
     return rex::cvar::GetFlagSource(name) != rex::cvar::Source::kDefault;

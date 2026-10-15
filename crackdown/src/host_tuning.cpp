@@ -143,6 +143,28 @@ void ApplyGameDefaults() {
       REXLOG_WARN("crackdown default: could not set --{}={}", d.name, d.value);
     }
   }
+  // Mouse/keyboard mode without mouse look leaves the camera on the arrow
+  // keys only (the SDK's mnk_mouse defaults off), which beta players read as
+  // "mouse aim is broken"; and the SDK binds the triggers to Q/E only. With
+  // mnk_mode on, the mouse turns the camera, left click fires (right trigger)
+  // and right click locks on (left trigger), unless the user set those flags.
+  if (rex::cvar::Query<bool>("mnk_mode")) {
+    static constexpr Default kMnkDefaults[] = {
+        {"mnk_mouse", "true"},
+        {"keybind_right_trigger", "E,O,LMB"},
+        {"keybind_left_trigger", "Q,I,RMB"},
+    };
+    for (const Default& d : kMnkDefaults) {
+      if (user_set(d.name)) {
+        continue;
+      }
+      if (rex::cvar::SetFlagByName(d.name, d.value)) {
+        REXLOG_INFO("crackdown default: --{}={} (mnk_mode is on)", d.name, d.value);
+      } else {
+        REXLOG_WARN("crackdown default: could not set --{}={}", d.name, d.value);
+      }
+    }
+  }
 }
 
 void ApplyGpuPluginDefault() {
@@ -157,12 +179,28 @@ void ApplyGpuPluginDefault() {
 }
 
 void ApplyStartupDefaults(rex::PathConfig& paths) {
+  // Portable mode: a portable.txt next to the exe keeps saves, logs
+  // and the shader cache in userdata/ beside it instead of Documents\crackdown.
+  // The launcher creates the marker and passes the same roots explicitly.
+  const std::filesystem::path exe_dir = rex::filesystem::GetExecutableFolder();
+  std::error_code portable_ec;
+  if (std::filesystem::is_regular_file(exe_dir / "portable.txt", portable_ec)) {
+    // The SDK has already filled in Documents\crackdown, so test the flags.
+    if (rex::cvar::Query<std::string>("user_data_root").empty()) {
+      paths.user_data_root = exe_dir / "userdata";
+      REXLOG_INFO("crackdown default: --user_data_root={} (portable.txt)",
+                  paths.user_data_root.string());
+    }
+    if (rex::cvar::Query<std::string>("cache_root").empty()) {
+      paths.cache_root = exe_dir / "userdata" / "cache";
+    }
+  }
   if (!paths.game_data_root.empty()) {
     return;
   }
   // The dev build sits in crackdown/out/build/<preset>/ under the repo, whose
   // game/ folder holds the dump; an installed copy has game/ next to the exe.
-  std::filesystem::path dir = rex::filesystem::GetExecutableFolder();
+  std::filesystem::path dir = exe_dir;
   for (int depth = 0; depth < 6 && !dir.empty(); ++depth) {
     const std::filesystem::path candidate = dir / "game";
     std::error_code ec;

@@ -1,0 +1,289 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Thu, 15 Oct 2026 15:40:00 -0400
+Subject: [PATCH] input: MnK driver reports keystrokes for its keybinds
+
+MnkInputDriver::GetDeviceKeystroke only drained keystroke_queue_, and
+nothing ever filled it (EnqueueKeystroke has no callers), so every
+XInputGetKeystroke on the keyboard device returned X_ERROR_EMPTY.
+Crackdown reads its menus through keystrokes (guest 0x827437C0, the
+game's XInputGetKeystroke -> XamInputGetKeystrokeEx), so with mnk_mode on
+the "Press Start" screen ignored the keyboard while WASD still worked in
+game through XInputGetState (Reddit beta report, 2026-10-14).
+
+Build a keyfield from the same binds GetDeviceState uses (buttons,
+triggers, both sticks' key directions) and emit up/down edges and
+repeats the way the SDL driver does from its pad state: same bit
+layout, VK_PAD_* table, ups before downs, 400 ms delay and 100 ms repeat.
+Unlike the SDL driver, every pending up/down is reported before a repeat,
+so a held, repeating key can't starve another key's release (Codex review
+2026-10-15); releasing a key only stops the repeat if it is the repeating one.
+Mouse look makes no keystrokes. The button binds move into a shared
+BoundButtons() helper so both paths read one list.
+---
+ include/rex/input/mnk/mnk_input_driver.h |   9 +
+ src/input/mnk/mnk_input_driver.cpp       | 201 ++++++++++++++++++-----
+ 2 files changed, 173 insertions(+), 37 deletions(-)
+
+diff --git a/include/rex/input/mnk/mnk_input_driver.h b/include/rex/input/mnk/mnk_input_driver.h
+index c8751b7..910e7cc 100644
+--- a/include/rex/input/mnk/mnk_input_driver.h
++++ b/include/rex/input/mnk/mnk_input_driver.h
+@@ -102,6 +102,15 @@ class MnkInputDriver final : public InputDriver,
+   // Keystroke queue
+   std::queue<X_INPUT_KEYSTROKE> keystroke_queue_;
+ 
++  // Keystrokes made from the binds (GetDeviceKeystroke), under state_mutex_.
++  enum class RepeatState { kIdle, kWaiting, kRepeating };
++  static constexpr uint32_t kRepeatDelayMs = 400;
++  static constexpr uint32_t kRepeatRateMs = 100;
++  uint64_t keystroke_keys_ = 0;  // keyfield bits last reported down
++  RepeatState repeat_state_ = RepeatState::kIdle;
++  uint8_t repeat_index_ = 0;
++  uint32_t repeat_time_ = 0;
++
+   // Packet number incremented on state change
+   uint32_t packet_number_ = 0;
+ };
+diff --git a/src/input/mnk/mnk_input_driver.cpp b/src/input/mnk/mnk_input_driver.cpp
+index 3f9422d..e8ffb0b 100644
+--- a/src/input/mnk/mnk_input_driver.cpp
++++ b/src/input/mnk/mnk_input_driver.cpp
+@@ -17,7 +17,10 @@
+ #include <rex/ui/virtual_key.h>
+ #include <rex/ui/window.h>
+ 
++#include <rex/chrono/clock.h>
++
+ #include <algorithm>
++#include <array>
+ #include <cmath>
+ #include <cstdlib>
+ #include <cstring>
+@@ -219,6 +222,41 @@ static bool IsBindPressed(const bool (&key_down)[256], const std::string& cvar_v
+   return false;
+ }
+ 
++static uint16_t BoundButtons(const bool (&key_down)[256]) {
++  uint16_t buttons = 0;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_a)))
++    buttons |= X_INPUT_GAMEPAD_A;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_b)))
++    buttons |= X_INPUT_GAMEPAD_B;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_x)))
++    buttons |= X_INPUT_GAMEPAD_X;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_y)))
++    buttons |= X_INPUT_GAMEPAD_Y;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_left_shoulder)))
++    buttons |= X_INPUT_GAMEPAD_LEFT_SHOULDER;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_right_shoulder)))
++    buttons |= X_INPUT_GAMEPAD_RIGHT_SHOULDER;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_lstick_press)))
++    buttons |= X_INPUT_GAMEPAD_LEFT_THUMB;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_rstick_press)))
++    buttons |= X_INPUT_GAMEPAD_RIGHT_THUMB;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_back)))
++    buttons |= X_INPUT_GAMEPAD_BACK;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_start)))
++    buttons |= X_INPUT_GAMEPAD_START;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_guide)))
++    buttons |= X_INPUT_GAMEPAD_GUIDE;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_dpad_up)))
++    buttons |= X_INPUT_GAMEPAD_DPAD_UP;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_dpad_down)))
++    buttons |= X_INPUT_GAMEPAD_DPAD_DOWN;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_dpad_left)))
++    buttons |= X_INPUT_GAMEPAD_DPAD_LEFT;
++  if (IsBindPressed(key_down, REXCVAR_GET(keybind_dpad_right)))
++    buttons |= X_INPUT_GAMEPAD_DPAD_RIGHT;
++  return buttons;
++}
++
+ void MnkInputDriver::EnumerateDevices(std::vector<DeviceInfo>& out) {
+   // Disabled means no device at all, so it never occupies a guest user slot.
+   if (!IsEnabled()) {
+@@ -274,37 +312,7 @@ X_RESULT MnkInputDriver::GetDeviceState(DeviceId id, X_INPUT_STATE* out_state) {
+ 
+   std::lock_guard lock(state_mutex_);
+ 
+-  uint16_t buttons = 0;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_a)))
+-    buttons |= X_INPUT_GAMEPAD_A;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_b)))
+-    buttons |= X_INPUT_GAMEPAD_B;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_x)))
+-    buttons |= X_INPUT_GAMEPAD_X;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_y)))
+-    buttons |= X_INPUT_GAMEPAD_Y;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_left_shoulder)))
+-    buttons |= X_INPUT_GAMEPAD_LEFT_SHOULDER;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_right_shoulder)))
+-    buttons |= X_INPUT_GAMEPAD_RIGHT_SHOULDER;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_lstick_press)))
+-    buttons |= X_INPUT_GAMEPAD_LEFT_THUMB;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_rstick_press)))
+-    buttons |= X_INPUT_GAMEPAD_RIGHT_THUMB;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_back)))
+-    buttons |= X_INPUT_GAMEPAD_BACK;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_start)))
+-    buttons |= X_INPUT_GAMEPAD_START;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_guide)))
+-    buttons |= X_INPUT_GAMEPAD_GUIDE;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_dpad_up)))
+-    buttons |= X_INPUT_GAMEPAD_DPAD_UP;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_dpad_down)))
+-    buttons |= X_INPUT_GAMEPAD_DPAD_DOWN;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_dpad_left)))
+-    buttons |= X_INPUT_GAMEPAD_DPAD_LEFT;
+-  if (IsBindPressed(key_down_, REXCVAR_GET(keybind_dpad_right)))
+-    buttons |= X_INPUT_GAMEPAD_DPAD_RIGHT;
++  uint16_t buttons = BoundButtons(key_down_);
+ 
+   uint8_t lt = IsBindPressed(key_down_, REXCVAR_GET(keybind_left_trigger)) ? 0xFF : 0;
+   uint8_t rt = IsBindPressed(key_down_, REXCVAR_GET(keybind_right_trigger)) ? 0xFF : 0;
+@@ -369,20 +377,139 @@ X_RESULT MnkInputDriver::SetDeviceVibration(DeviceId id, X_INPUT_VIBRATION* vibr
+   return X_ERROR_SUCCESS;
+ }
+ 
++// Bit layout of the keyfield, shared with the SDL driver: 0-15 the XInput
++// button bits, 16-17 the triggers, 18-25 left stick directions, 26-33 right
++// stick directions (up, down, right, left, then the four diagonals).
++static constexpr std::array<rex::ui::VirtualKey, 34> kKeystrokeVk = {
++    rex::ui::VirtualKey::kXInputPadDpadUp,      rex::ui::VirtualKey::kXInputPadDpadDown,
++    rex::ui::VirtualKey::kXInputPadDpadLeft,    rex::ui::VirtualKey::kXInputPadDpadRight,
++    rex::ui::VirtualKey::kXInputPadStart,       rex::ui::VirtualKey::kXInputPadBack,
++    rex::ui::VirtualKey::kXInputPadLThumbPress, rex::ui::VirtualKey::kXInputPadRThumbPress,
++    rex::ui::VirtualKey::kXInputPadLShoulder,   rex::ui::VirtualKey::kXInputPadRShoulder,
++    rex::ui::VirtualKey::kNone, /* Guide has no VK */
++    rex::ui::VirtualKey::kNone, /* Unknown */
++    rex::ui::VirtualKey::kXInputPadA,           rex::ui::VirtualKey::kXInputPadB,
++    rex::ui::VirtualKey::kXInputPadX,           rex::ui::VirtualKey::kXInputPadY,
++    rex::ui::VirtualKey::kXInputPadLTrigger,    rex::ui::VirtualKey::kXInputPadRTrigger,
++    rex::ui::VirtualKey::kXInputPadLThumbUp,    rex::ui::VirtualKey::kXInputPadLThumbDown,
++    rex::ui::VirtualKey::kXInputPadLThumbRight, rex::ui::VirtualKey::kXInputPadLThumbLeft,
++    rex::ui::VirtualKey::kXInputPadLThumbUpLeft,    rex::ui::VirtualKey::kXInputPadLThumbUpRight,
++    rex::ui::VirtualKey::kXInputPadLThumbDownRight, rex::ui::VirtualKey::kXInputPadLThumbDownLeft,
++    rex::ui::VirtualKey::kXInputPadRThumbUp,    rex::ui::VirtualKey::kXInputPadRThumbDown,
++    rex::ui::VirtualKey::kXInputPadRThumbRight, rex::ui::VirtualKey::kXInputPadRThumbLeft,
++    rex::ui::VirtualKey::kXInputPadRThumbUpLeft,    rex::ui::VirtualKey::kXInputPadRThumbUpRight,
++    rex::ui::VirtualKey::kXInputPadRThumbDownRight, rex::ui::VirtualKey::kXInputPadRThumbDownLeft,
++};
++
++// Stick direction bits from the stick's bound keys. A diagonal replaces its
++// two cardinals, as XInput reports it.
++static uint64_t StickKeyfield(bool u, bool d, bool r, bool l, int shift) {
++  if (u && d) u = d = false;
++  if (l && r) l = r = false;
++  uint64_t f = 0;
++  if (u && l) { u = l = false; f |= uint64_t(1) << (22 + shift); }
++  if (u && r) { u = r = false; f |= uint64_t(1) << (23 + shift); }
++  if (d && r) { d = r = false; f |= uint64_t(1) << (24 + shift); }
++  if (d && l) { d = l = false; f |= uint64_t(1) << (25 + shift); }
++  f |= uint64_t(u) << (18 + shift);
++  f |= uint64_t(d) << (19 + shift);
++  f |= uint64_t(r) << (20 + shift);
++  f |= uint64_t(l) << (21 + shift);
++  return f;
++}
++
++// XInputGetKeystroke for the bound keys, made from the same binds as
++// GetDeviceState: titles that read menus through keystrokes (Crackdown's
++// "Press Start" screen, for one) otherwise never see the keyboard. Mouse look
++// makes no keystrokes, like a pad's right stick under the threshold would not.
+ X_RESULT MnkInputDriver::GetDeviceKeystroke(DeviceId id, uint32_t flags,
+                                             X_INPUT_KEYSTROKE* out_keystroke) {
+   if (!IsEnabled() || id != kMnkDevice) {
+     return X_ERROR_DEVICE_NOT_CONNECTED;
+   }
+-  std::lock_guard lock(state_mutex_);
+-  if (keystroke_queue_.empty()) {
+-    return X_ERROR_EMPTY;
++  if (!out_keystroke) {
++    return X_ERROR_BAD_ARGUMENTS;
+   }
+-  if (out_keystroke) {
++  std::lock_guard lock(state_mutex_);
++  if (!keystroke_queue_.empty()) {
+     *out_keystroke = keystroke_queue_.front();
++    keystroke_queue_.pop();
++    return X_ERROR_SUCCESS;
+   }
+-  keystroke_queue_.pop();
+-  return X_ERROR_SUCCESS;
++
++  // Inactive or unfocused reads as nothing held, so held keys send their up
++  // events, as the SDL driver does.
++  uint64_t curr = 0;
++  if (is_active() && has_focus_) {
++    auto pressed = [this](const std::string& bind) { return IsBindPressed(key_down_, bind); };
++    curr = BoundButtons(key_down_);
++    curr |= uint64_t(pressed(REXCVAR_GET(keybind_left_trigger))) << 16;
++    curr |= uint64_t(pressed(REXCVAR_GET(keybind_right_trigger))) << 17;
++    curr |= StickKeyfield(pressed(REXCVAR_GET(keybind_lstick_up)),
++                          pressed(REXCVAR_GET(keybind_lstick_down)),
++                          pressed(REXCVAR_GET(keybind_lstick_right)),
++                          pressed(REXCVAR_GET(keybind_lstick_left)), 0);
++    curr |= StickKeyfield(pressed(REXCVAR_GET(keybind_rstick_up)),
++                          pressed(REXCVAR_GET(keybind_rstick_down)),
++                          pressed(REXCVAR_GET(keybind_rstick_right)),
++                          pressed(REXCVAR_GET(keybind_rstick_left)), 8);
++  }
++
++  auto fill = [out_keystroke](rex::ui::VirtualKey vk, uint16_t ks_flags) {
++    out_keystroke->virtual_key = uint16_t(vk);
++    out_keystroke->unicode = 0;
++    // InputSystem stamps the guest user this device is assigned to.
++    out_keystroke->user_index = 0;
++    out_keystroke->flags = ks_flags;
++    out_keystroke->hid_code = 0;
++  };
++
++  const auto now = rex::chrono::Clock::QueryGuestUptimeMillis();
++  // Every pending up/down goes out before any repeat: a held, repeating key
++  // must not starve another key's release or press. Ups before downs, so a
++  // stick moving from a diagonal to a cardinal releases the diagonal first.
++  const uint64_t changed = curr ^ keystroke_keys_;
++  for (int pass = 0; changed && pass < 2; ++pass) {
++    for (uint8_t i = 0; i < uint8_t(kKeystrokeVk.size()); ++i) {
++      const uint64_t bit = uint64_t(1) << i;
++      if (!(changed & bit)) {
++        continue;
++      }
++      const bool down = (curr & bit) != 0;
++      if (kKeystrokeVk[i] == rex::ui::VirtualKey::kNone) {
++        keystroke_keys_ = (keystroke_keys_ & ~bit) | (curr & bit);
++        continue;
++      }
++      if (pass == 0 && !down) {
++        keystroke_keys_ &= ~bit;
++        if (i == repeat_index_) {
++          repeat_state_ = RepeatState::kIdle;
++        }
++        fill(kKeystrokeVk[i], X_INPUT_KEYSTROKE_KEYUP);
++        return X_ERROR_SUCCESS;
++      }
++      if (pass == 1 && down) {
++        keystroke_keys_ |= bit;
++        repeat_state_ = RepeatState::kWaiting;
++        repeat_index_ = i;
++        repeat_time_ = now;
++        fill(kKeystrokeVk[i], X_INPUT_KEYSTROKE_KEYDOWN);
++        return X_ERROR_SUCCESS;
++      }
++    }
++  }
++
++  // Same repeat timing as the SDL driver, so held arrows scroll menus.
++  if (repeat_state_ == RepeatState::kWaiting && repeat_time_ + kRepeatDelayMs < now) {
++    repeat_state_ = RepeatState::kRepeating;
++  }
++  if (repeat_state_ == RepeatState::kRepeating && repeat_time_ + kRepeatRateMs < now &&
++      (curr & (uint64_t(1) << repeat_index_))) {
++    repeat_time_ = now;
++    fill(kKeystrokeVk[repeat_index_], X_INPUT_KEYSTROKE_KEYDOWN | X_INPUT_KEYSTROKE_REPEAT);
++    return X_ERROR_SUCCESS;
++  }
++  return X_ERROR_EMPTY;
+ }
+ 
+ void MnkInputDriver::EnqueueKeystroke(uint16_t vk_pad, bool down) {

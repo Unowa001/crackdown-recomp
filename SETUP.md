@@ -32,15 +32,47 @@ The files are not code-signed, so Windows may warn you:
   open **Windows Security → Virus & threat protection → Protection history**, select the
   entry and choose **Restore** (or **Allow on device**). If you are unsure, don't run it, and
   tell us instead.
+- **Known issue: "This app can't run on your PC" / "contains an error", status
+  `0xc0e90002`.** This is Windows **Smart App Control**, which blocks unsigned programs and
+  has no per-app exception. The recomp isn't code-signed, so the only way past it is
+  turning Smart App Control off (**Windows Security → App & browser control → Smart App
+  Control settings**). That lowers protection for every app, so it's your call.
 
 ## Playing
 
-- Controller recommended (Xbox-style controllers work out of the box).
+- Controller recommended (Xbox-style controllers work out of the box). For mouse and
+  keyboard, see below.
 - 60 fps is the default. In the launcher's settings, **30 fps** restores the original timing.
   Co-op always runs at 30 fps (see "Co-op" below).
 - **Save profiles** in the launcher keep separate saves; a new profile starts a fresh game.
-- Saves, settings and logs live in `Documents\crackdown`.
-- Startup shows a few logo screens for about 25 seconds (skipping them is planned).
+- Saves live in `Documents\crackdown`; logs are in the `logs\` folder next to the game. For
+  **portable mode**, tick **Keep saves with the game** in the launcher's SAVES tab: the first
+  time, it copies your saves into `userdata\` next to the launcher, then uses them from there
+  (a `portable.txt` file marks it). Turning it off goes back to `Documents\crackdown` without
+  copying newer portable saves back; nothing is deleted either way.
+- The boot logo videos are skipped by default (launcher setting).
+
+### Mouse and keyboard
+
+Turn on **Mouse / keyboard mode** in the launcher's CONTROLS tab (it also has a mouse
+sensitivity slider). The keyboard stands in for a controller:
+
+| Controller | Keys |
+|---|---|
+| Left stick (move) | W A S D |
+| Right stick (camera) | Mouse, or the arrow keys |
+| A (jump) | Space (or ;) |
+| B | Backspace (or ') |
+| X / Y | L / P |
+| Left trigger (lock on) / right trigger (fire) | Right-click, Q or I / left-click, E or O |
+| Left / right bumper | 1 / 3 |
+| Start | Enter or X |
+| Back | Tab or Z |
+| D-pad | Shift + arrow keys |
+| Left / right stick click | F / K |
+
+Every key can be rebound in `crackdown.toml` (`keybind_a`, `keybind_start`,
+`keybind_left_shoulder`, `keybind_lstick_press`, ...). `mnk_mouse = false` turns mouse look off.
 
 ## Updates
 

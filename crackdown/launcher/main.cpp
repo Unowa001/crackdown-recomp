@@ -106,10 +106,11 @@ int main(int argc,char** argv) {
   Task task; Picker picker; GameProcess process; std::vector<Entry> manifest;
   std::string error,report,hash,crash; fs::path game; bool verified=false,writable=true,close_on_play=false;
   Changes changes; int scale=1,window_size=0,rate=0; [[maybe_unused]] int filter=0; bool fullscreen=true,mute=false;
+  float mouse_sens=1.0f;
   bool skip_intro=true,mnk=false,auto_updates=false,beta_channel=false,ask_updates=false;
   int monitor=0,tab=0; bool focus_page=true; std::string device="keyboard",input_backend="sdl";
   fs::file_time_type log_since{};
-  fs::path user; std::vector<std::string> profiles; std::string profile; char new_profile[48]{};
+  fs::path user; bool portable=false; std::vector<std::string> profiles; std::string profile; char new_profile[48]{};
   try {
     auto probe=home/(".launcher-write-"+std::to_string(SDL_GetTicks()));
     if(fs::exists(probe)) throw std::runtime_error("Write probe already exists");
@@ -128,6 +129,7 @@ int main(int argc,char** argv) {
     rate=value<bool>(t,"vsync",false)?1:0;
     auto width=value<int64_t>(t,"window_width",0); window_size=width==1280?1:width==1920?2:width==2560?3:0;
     skip_intro=value<bool>(t,"skip_intro_videos",true); mnk=value<bool>(t,"mnk_mode",false);
+    mouse_sens=std::clamp(static_cast<float>(value<double>(t,"mnk_sensitivity",1.0)),0.1f,5.0f);
     input_backend=value<std::string>(t,"input_backend","sdl"); monitor=std::clamp(static_cast<int>(value<int64_t>(t,"monitor",0)),0,16);
   } catch(const std::exception& e) { error=e.what(); }
   try { manifest=load_manifest(home/"game-manifest.txt"); } catch(const std::exception& e) { error=e.what(); }
@@ -139,7 +141,10 @@ int main(int argc,char** argv) {
     int lh=std::clamp(static_cast<int>(value<int64_t>(prefs,"launcher_height",int(720*initial_dpi))),600,2160);
     SDL_SetWindowSize(window,lw,lh);
     close_on_play=value<bool>(prefs,"close_on_play",false);
-    user=fs::absolute(default_user_folder()).lexically_normal();
+    // Portable mode (portable.txt next to the launcher): saves live in userdata/ here, and the
+    // game, which sees the same marker next to crackdown.exe, uses it too.
+    portable=fs::is_regular_file(home/"portable.txt");
+    user=fs::absolute(portable?home/"userdata":default_user_folder()).lexically_normal();
     profiles=list_profiles(user); profile=value<std::string>(prefs,"profile","");
     if(std::find(profiles.begin(),profiles.end(),profile)==profiles.end()) profile.clear();
   } catch(const std::exception& e) { error=e.what(); }
@@ -445,6 +450,13 @@ int main(int argc,char** argv) {
         ImGui::Text("Input backend: %s",input_backend.c_str());
         focus_first(!blocked);
         if(ImGui::Checkbox("Mouse / keyboard mode",&mnk)) changes["mnk_mode"]=mnk?std::optional<std::string>("true"):std::nullopt;
+        if(mnk) {
+          if(ImGui::SliderFloat("Mouse sensitivity",&mouse_sens,0.1f,5.0f,"%.2f")) {
+            char text[16]; std::snprintf(text,sizeof(text),"%.2f",mouse_sens);
+            changes["mnk_sensitivity"]=std::abs(mouse_sens-1.0f)<0.005f?std::nullopt:std::optional<std::string>(text);
+          }
+          ImGui::TextWrapped("Game: WASD moves, the mouse aims, Enter or X is Start, left click fires, right click locks on, Space is A (jump), Backspace is B, L is the X button, P is Y, 1 / 3 are the bumpers, Tab is Back. Shift+arrows is the D-pad.");
+        }
         ImGui::TextWrapped("Launcher: D-pad or left stick moves, the confirm button selects, and the back button returns. Shoulder buttons switch tabs. Keyboard: arrows, Enter, Esc, Q/E.");
       }
       if(ImGui::Button(changes.empty()?"Save settings":"Save settings *")) save_settings();
@@ -464,7 +476,43 @@ int main(int argc,char** argv) {
       if(ImGui::Button("Open saves folder")) {
         try { (void)profile_args(user,profile); auto dir=profile.empty()?user:user/"profiles"/fs::u8path(profile); fs::create_directories(dir); show_folder(dir); } catch(const std::exception& e) { error=e.what(); }
       }
-      ImGui::EndDisabled(); ImGui::TextWrapped("A new profile starts with no save: choose New Game. Profiles share the shader cache.");
+      if(ImGui::Checkbox("Keep saves with the game (portable)",&portable)) {
+        // Copies, never moves: the other location keeps its saves, and switching back finds them.
+        const bool want=portable; bool ok=true;
+        auto documents=fs::absolute(default_user_folder()).lexically_normal(), local=home/"userdata";
+        try {
+          if(want) {
+            if(!fs::exists(local)) {
+              // The first copy goes to a staging folder that becomes userdata only once complete, so a
+              // failed copy never passes for a finished one on the next try.
+              auto staging=home/"userdata.partial";
+              fs::remove_all(staging); fs::create_directories(staging);
+              if(fs::is_directory(documents)) for(const auto& item:fs::directory_iterator(documents)) {
+                auto name=item.path().filename();
+                if(name=="cache"||name=="logs") continue;  // rebuilt on their own
+                fs::copy(item.path(),staging/name,fs::copy_options::recursive|fs::copy_options::copy_symlinks);
+              }
+              fs::rename(staging,local);
+            }
+            std::ofstream marker(home/"portable.txt",std::ios::binary|std::ios::trunc);
+            marker<<"Saves are in userdata\\ next to this file. Delete this file to use Documents\\crackdown again.\n";
+            marker.close(); if(!marker) throw std::runtime_error("Cannot write portable.txt next to the launcher");
+          } else fs::remove(home/"portable.txt");
+        } catch(const std::exception& e) { ok=false; error=e.what(); }
+        // Mode, save root, profile and its Archipelago settings all follow the marker on disk, so
+        // they stay consistent whichever step failed; the profile state is reloaded from the new root
+        // even when a profile of the same name exists in both.
+        std::error_code marker_ec; portable=fs::is_regular_file(home/"portable.txt",marker_ec);
+        user=fs::absolute(portable?local:documents).lexically_normal();
+        try { profiles=list_profiles(user); } catch(const std::exception& e) { profiles.clear(); ok=false; error=e.what(); }
+        if(std::find(profiles.begin(),profiles.end(),profile)==profiles.end()) {
+          profile.clear();
+          try { update_config(preferences,{{"profile",std::nullopt}}); } catch(const std::exception& e) { ok=false; error=e.what(); }
+        }
+        load_ap();
+        if(ok) error.clear();
+      }
+      ImGui::EndDisabled(); ImGui::TextWrapped("%s",portable?"Saves are in userdata next to the launcher. Turning this off goes back to Documents\\crackdown; nothing is deleted.":"A new profile starts with no save: choose New Game. Profiles share the shader cache. Portable mode copies your saves next to the launcher and uses them from there.");
     }
     if(tab==tab_ap) {
       bool named=!user.empty()&&!profile.empty();

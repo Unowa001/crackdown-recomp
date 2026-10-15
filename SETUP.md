@@ -45,7 +45,10 @@ The files are not code-signed, so Windows may warn you:
 - 60 fps is the default. In the launcher's settings, **30 fps** restores the original timing.
   Co-op always runs at 30 fps (see "Co-op" below).
 - **Save profiles** in the launcher keep separate saves; a new profile starts a fresh game.
-- Saves, settings and logs live in `Documents\crackdown`.
+- Saves and logs live in `Documents\crackdown`. For **portable mode**, tick **Keep saves
+  with the game** in the launcher's SAVES tab: it copies your saves into `userdata\` next to
+  the launcher and uses them from there (a `portable.txt` file marks it). Turning it off goes
+  back to `Documents\crackdown`; nothing is deleted either way.
 - Startup shows a few logo screens for about 25 seconds (skipping them is planned).
 
 ### Mouse and keyboard

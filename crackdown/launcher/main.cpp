@@ -110,7 +110,7 @@ int main(int argc,char** argv) {
   bool skip_intro=true,mnk=false,auto_updates=false,beta_channel=false,ask_updates=false;
   int monitor=0,tab=0; bool focus_page=true; std::string device="keyboard",input_backend="sdl";
   fs::file_time_type log_since{};
-  fs::path user; std::vector<std::string> profiles; std::string profile; char new_profile[48]{};
+  fs::path user; bool portable=false; std::vector<std::string> profiles; std::string profile; char new_profile[48]{};
   try {
     auto probe=home/(".launcher-write-"+std::to_string(SDL_GetTicks()));
     if(fs::exists(probe)) throw std::runtime_error("Write probe already exists");
@@ -141,7 +141,10 @@ int main(int argc,char** argv) {
     int lh=std::clamp(static_cast<int>(value<int64_t>(prefs,"launcher_height",int(720*initial_dpi))),600,2160);
     SDL_SetWindowSize(window,lw,lh);
     close_on_play=value<bool>(prefs,"close_on_play",false);
-    user=fs::absolute(default_user_folder()).lexically_normal();
+    // Portable mode (portable.txt next to the launcher): saves live in userdata/ here, and the
+    // game, which sees the same marker next to crackdown.exe, uses it too.
+    portable=fs::is_regular_file(home/"portable.txt");
+    user=fs::absolute(portable?home/"userdata":default_user_folder()).lexically_normal();
     profiles=list_profiles(user); profile=value<std::string>(prefs,"profile","");
     if(std::find(profiles.begin(),profiles.end(),profile)==profiles.end()) profile.clear();
   } catch(const std::exception& e) { error=e.what(); }
@@ -473,7 +476,27 @@ int main(int argc,char** argv) {
       if(ImGui::Button("Open saves folder")) {
         try { (void)profile_args(user,profile); auto dir=profile.empty()?user:user/"profiles"/fs::u8path(profile); fs::create_directories(dir); show_folder(dir); } catch(const std::exception& e) { error=e.what(); }
       }
-      ImGui::EndDisabled(); ImGui::TextWrapped("A new profile starts with no save: choose New Game. Profiles share the shader cache.");
+      if(ImGui::Checkbox("Keep saves with the game (portable)",&portable)) {
+        // Copies, never moves: the other location keeps its saves, and switching back finds them.
+        try {
+          auto documents=fs::absolute(default_user_folder()).lexically_normal(), local=home/"userdata";
+          if(portable) {
+            if(!fs::exists(local) && fs::is_directory(documents)) {
+              fs::create_directories(local);
+              for(const auto& item:fs::directory_iterator(documents)) {
+                auto name=item.path().filename();
+                if(name=="cache"||name=="logs") continue;  // rebuilt on their own
+                fs::copy(item.path(),local/name,fs::copy_options::recursive|fs::copy_options::copy_symlinks);
+              }
+            }
+            fs::create_directories(local); std::ofstream(home/"portable.txt")<<"Saves are in userdata\\ next to this file. Delete this file to use Documents\\crackdown again.\n";
+          } else fs::remove(home/"portable.txt");
+          user=fs::absolute(portable?local:documents).lexically_normal();
+          profiles=list_profiles(user); if(std::find(profiles.begin(),profiles.end(),profile)==profiles.end()) save_profile("");
+          error.clear();
+        } catch(const std::exception& e) { portable=!portable; error=e.what(); }
+      }
+      ImGui::EndDisabled(); ImGui::TextWrapped("%s",portable?"Saves are in userdata next to the launcher. Turning this off goes back to Documents\\crackdown; nothing is deleted.":"A new profile starts with no save: choose New Game. Profiles share the shader cache. Portable mode copies your saves next to the launcher and uses them from there.");
     }
     if(tab==tab_ap) {
       bool named=!user.empty()&&!profile.empty();

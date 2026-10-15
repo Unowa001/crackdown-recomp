@@ -32,11 +32,11 @@ The files are not code-signed, so Windows may warn you:
   open **Windows Security → Virus & threat protection → Protection history**, select the
   entry and choose **Restore** (or **Allow on device**). If you are unsure, don't run it, and
   tell us instead.
-- **"This app can't run on your PC" / "contains an error", status `0xc0e90002`:** Windows
-  **Smart App Control** blocks unsigned programs and has no per-app exception. Code signing
-  is planned. Until then the only way past it is turning Smart App Control off in
-  **Windows Security → App & browser control → Smart App Control settings**, which lowers
-  protection for every app, so decide whether you're comfortable with that.
+- **Known issue: "This app can't run on your PC" / "contains an error", status
+  `0xc0e90002`.** This is Windows **Smart App Control**, which blocks unsigned programs and
+  has no per-app exception. The recomp isn't code-signed, so the only way past it is
+  turning Smart App Control off (**Windows Security → App & browser control → Smart App
+  Control settings**). That lowers protection for every app, so it's your call.
 
 ## Playing
 

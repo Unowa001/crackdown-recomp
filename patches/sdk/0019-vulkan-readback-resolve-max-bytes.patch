@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Thu, 15 Oct 2026 15:55:00 -0400
+Subject: [PATCH] vulkan: honor readback_resolve_max_bytes
+
+Patch 0008 added readback_resolve_max_bytes to the D3D12 backend only, so
+on Linux (Vulkan, no D3D12) the cvar didn't exist and every resolve was
+read back to guest memory under readback_resolve=fast: about 27 MB of GPU
+copies plus a CPU memcpy per frame on the command processor thread, the
+cost 0008 removed on Windows. A Bazzite / RX 7600 XT build ran under
+30 fps (beta report, 2026-10-14). Skip the readback for resolves larger
+than the limit, as 0008 does. Without D3D12 the cvar is defined here;
+with it, this file only declares the one 0008 defines.
+---
+ src/graphics/vulkan/command_processor.cpp | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/graphics/vulkan/command_processor.cpp b/src/graphics/vulkan/command_processor.cpp
+--- a/src/graphics/vulkan/command_processor.cpp
++++ b/src/graphics/vulkan/command_processor.cpp
+@@ -46,6 +46,18 @@
+ #include <rex/ui/vulkan/presenter.h>
+ #include <rex/ui/vulkan/util.h>
+ 
++// readback_resolve_max_bytes is defined with the D3D12 backend (SDK patch 0008);
++// builds without D3D12 (Linux) define it here so both backends honor it.
++#if REX_HAS_D3D12
++REXCVAR_DECLARE(int32_t, readback_resolve_max_bytes);
++#else
++REXCVAR_DEFINE_INT32(readback_resolve_max_bytes, 0, "GPU",
++                     "With readback_resolve on: only copy resolves of at most this many bytes "
++                     "back to guest memory (0 = all). Larger resolves stay GPU-only, like "
++                     "readback_resolve=none, which skips the readback copy and memcpy.")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++#endif
++
+ // Legacy backend compatibility aliases for shared readback controls.
+ REXCVAR_DEFINE_BOOL(vulkan_readback_resolve, false, "GPU/Vulkan",
+                     "Read render-to-texture results on the CPU")
+@@ -4424,6 +4436,11 @@
+     return true;
+   }
+ 
++  const int32_t max_bytes = REXCVAR_GET(readback_resolve_max_bytes);
++  if (max_bytes > 0 && written_length > uint32_t(max_bytes)) {
++    return true;
++  }
++
+   auto ensure_readback_slot = [&](ReadbackBuffer& readback, uint32_t index, uint32_t size) -> bool {
+     if (readback.buffers[index] != VK_NULL_HANDLE && size <= readback.sizes[index] &&
+         readback.mapped_data[index] != nullptr) {

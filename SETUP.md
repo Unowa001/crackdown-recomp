@@ -32,15 +32,43 @@ The files are not code-signed, so Windows may warn you:
   open **Windows Security → Virus & threat protection → Protection history**, select the
   entry and choose **Restore** (or **Allow on device**). If you are unsure, don't run it, and
   tell us instead.
+- **"This app can't run on your PC" / "contains an error", status `0xc0e90002`:** Windows
+  **Smart App Control** blocks unsigned programs and has no per-app exception. Code signing
+  is planned. Until then the only way past it is turning Smart App Control off in
+  **Windows Security → App & browser control → Smart App Control settings**, which lowers
+  protection for every app, so decide whether you're comfortable with that.
 
 ## Playing
 
-- Controller recommended (Xbox-style controllers work out of the box).
+- Controller recommended (Xbox-style controllers work out of the box). For mouse and
+  keyboard, see below.
 - 60 fps is the default. In the launcher's settings, **30 fps** restores the original timing.
   Co-op always runs at 30 fps (see "Co-op" below).
 - **Save profiles** in the launcher keep separate saves; a new profile starts a fresh game.
 - Saves, settings and logs live in `Documents\crackdown`.
 - Startup shows a few logo screens for about 25 seconds (skipping them is planned).
+
+### Mouse and keyboard
+
+Turn on **Mouse / keyboard mode** in the launcher's CONTROLS tab (it also has a mouse
+sensitivity slider). The keyboard stands in for a controller:
+
+| Controller | Keys |
+|---|---|
+| Left stick (move) | W A S D |
+| Right stick (camera) | Mouse, or the arrow keys |
+| A (jump) | Space |
+| B | Backspace |
+| X / Y | L / P |
+| Left trigger (lock on) / right trigger (fire) | Right-click or Q / left-click or E |
+| Left / right bumper | 1 / 3 |
+| Start | Enter or X |
+| Back | Tab or Z |
+| D-pad | Shift + arrow keys |
+| Left / right stick click | F / K |
+
+Every key can be rebound in `crackdown.toml` (`keybind_a`, `keybind_start`, ...; the names
+match the controller buttons). `mnk_mouse = false` turns mouse look off.
 
 ## Updates
 

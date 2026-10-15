@@ -143,6 +143,28 @@ void ApplyGameDefaults() {
       REXLOG_WARN("crackdown default: could not set --{}={}", d.name, d.value);
     }
   }
+  // Mouse/keyboard mode without mouse look leaves the camera on the arrow
+  // keys only (the SDK's mnk_mouse defaults off), which beta players read as
+  // "mouse aim is broken"; and the SDK binds the triggers to Q/E only. With
+  // mnk_mode on, the mouse turns the camera, left click fires (right trigger)
+  // and right click locks on (left trigger), unless the user set those flags.
+  if (rex::cvar::Query<bool>("mnk_mode")) {
+    static constexpr Default kMnkDefaults[] = {
+        {"mnk_mouse", "true"},
+        {"keybind_right_trigger", "E,O,LMB"},
+        {"keybind_left_trigger", "Q,I,RMB"},
+    };
+    for (const Default& d : kMnkDefaults) {
+      if (user_set(d.name)) {
+        continue;
+      }
+      if (rex::cvar::SetFlagByName(d.name, d.value)) {
+        REXLOG_INFO("crackdown default: --{}={} (mnk_mode is on)", d.name, d.value);
+      } else {
+        REXLOG_WARN("crackdown default: could not set --{}={}", d.name, d.value);
+      }
+    }
+  }
 }
 
 void ApplyGpuPluginDefault() {

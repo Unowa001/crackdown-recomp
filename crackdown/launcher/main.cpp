@@ -106,6 +106,7 @@ int main(int argc,char** argv) {
   Task task; Picker picker; GameProcess process; std::vector<Entry> manifest;
   std::string error,report,hash,crash; fs::path game; bool verified=false,writable=true,close_on_play=false;
   Changes changes; int scale=1,window_size=0,rate=0; [[maybe_unused]] int filter=0; bool fullscreen=true,mute=false;
+  float mouse_sens=1.0f;
   bool skip_intro=true,mnk=false,auto_updates=false,beta_channel=false,ask_updates=false;
   int monitor=0,tab=0; bool focus_page=true; std::string device="keyboard",input_backend="sdl";
   fs::file_time_type log_since{};
@@ -128,6 +129,7 @@ int main(int argc,char** argv) {
     rate=value<bool>(t,"vsync",false)?1:0;
     auto width=value<int64_t>(t,"window_width",0); window_size=width==1280?1:width==1920?2:width==2560?3:0;
     skip_intro=value<bool>(t,"skip_intro_videos",true); mnk=value<bool>(t,"mnk_mode",false);
+    mouse_sens=std::clamp(static_cast<float>(value<double>(t,"mnk_sensitivity",1.0)),0.1f,5.0f);
     input_backend=value<std::string>(t,"input_backend","sdl"); monitor=std::clamp(static_cast<int>(value<int64_t>(t,"monitor",0)),0,16);
   } catch(const std::exception& e) { error=e.what(); }
   try { manifest=load_manifest(home/"game-manifest.txt"); } catch(const std::exception& e) { error=e.what(); }
@@ -445,6 +447,13 @@ int main(int argc,char** argv) {
         ImGui::Text("Input backend: %s",input_backend.c_str());
         focus_first(!blocked);
         if(ImGui::Checkbox("Mouse / keyboard mode",&mnk)) changes["mnk_mode"]=mnk?std::optional<std::string>("true"):std::nullopt;
+        if(mnk) {
+          if(ImGui::SliderFloat("Mouse sensitivity",&mouse_sens,0.1f,5.0f,"%.2f")) {
+            char text[16]; std::snprintf(text,sizeof(text),"%.2f",mouse_sens);
+            changes["mnk_sensitivity"]=std::abs(mouse_sens-1.0f)<0.005f?std::nullopt:std::optional<std::string>(text);
+          }
+          ImGui::TextWrapped("Game: WASD moves, the mouse aims, Enter or X is Start, left click fires, right click locks on, Space is A (jump), Backspace is B, L is the X button, P is Y, 1 / 3 are the bumpers, Tab is Back. Shift+arrows is the D-pad.");
+        }
         ImGui::TextWrapped("Launcher: D-pad or left stick moves, the confirm button selects, and the back button returns. Shoulder buttons switch tabs. Keyboard: arrows, Enter, Esc, Q/E.");
       }
       if(ImGui::Button(changes.empty()?"Save settings":"Save settings *")) save_settings();

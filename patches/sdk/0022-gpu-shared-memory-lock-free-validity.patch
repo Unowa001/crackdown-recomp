@@ -1,4 +1,4 @@
-From e0488280e22623be01919c907f551517a909a21f Mon Sep 17 00:00:00 2001
+From ad53541fcfe98e167fdc69cc2bc0f73c24f354cf Mon Sep 17 00:00:00 2001
 From: Jerrod <jerrod.uno@gmail.com>
 Date: Sat, 17 Oct 2026 10:05:42 +0000
 Subject: [PATCH] gpu: lock-free shared memory validity check, tunable
@@ -15,13 +15,19 @@ the guest's memory-write callbacks, and uploads).
   with a release store before the guest can write the page and then
   submit the commands that use it, so an acquire load on the command
   processor sees it.
-- gpu_invalidation_expand_pages (default 64 = unchanged): a CPU write to a
+- gpu_invalidation_expand_pages (default 16; 64 = original): a CPU write to a
   page the GPU holds drops the whole 64-page block (256 KB with 4 KB
   pages) so it's re-uploaded together. Smaller aligned groups re-upload
   less at the cost of more write faults on the guest thread, which has
-  headroom in Crackdown. For A/B.
+  headroom in Crackdown.
 - shared_memory_stats: logs requests (and how many took the lock-free
   path), KB uploaded, and invalidations per frame every 600 frames.
+
+Crackdown, RTX 5080, Release, uncapped, 1x, on top of 0021 (draws=2000):
+stand 80.0 -> 89.9 fps (1% low 16.9 -> 14.9 ms), pan 85.5 -> 111.9
+(16.2 -> 12.3 ms); 88-94% of requests take the lock-free path. Expand
+16 beat 64 (stand 84.6, pan 108.1) and 4 (84.3, 111.9). Spawn
+screenshots match 0021-only; no device-removed or new log errors.
 ---
  .../rex/graphics/d3d12/command_processor.h    |  3 +
  include/rex/graphics/flags.h                  |  1 +
@@ -116,7 +122,7 @@ index bdeeead..1a49162 100644
      return;
    ui::Presenter* presenter = graphics_system_->presenter();
 diff --git a/src/graphics/shared_memory.cpp b/src/graphics/shared_memory.cpp
-index e74c278..5d10e6f 100644
+index e74c278..73300c7 100644
 --- a/src/graphics/shared_memory.cpp
 +++ b/src/graphics/shared_memory.cpp
 @@ -15,11 +15,23 @@
@@ -130,7 +136,7 @@ index e74c278..5d10e6f 100644
  #include <rex/math.h>
  #include <rex/memory.h>
  
-+REXCVAR_DEFINE_UINT32(gpu_invalidation_expand_pages, 64, "GPU",
++REXCVAR_DEFINE_UINT32(gpu_invalidation_expand_pages, 16, "GPU",
 +                      "When the CPU writes a page the GPU has a copy of, also drop this many "
 +                      "neighbouring pages (aligned group, 1-64, power of two) so they are "
 +                      "re-uploaded together instead of faulting one by one. 64 is the "

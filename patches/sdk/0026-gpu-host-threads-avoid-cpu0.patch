@@ -1,0 +1,93 @@
+From 1171e79eb82f93767dc294f74cf086aab0ec3f9e Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sat, 17 Oct 2026 17:58:08 +0000
+Subject: [PATCH] gpu: keep the command processor and submission threads off
+ CPUs 0 and 1
+
+---
+ include/rex/graphics/command_processor.h |  6 ++++++
+ src/graphics/command_processor.cpp       | 25 ++++++++++++++++++++++++
+ src/graphics/d3d12/command_processor.cpp |  6 ++++++
+ 3 files changed, 37 insertions(+)
+
+diff --git a/include/rex/graphics/command_processor.h b/include/rex/graphics/command_processor.h
+index f881711..8acf390 100644
+--- a/include/rex/graphics/command_processor.h
++++ b/include/rex/graphics/command_processor.h
+@@ -139,6 +139,12 @@ class CommandProcessor {
+   };
+ 
+   void WorkerThreadMain();
++
++  // Affinity mask for the GPU host threads (command processor, submission):
++  // all logical CPUs except 0 and 1, which on Windows take most device
++  // interrupts and DPCs. 0 if gpu_host_threads_avoid_cpu0 is off or the
++  // machine has fewer than 8 (or more than 64) logical CPUs.
++  static uint64_t GetHostThreadAffinityMask();
+   virtual bool SetupContext() = 0;
+   virtual void ShutdownContext() = 0;
+ 
+diff --git a/src/graphics/command_processor.cpp b/src/graphics/command_processor.cpp
+index a1d18e6..1f90396 100644
+--- a/src/graphics/command_processor.cpp
++++ b/src/graphics/command_processor.cpp
+@@ -80,6 +80,11 @@ REXCVAR_DEFINE_BOOL(async_shader_compilation, true, "GPU",
+                     "pipelines are being prepared.")
+     .lifecycle(rex::cvar::Lifecycle::kHotReload);
+ 
++REXCVAR_DEFINE_BOOL(gpu_host_threads_avoid_cpu0, true, "GPU",
++                    "Keep the GPU command processor and submission threads off logical "
++                    "CPUs 0 and 1, where most device interrupts are handled")
++    .lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
++
+ namespace rex::graphics {
+ 
+ using namespace rex::graphics::xenos;
+@@ -197,7 +202,27 @@ void CommandProcessor::SetDesiredSwapPostEffect(SwapPostEffect swap_post_effect)
+   CallInThread([this, swap_post_effect]() { swap_post_effect_actual_ = swap_post_effect; });
+ }
+ 
++uint64_t CommandProcessor::GetHostThreadAffinityMask() {
++  if (!REXCVAR_GET(gpu_host_threads_avoid_cpu0)) {
++    return 0;
++  }
++  uint32_t cpu_count = rex::thread::logical_processor_count();
++  if (cpu_count < 8 || cpu_count > 64) {
++    return 0;
++  }
++  uint64_t all_cpus = cpu_count == 64 ? ~uint64_t(0) : (uint64_t(1) << cpu_count) - 1;
++  return all_cpus & ~uint64_t(0b11);
++}
++
+ void CommandProcessor::WorkerThreadMain() {
++  // Interrupt and DPC preemption on CPU 0 made the frames the command
++  // processor thread spent there ~40% longer for the same work.
++  uint64_t host_thread_affinity_mask = GetHostThreadAffinityMask();
++  rex::thread::Thread* host_thread = rex::thread::Thread::GetCurrentThread();
++  if (host_thread_affinity_mask && host_thread) {
++    host_thread->set_affinity_mask(host_thread_affinity_mask);
++  }
++
+   if (!SetupContext()) {
+     rex::FatalError("Unable to setup command processor internal state");
+     return;
+diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
+index 0370251..6baafaa 100644
+--- a/src/graphics/d3d12/command_processor.cpp
++++ b/src/graphics/d3d12/command_processor.cpp
+@@ -951,6 +951,12 @@ bool D3D12CommandProcessor::SetupContext() {
+         draw_resolution_scale_x, draw_resolution_scale_y);
+   }
+ 
++  // Keep the submission thread off the interrupt-heavy CPUs too.
++  uint64_t host_thread_affinity_mask = GetHostThreadAffinityMask();
++  if (async_submission_thread_ && host_thread_affinity_mask) {
++    async_submission_thread_->set_affinity_mask(host_thread_affinity_mask);
++  }
++
+   shared_memory_ = std::make_unique<D3D12SharedMemory>(*this, *memory_);
+   if (!shared_memory_->Initialize()) {
+     REXGPU_ERROR("Failed to initialize shared memory");
+-- 
+2.43.0
+

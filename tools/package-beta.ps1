@@ -145,7 +145,11 @@ foreach ($relative in @('libmspack/libmspack/COPYING.LIB','disruptorplus/LICENSE
 $sdkVersion = Git-Text $sdk @('describe','--tags','--always')
 $repoVersion = Git-Text $repo @('describe','--tags','--always')
 $patchList = Get-ChildItem (Join-Path $repo 'patches/sdk') -Filter '*.patch' | Sort-Object Name | ForEach-Object { "$($_.Name) SHA256=$((Get-FileHash $_.FullName -Algorithm SHA256).Hash)" }
-@("Beta $Version", "Repo: $repoVersion", "SDK: $sdkVersion", 'Applied patches:', $patchList) | Set-Content (Join-Path $stage 'VERSION.txt') -Encoding UTF8
+# VERSION.txt stays one line: third-party launchers (e.g. "GitHub Launcher") show its whole
+# text as the installed version (issue #3). Build details go at the end of README.txt, a file
+# the 0.4.0 updater already accepts (a new top-level file would fail its allowlist).
+"Beta $Version" | Set-Content (Join-Path $stage 'VERSION.txt') -Encoding UTF8
+@('', 'Build details', "Repo: $repoVersion", "SDK: $sdkVersion", 'Applied SDK patches:', $patchList) | Add-Content (Join-Path $stage 'README.txt') -Encoding UTF8
 
 # Scan every executable and DLL, then fail on any non-system import not in the package.
 # Windows CRT is a prerequisite (documented in README); Tracy is added only if imported.

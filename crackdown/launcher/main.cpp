@@ -108,7 +108,7 @@ int main(int argc,char** argv) {
   Changes changes; int scale=1,window_size=0,rate=0; [[maybe_unused]] int filter=0; bool fullscreen=true,mute=false;
   float mouse_sens=1.0f;
   bool skip_intro=true,mnk=false,auto_updates=false,beta_channel=false,ask_updates=false;
-  int monitor=0,tab=0; bool focus_page=true; std::string device="keyboard",input_backend="sdl";
+  int monitor=0,language=1,tab=0; bool focus_page=true; std::string device="keyboard",input_backend="sdl";
   fs::file_time_type log_since{};
   fs::path user; bool portable=false; std::vector<std::string> profiles; std::string profile; char new_profile[48]{};
   try {
@@ -128,6 +128,7 @@ int main(int argc,char** argv) {
     auto f=value<std::string>(t,"present_effect","bilinear"); filter=f=="cas"?1:f=="fsr"?2:0;
     rate=value<bool>(t,"vsync",false)?1:0;
     auto width=value<int64_t>(t,"window_width",0); window_size=width==1280?1:width==1920?2:width==2560?3:0;
+    language=static_cast<int>(value<int64_t>(t,"user_language",1)); if(language<1||language>12) language=1;
     skip_intro=value<bool>(t,"skip_intro_videos",true); mnk=value<bool>(t,"mnk_mode",false);
     mouse_sens=std::clamp(static_cast<float>(value<double>(t,"mnk_sensitivity",1.0)),0.1f,5.0f);
     input_backend=value<std::string>(t,"input_backend","sdl"); monitor=std::clamp(static_cast<int>(value<int64_t>(t,"monitor",0)),0,16);
@@ -440,6 +441,9 @@ int main(int argc,char** argv) {
         if(ImGui::Combo("Frame rate",&rate,"60 fps (default)\0 30 fps (stock)\0")) { changes["vsync"]=rate?std::optional<std::string>("true"):std::nullopt; changes["fps_cap"]=std::nullopt; }
       }
       if(tab==3) {
+        int language_index=language-1;
+        if(ImGui::Combo("Language",&language_index,"English\0Japanese\0German\0French\0Spanish\0Italian\0Korean\0Chinese (Traditional)\0Portuguese\0Chinese (Simplified)\0Polish\0Russian\0")) { language=language_index+1; changes["user_language"]=language==1?std::nullopt:std::optional<std::string>(std::to_string(language)); }
+        ImGui::TextDisabled("Takes effect on the next Play. The disc may not include every language.");
         if(ImGui::Checkbox("Skip intro logos",&skip_intro)) changes["skip_intro_videos"]=skip_intro?std::nullopt:std::optional<std::string>("false");
         if(ImGui::Checkbox("Mute audio",&mute)) changes["audio_mute"]=mute?std::optional<std::string>("true"):std::nullopt;
         if(ImGui::Checkbox("Close launcher after Play",&close_on_play)) {

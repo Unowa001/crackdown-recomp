@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sat, 17 Oct 2026 02:30:00 -0400
+Subject: [PATCH] xam: XGetLanguage honors the user_language cvar
+
+XGetLanguage always returned English (a hard-coded NTSC-U region check),
+while ExGetXConfigSetting(XCONFIG_USER_LANGUAGE) already returned the
+user_language cvar. A title that asks XGetLanguage could never be switched
+to another language. Return user_language from both, with English for
+values outside 1..12, so the World multi-language disc of Crackdown can be
+played in its other languages (GitHub issue #4).
+---
+ src/kernel/xam/xam_info.cpp | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/src/kernel/xam/xam_info.cpp b/src/kernel/xam/xam_info.cpp
+index 1fda053..168b4a7 100644
+--- a/src/kernel/xam/xam_info.cpp
++++ b/src/kernel/xam/xam_info.cpp
+@@ -12,9 +12,11 @@
+ #include <rex/kernel/xam/module.h>
+ #include <rex/kernel/xam/private.h>
+ #include <rex/logging.h>
++#include <rex/cvar.h>
+ #include <rex/hook.h>
+ #include <rex/types.h>
+ #include <rex/string.h>
++#include <rex/system/flags.h>
+ #include <rex/system/kernel_state.h>
+ #include <rex/system/user_module.h>
+ #include <rex/system/xenumerator.h>
+@@ -183,19 +185,16 @@ u32 XGetGameRegion_entry() {
+ }
+ 
+ u32 XGetLanguage_entry() {
+-  auto desired_language = XLanguage::kEnglish;
+-
+-  // Switch the language based on game region.
+-  // TODO(benvanik): pull from xex header.
+-  uint32_t game_region = XEX_REGION_NTSCU;
+-  if (game_region & XEX_REGION_NTSCU) {
+-    desired_language = XLanguage::kEnglish;
+-  } else if (game_region & XEX_REGION_NTSCJ) {
+-    desired_language = XLanguage::kJapanese;
++  // Same source as ExGetXConfigSetting(XCONFIG_USER_LANGUAGE): the
++  // user_language cvar (1 = English ... 12 = Russian). Out-of-range values
++  // fall back to English. Multi-language discs pick their text and speech
++  // from this.
++  auto language = REXCVAR_GET(user_language);
++  if (language <= uint32_t(XLanguage::kInvalid) ||
++      language >= uint32_t(XLanguage::kMaxLanguages)) {
++    language = uint32_t(XLanguage::kEnglish);
+   }
+-  // Add more overrides?
+-
+-  return uint32_t(desired_language);
++  return language;
+ }
+ 
+ u32 XamGetCurrentTitleId_entry() {

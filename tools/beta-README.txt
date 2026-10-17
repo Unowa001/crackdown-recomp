@@ -40,6 +40,7 @@ Open logs folder and Copy system info help prepare a bug report. Include the
 latest crackdown_NNN.log, VERSION.txt, what happened, and reproduction steps.
 
 Third-party notices are in LICENSES. The exact revision and SDK patch hashes
-are in VERSION.txt. Setup guide and releases: https://github.com/Unowa001/crackdown-recomp
+are under "Build details" at the end of this file.
+Setup guide and releases: https://github.com/Unowa001/crackdown-recomp
 Unofficial fan project, not affiliated with or endorsed by Microsoft. It contains
 no game data; you must own the game and supply your own disc dump.

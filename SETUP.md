@@ -3,6 +3,11 @@
 ## What you need
 
 - Windows 10 or 11, 64-bit.
+- **Linux / Steam Deck:** there's no native Linux build yet, but players report the Windows
+  build runs under Proton (add `CrackdownLauncher.exe` to Steam as a non-Steam game and force
+  a Proton version) or through launchers such as Faugus. If it doesn't start, run it once with
+  the launch option `PROTON_LOG=1 %command%` and attach the `steam-<id>.log` from your home
+  folder to a GitHub issue.
 - A CPU with AVX2 and FMA3 (most Intel since 2013 / AMD since 2015) and a DirectX 12 GPU.
 - The [Microsoft Visual C++ x64 Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 - Your own dump of the **Crackdown World multi-language disc** (an ISO, full XGD2 or trimmed
@@ -51,6 +56,10 @@ The files are not code-signed, so Windows may warn you:
   (a `portable.txt` file marks it). Turning it off goes back to `Documents\crackdown` without
   copying newer portable saves back; nothing is deleted either way.
 - The boot logo videos are skipped by default (launcher setting).
+- **Language:** launcher → GAMEPLAY → **Language** (or `user_language` in `crackdown.toml`:
+  1 English, 2 Japanese, 3 German, 4 French, 5 Spanish, 6 Italian, 7 Korean,
+  8 Traditional Chinese, 9 Portuguese, 10 Simplified Chinese, 11 Polish, 12 Russian).
+  Takes effect on the next Play. The disc may not include every language.
 
 ### Mouse and keyboard
 

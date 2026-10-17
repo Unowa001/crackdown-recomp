@@ -105,7 +105,7 @@ int main(int argc,char** argv) {
   fs::path config=home/"crackdown.toml", preferences=home/"launcher.toml";
   Task task; Picker picker; GameProcess process; std::vector<Entry> manifest;
   std::string error,report,hash,crash; fs::path game; bool verified=false,writable=true,close_on_play=false;
-  Changes changes; int scale=1,window_size=0,rate=0; [[maybe_unused]] int filter=0; bool fullscreen=true,mute=false;
+  Changes changes; int scale=1,window_size=0,rate=0,aa=0,aniso=2; [[maybe_unused]] int filter=0; bool fullscreen=true,mute=false;
   float mouse_sens=1.0f;
   bool skip_intro=true,mnk=false,auto_updates=false,beta_channel=false,ask_updates=false;
   int monitor=0,language=1,tab=0; bool focus_page=true; std::string device="keyboard",input_backend="sdl";
@@ -127,6 +127,9 @@ int main(int argc,char** argv) {
     fullscreen=value<bool>(t,"fullscreen",true); mute=value<bool>(t,"audio_mute",false);
     auto f=value<std::string>(t,"present_effect","bilinear"); filter=f=="cas"?1:f=="fsr"?2:0;
     rate=value<bool>(t,"vsync",false)?1:0;
+    auto post=value<std::string>(t,"swap_post_effect","none"); aa=post=="fxaa"?1:post=="fxaa_extreme"?2:0;
+    // anisotropic_override: -1 game's own, 2 = 2x, 3 = 4x (SDK default), 4 = 8x, 5 = 16x.
+    switch(value<int64_t>(t,"anisotropic_override",3)) { case -1: aniso=0; break; case 2: aniso=1; break; case 4: aniso=3; break; case 5: aniso=4; break; default: aniso=2; }
     auto width=value<int64_t>(t,"window_width",0); window_size=width==1280?1:width==1920?2:width==2560?3:0;
     language=static_cast<int>(value<int64_t>(t,"user_language",1)); if(language<1||language>10) language=1;
     skip_intro=value<bool>(t,"skip_intro_videos",true); mnk=value<bool>(t,"mnk_mode",false);
@@ -431,14 +434,17 @@ int main(int argc,char** argv) {
         ImGui::TextDisabled("Game display settings take effect on the next Play.");
       }
       if(tab==2) {
-        int resolution=scale==2?1:0;
-        if(ImGui::Combo("Internal resolution",&resolution,"720p (default)\0 1440p (experimental)\0")) { scale=resolution+1; changes["resolution_scale"]=scale==1?std::nullopt:std::optional<std::string>("2"); changes["draw_resolution_scale_x"]=std::nullopt; changes["draw_resolution_scale_y"]=std::nullopt; }
+        int resolution=scale>=1&&scale<=3?scale-1:0;
+        if(ImGui::Combo("Internal resolution",&resolution,"720p (default)\0 1440p\0 4K (2160p, needs a fast GPU)\0")) { scale=resolution+1; changes["resolution_scale"]=scale==1?std::nullopt:std::optional<std::string>(std::to_string(scale)); changes["draw_resolution_scale_x"]=std::nullopt; changes["draw_resolution_scale_y"]=std::nullopt; }
+        if(ImGui::Combo("Anti-aliasing",&aa,"Off (default)\0FXAA\0FXAA (extreme)\0")) changes["swap_post_effect"]=aa==0?std::nullopt:std::optional<std::string>(toml_string(aa==1?"fxaa":"fxaa_extreme"));
+        if(ImGui::Combo("Texture filtering",&aniso,"Game's own\0Anisotropic 2x\0Anisotropic 4x (default)\0Anisotropic 8x\0Anisotropic 16x\0")) { const char* values[]={"-1","2",nullptr,"4","5"}; changes["anisotropic_override"]=values[aniso]?std::optional<std::string>(values[aniso]):std::nullopt; }
 #if LAUNCHER_FIDELITYFX
         if(ImGui::Combo("Upscale filter",&filter,"Bilinear\0CAS\0FSR\0")) changes["present_effect"]=filter==0?std::nullopt:std::optional<std::string>(toml_string(filter==1?"cas":"fsr"));
 #else
         ImGui::TextDisabled("Upscale filter: Bilinear (this build)");
 #endif
         if(ImGui::Combo("Frame rate",&rate,"60 fps (default)\0 30 fps (stock)\0")) { changes["vsync"]=rate?std::optional<std::string>("true"):std::nullopt; changes["fps_cap"]=std::nullopt; }
+        ImGui::TextDisabled("In game: F3 shows the frame rate, F11 switches between fullscreen and a window.");
       }
       if(tab==3) {
         int language_index=language-1;

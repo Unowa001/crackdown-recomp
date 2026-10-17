@@ -93,6 +93,14 @@ void ApplyGameDefaults() {
   static constexpr Default kDefaults[] = {
       {"readback_resolve", "fast"},
       {"readback_resolve_max_bytes", "262144"},
+      // The SDK defaults this to true (Xenia Canary: false): at every frame
+      // end it marks all pages the GPU didn't write as stale, so ~20 MB of
+      // vertex/index/texture data was re-uploaded per frame. CPU writes are
+      // still caught by the page-write callbacks. 2026-10-17 PC A/B (0021 +
+      // 0022, uncapped): uploads 19-23 -> 2 MB/frame, stand 90 -> 95 fps,
+      // pan 111 -> 130; spawn, garage and three city-teleport screenshots
+      // match, identical log warnings.
+      {"clear_memory_page_state", "false"},
       {"vsync", "false"},
       {"fps_cap", "60"},
       {"sim_game_clock", "true"},
@@ -124,7 +132,7 @@ void ApplyGameDefaults() {
   }
   for (const Default& d : kDefaults) {
     const std::string_view name = d.name;
-    if (!name.starts_with("readback_resolve") && stock) {
+    if (!name.starts_with("readback_resolve") && name != "clear_memory_page_state" && stock) {
       continue;
     }
     if (name.starts_with("sim_") && other_step_mode) {

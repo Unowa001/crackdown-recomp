@@ -58,8 +58,9 @@ The files are not code-signed, so Windows may warn you:
 - The boot logo videos are skipped by default (launcher setting).
 - **Language:** launcher → GAMEPLAY → **Language** (or `user_language` in `crackdown.toml`:
   1 English, 2 Japanese, 3 German, 4 French, 5 Spanish, 6 Italian, 7 Korean,
-  8 Traditional Chinese, 9 Portuguese, 10 Simplified Chinese, 11 Polish, 12 Russian).
-  Takes effect on the next Play. The disc may not include every language.
+  8 Traditional Chinese, 9 Portuguese, 10 Simplified Chinese; the game ignores other values
+  and uses English). Takes effect on the next Play. French is confirmed; the disc may not
+  include every other language.
 
 ### Mouse and keyboard
 

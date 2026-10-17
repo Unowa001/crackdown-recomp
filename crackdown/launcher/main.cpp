@@ -128,7 +128,7 @@ int main(int argc,char** argv) {
     auto f=value<std::string>(t,"present_effect","bilinear"); filter=f=="cas"?1:f=="fsr"?2:0;
     rate=value<bool>(t,"vsync",false)?1:0;
     auto width=value<int64_t>(t,"window_width",0); window_size=width==1280?1:width==1920?2:width==2560?3:0;
-    language=static_cast<int>(value<int64_t>(t,"user_language",1)); if(language<1||language>12) language=1;
+    language=static_cast<int>(value<int64_t>(t,"user_language",1)); if(language<1||language>10) language=1;
     skip_intro=value<bool>(t,"skip_intro_videos",true); mnk=value<bool>(t,"mnk_mode",false);
     mouse_sens=std::clamp(static_cast<float>(value<double>(t,"mnk_sensitivity",1.0)),0.1f,5.0f);
     input_backend=value<std::string>(t,"input_backend","sdl"); monitor=std::clamp(static_cast<int>(value<int64_t>(t,"monitor",0)),0,16);
@@ -442,7 +442,7 @@ int main(int argc,char** argv) {
       }
       if(tab==3) {
         int language_index=language-1;
-        if(ImGui::Combo("Language",&language_index,"English\0Japanese\0German\0French\0Spanish\0Italian\0Korean\0Chinese (Traditional)\0Portuguese\0Chinese (Simplified)\0Polish\0Russian\0")) { language=language_index+1; changes["user_language"]=language==1?std::nullopt:std::optional<std::string>(std::to_string(language)); }
+        if(ImGui::Combo("Language",&language_index,"English\0Japanese\0German\0French\0Spanish\0Italian\0Korean\0Chinese (Traditional)\0Portuguese\0Chinese (Simplified)\0")) { language=language_index+1; changes["user_language"]=language==1?std::nullopt:std::optional<std::string>(std::to_string(language)); }
         ImGui::TextDisabled("Takes effect on the next Play. The disc may not include every language.");
         if(ImGui::Checkbox("Skip intro logos",&skip_intro)) changes["skip_intro_videos"]=skip_intro?std::nullopt:std::optional<std::string>("false");
         if(ImGui::Checkbox("Mute audio",&mute)) changes["audio_mute"]=mute?std::optional<std::string>("true"):std::nullopt;

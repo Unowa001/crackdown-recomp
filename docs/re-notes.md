@@ -287,6 +287,15 @@ No SDK edits/rebuild, generated-code commits, push or merge were performed.
 | 0x82743798 | `XInputGetState(user r3, state r4)`: tail-calls XamInputGetState (import 0x82B67074). **Hooked** for `--input_record` / `--input_replay` (`crackdown/src/hooks_input_replay.cpp`) | disassembly; replay verified (`crackdown_045`, `_047`) | confirmed |
 | 0x827437C0 | `XInputGetKeystroke(user r3, flags r4, keystroke r5)`: user 255 -> XINPUT_FLAG_ANY_USER, then XamInputGetKeystrokeEx (0x82B67094). Menus ("Press START") read this, not the pad state. **Hooked** as above | disassembly; START via replayed keystroke leaves the title screen (`crackdown_045`) | confirmed |
 
+## Language
+
+| Address | What | Evidence | Status |
+|---|---|---|---|
+| sub_827436F8 | Reads the menu/text language: `ExGetXConfigSetting(3, 9)` (XCONFIG_USER_LANGUAGE), which the runtime fills from the `user_language` cvar | generated code; PC run 2026-10-17 on the unpatched 0.4.0 package with `--user_language=4`: French title screen ("Appuyez sur START pour jouer") and campaign menu | confirmed |
+| 0x82322898 | Only caller of sub_827436F8: maps values 1..10 to an internal language ID; anything else falls back to the region default (English), so 11 Polish / 12 Russian show English | generated code | unconfirmed (only French tested) |
+| 0x8292BBC4 | `XGetLanguage` call stored next to XamUserGetOnlineCountryFromXUID and the membership tier (online user info, not the menu language) | generated code | unconfirmed (generated code) |
+| 0x82745C88 | `XGetLanguage` call after XGetAVPack and XConfig region checks, compared with 10; purpose unknown. The runtime's XGetLanguage returns English unconditionally, so leave it alone until this is traced | generated code | unconfirmed (generated code) |
+
 ## Boot and file I/O
 
 | Address | What | Evidence | Status |

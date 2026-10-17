@@ -1,0 +1,55 @@
+From 7bd895439949302e40472f368973b3029eaa14fe Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sat, 17 Oct 2026 12:27:11 +0000
+Subject: [PATCH] d3d12: copy side-effect-free register ranges in one go
+
+---
+ src/graphics/d3d12/command_processor.cpp | 25 ++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
+index 1a49162..0118205 100644
+--- a/src/graphics/d3d12/command_processor.cpp
++++ b/src/graphics/d3d12/command_processor.cpp
+@@ -33,6 +33,11 @@
+ #include <rex/ui/d3d12/d3d12_presenter.h>
+ #include <rex/ui/d3d12/d3d12_util.h>
+ 
++REXCVAR_DEFINE_BOOL(gpu_fast_register_ranges, true, "GPU",
++                    "Copy register ranges without side effects in one go instead of one "
++                    "register write call per dword")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++
+ REXCVAR_DEFINE_BOOL(d3d12_bindless, true, "GPU/D3D12", "Use bindless resources where available")
+     .lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
+ 
+@@ -1902,6 +1907,26 @@ void D3D12CommandProcessor::WriteRegistersFromMem(uint32_t start_index, uint32_t
+     return;
+   }
+ 
++  // Other registers: CommandProcessor::WriteRegister only has side effects for
++  // the scratch registers, COHER_STATUS_HOST and the DC_LUT gamma ramp
++  // registers, and this class only for the shader constants, so copy any
++  // range without them at once (Crackdown writes ~500k such dwords per frame
++  // in the city).
++  auto range_has = [&](uint32_t first, uint32_t last) {
++    return start_index <= last && end_index >= first;
++  };
++  if (REXCVAR_GET(gpu_fast_register_ranges) && end_index < RegisterFile::kRegisterCount &&
++      !range_has(XE_GPU_REG_SHADER_CONSTANT_000_X, XE_GPU_REG_SHADER_CONSTANT_LOOP_31) &&
++      !range_has(XE_GPU_REG_SCRATCH_REG0, XE_GPU_REG_SCRATCH_REG7) &&
++      !range_has(XE_GPU_REG_COHER_STATUS_HOST, XE_GPU_REG_COHER_STATUS_HOST) &&
++      !range_has(XE_GPU_REG_DC_LUT_RW_INDEX, XE_GPU_REG_DC_LUT_RW_INDEX) &&
++      !range_has(XE_GPU_REG_DC_LUT_SEQ_COLOR, XE_GPU_REG_DC_LUT_SEQ_COLOR) &&
++      !range_has(XE_GPU_REG_DC_LUT_PWL_DATA, XE_GPU_REG_DC_LUT_PWL_DATA) &&
++      !range_has(XE_GPU_REG_DC_LUT_30_COLOR, XE_GPU_REG_DC_LUT_30_COLOR)) {
++    memory::copy_and_swap(register_file_->values + start_index, base, num_registers);
++    return;
++  }
++
+   CommandProcessor::WriteRegistersFromMem(start_index, base, num_registers);
+ }
+ 
+-- 
+2.43.0
+

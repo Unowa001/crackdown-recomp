@@ -1,0 +1,268 @@
+From ad53541fcfe98e167fdc69cc2bc0f73c24f354cf Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sat, 17 Oct 2026 10:05:42 +0000
+Subject: [PATCH] gpu: lock-free shared memory validity check, tunable
+ invalidation width
+
+After 0021, SharedMemory::RequestRange(s) was the largest cost on the GPU
+command processor thread in Crackdown (~24% inclusive: index and vertex
+buffer and texture requests, the global_critical_region lock shared with
+the guest's memory-write callbacks, and uploads).
+
+- RequestRanges first checks, without the lock, whether every requested
+  page is already valid, and returns at once if so. Only the command
+  processor thread sets valid bits; the invalidation callback clears them
+  with a release store before the guest can write the page and then
+  submit the commands that use it, so an acquire load on the command
+  processor sees it.
+- gpu_invalidation_expand_pages (default 16; 64 = original): a CPU write to a
+  page the GPU holds drops the whole 64-page block (256 KB with 4 KB
+  pages) so it's re-uploaded together. Smaller aligned groups re-upload
+  less at the cost of more write faults on the guest thread, which has
+  headroom in Crackdown.
+- shared_memory_stats: logs requests (and how many took the lock-free
+  path), KB uploaded, and invalidations per frame every 600 frames.
+
+Crackdown, RTX 5080, Release, uncapped, 1x, on top of 0021 (draws=2000):
+stand 80.0 -> 89.9 fps (1% low 16.9 -> 14.9 ms), pan 85.5 -> 111.9
+(16.2 -> 12.3 ms); 88-94% of requests take the lock-free path. Expand
+16 beat 64 (stand 84.6, pan 108.1) and 4 (84.3, 111.9). Spawn
+screenshots match 0021-only; no device-removed or new log errors.
+---
+ .../rex/graphics/d3d12/command_processor.h    |  3 +
+ include/rex/graphics/flags.h                  |  1 +
+ include/rex/graphics/shared_memory.h          | 18 ++++
+ src/graphics/d3d12/command_processor.cpp      |  5 ++
+ src/graphics/shared_memory.cpp                | 89 ++++++++++++++++++-
+ 5 files changed, 115 insertions(+), 1 deletion(-)
+
+diff --git a/include/rex/graphics/d3d12/command_processor.h b/include/rex/graphics/d3d12/command_processor.h
+index 8518ea6..75785b3 100644
+--- a/include/rex/graphics/d3d12/command_processor.h
++++ b/include/rex/graphics/d3d12/command_processor.h
+@@ -720,6 +720,9 @@ class D3D12CommandProcessor : public CommandProcessor {
+   std::array<VertexBufferState, 96> vertex_buffer_states_{};
+   uint64_t vertex_buffers_in_sync_[2] = {};
+ 
++  // shared_memory_stats.
++  uint32_t shared_memory_stats_frames_ = 0;
++
+   // The current fixed-function drawing state.
+   D3D12_VIEWPORT ff_viewport_;
+   D3D12_RECT ff_scissor_;
+diff --git a/include/rex/graphics/flags.h b/include/rex/graphics/flags.h
+index 2cf24c4..543099f 100644
+--- a/include/rex/graphics/flags.h
++++ b/include/rex/graphics/flags.h
+@@ -95,6 +95,7 @@ REXCVAR_DECLARE(bool, dxbc_switch);
+ REXCVAR_DECLARE(bool, dxbc_source_map);
+ REXCVAR_DECLARE(bool, d3d12_bindless);
+ REXCVAR_DECLARE(bool, d3d12_submit_on_primary_buffer_end);
++REXCVAR_DECLARE(bool, shared_memory_stats);
+ REXCVAR_DECLARE(bool, d3d12_dxbc_disasm);
+ REXCVAR_DECLARE(bool, d3d12_dxbc_disasm_dxilconv);
+ REXCVAR_DECLARE(int32_t, d3d12_pipeline_creation_threads);
+diff --git a/include/rex/graphics/shared_memory.h b/include/rex/graphics/shared_memory.h
+index 4d85a2b..7c49401 100644
+--- a/include/rex/graphics/shared_memory.h
++++ b/include/rex/graphics/shared_memory.h
+@@ -10,6 +10,7 @@
+  * @modified    Tom Clay, 2026 - Adapted for ReXGlue runtime
+  */
+ 
++#include <atomic>
+ #include <cstdint>
+ #include <mutex>
+ #include <utility>
+@@ -79,6 +80,10 @@ class SharedMemory {
+   bool RequestRanges(const std::pair<uint32_t, uint32_t>* ranges, size_t count);
+   bool RequestRange(uint32_t start, uint32_t length);
+ 
++  // shared_memory_stats: logs request, upload and invalidation counts per
++  // frame over the given number of frames, then resets them.
++  void LogAndResetStats(uint32_t frames);
++
+   // Marks the range and, if not exact_range, potentially its surroundings
+   // (to up to the first GPU-written page, as an access violation exception
+   // count optimization) as modified by the CPU, also invalidating GPU-written
+@@ -176,6 +181,19 @@ class SharedMemory {
+   std::vector<uint64_t> system_page_flags_valid_and_gpu_written_;
+   uint32_t num_system_page_flags_ = 0;
+ 
++  // Whether every page of the ranges is valid, without taking
++  // global_critical_region_ (most requests are for data that is already in
++  // the buffer). Only the command processor thread sets valid bits; the guest
++  // memory thread clears them with release stores, before the guest can write
++  // the pages and then the commands that use them.
++  bool AreRangesValidLockFree(const std::pair<uint32_t, uint32_t>* ranges, size_t count) const;
++
++  std::atomic<uint64_t> stats_requests_{0};
++  std::atomic<uint64_t> stats_requests_lock_free_{0};
++  std::atomic<uint64_t> stats_upload_pages_{0};
++  std::atomic<uint64_t> stats_invalidations_{0};
++  std::atomic<uint64_t> stats_invalidated_pages_{0};
++
+   static std::pair<uint32_t, uint32_t> MemoryInvalidationCallbackThunk(
+       void* context_ptr, uint32_t physical_address_start, uint32_t length, bool exact_range);
+ 
+diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
+index bdeeead..1a49162 100644
+--- a/src/graphics/d3d12/command_processor.cpp
++++ b/src/graphics/d3d12/command_processor.cpp
+@@ -1919,6 +1919,11 @@ void D3D12CommandProcessor::IssueSwap(uint32_t frontbuffer_ptr, uint32_t frontbu
+   vertex_buffers_in_sync_[0] = 0;
+   vertex_buffers_in_sync_[1] = 0;
+ 
++  if (REXCVAR_GET(shared_memory_stats) && shared_memory_ && ++shared_memory_stats_frames_ >= 600) {
++    shared_memory_->LogAndResetStats(shared_memory_stats_frames_);
++    shared_memory_stats_frames_ = 0;
++  }
++
+   if (!graphics_system_)
+     return;
+   ui::Presenter* presenter = graphics_system_->presenter();
+diff --git a/src/graphics/shared_memory.cpp b/src/graphics/shared_memory.cpp
+index e74c278..73300c7 100644
+--- a/src/graphics/shared_memory.cpp
++++ b/src/graphics/shared_memory.cpp
+@@ -15,11 +15,23 @@
+ 
+ #include <rex/assert.h>
+ #include <rex/bit.h>
++#include <rex/cvar.h>
+ #include <rex/dbg.h>
+ #include <rex/graphics/shared_memory.h>
++#include <rex/logging.h>
+ #include <rex/math.h>
+ #include <rex/memory.h>
+ 
++REXCVAR_DEFINE_UINT32(gpu_invalidation_expand_pages, 16, "GPU",
++                      "When the CPU writes a page the GPU has a copy of, also drop this many "
++                      "neighbouring pages (aligned group, 1-64, power of two) so they are "
++                      "re-uploaded together instead of faulting one by one. 64 is the "
++                      "original behaviour")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++REXCVAR_DEFINE_BOOL(shared_memory_stats, false, "GPU",
++                    "Log shared memory request, upload and invalidation counts every 600 frames")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++
+ namespace rex::graphics {
+ 
+ SharedMemory::SharedMemory(memory::Memory& memory) : memory_(memory) {
+@@ -337,7 +349,64 @@ void SharedMemory::UnlinkWatchRange(WatchRange* range) {
+   watch_range_first_free_ = range;
+ }
+ 
++bool SharedMemory::AreRangesValidLockFree(const std::pair<uint32_t, uint32_t>* ranges,
++                                          size_t count) const {
++  for (size_t i = 0; i < count; ++i) {
++    uint32_t start = ranges[i].first;
++    uint32_t length = ranges[i].second;
++    if (!length) {
++      continue;
++    }
++    if (start > kBufferSize || (kBufferSize - start) < length) {
++      return false;
++    }
++    uint32_t page_first = start >> page_size_log2_;
++    uint32_t page_last = (start + length - 1) >> page_size_log2_;
++    uint32_t block_first = page_first >> 6;
++    uint32_t block_last = page_last >> 6;
++    for (uint32_t block = block_first; block <= block_last; ++block) {
++      uint64_t needed = UINT64_MAX;
++      if (block == block_first) {
++        needed &= ~((uint64_t(1) << (page_first & 63)) - 1);
++      }
++      if (block == block_last && (page_last & 63) != 63) {
++        needed &= (uint64_t(1) << ((page_last & 63) + 1)) - 1;
++      }
++      uint64_t valid = std::atomic_ref<uint64_t>(
++                           const_cast<uint64_t&>(system_page_flags_valid_[block]))
++                           .load(std::memory_order_acquire);
++      if ((valid & needed) != needed) {
++        return false;
++      }
++    }
++  }
++  return true;
++}
++
++void SharedMemory::LogAndResetStats(uint32_t frames) {
++  if (!frames) {
++    return;
++  }
++  uint64_t requests = stats_requests_.exchange(0, std::memory_order_relaxed);
++  uint64_t lock_free = stats_requests_lock_free_.exchange(0, std::memory_order_relaxed);
++  uint64_t upload_pages = stats_upload_pages_.exchange(0, std::memory_order_relaxed);
++  uint64_t invalidations = stats_invalidations_.exchange(0, std::memory_order_relaxed);
++  uint64_t invalidated_pages = stats_invalidated_pages_.exchange(0, std::memory_order_relaxed);
++  REXGPU_INFO(
++      "Shared memory per frame: {:.0f} requests ({:.0f} lock-free), {:.0f} KB uploaded, "
++      "{:.1f} invalidations ({:.0f} KB)",
++      double(requests) / frames, double(lock_free) / frames,
++      double(upload_pages << page_size_log2_) / 1024.0 / frames, double(invalidations) / frames,
++      double(invalidated_pages << page_size_log2_) / 1024.0 / frames);
++}
++
+ bool SharedMemory::RequestRanges(const std::pair<uint32_t, uint32_t>* ranges, size_t count) {
++  stats_requests_.fetch_add(1, std::memory_order_relaxed);
++  // Valid pages were uploaded, so their host memory is allocated too.
++  if (AreRangesValidLockFree(ranges, count)) {
++    stats_requests_lock_free_.fetch_add(1, std::memory_order_relaxed);
++    return true;
++  }
+   if (ranges == nullptr || !count) {
+     return true;
+   }
+@@ -469,6 +538,9 @@ bool SharedMemory::RequestRanges(const std::pair<uint32_t, uint32_t>* ranges, si
+     return true;
+   }
+ 
++  for (const std::pair<uint32_t, uint32_t>& upload_range : upload_ranges_) {
++    stats_upload_pages_.fetch_add(upload_range.second, std::memory_order_relaxed);
++  }
+   return UploadRanges(upload_ranges_);
+ }
+ 
+@@ -498,6 +570,13 @@ std::pair<uint32_t, uint32_t> SharedMemory::MemoryInvalidationCallback(
+ 
+   auto global_lock = global_critical_region_.Acquire();
+ 
++  // Up to 64 (the whole block) by default; a smaller aligned group drops
++  // fewer neighbouring pages that may still be in sync.
++  uint32_t expand_pages = std::clamp(REXCVAR_GET(gpu_invalidation_expand_pages), 1u, 64u);
++  expand_pages = uint32_t(1) << (31 - rex::lzcnt(expand_pages));
++  uint32_t page_first_requested = page_first;
++  uint32_t page_last_requested = page_last;
++
+   if (!exact_range) {
+     // Check if a somewhat wider range (up to 256 KB with 4 KB pages) can be
+     // invalidated - if no GPU-written data nearby that was not intended to be
+@@ -518,7 +597,13 @@ std::pair<uint32_t, uint32_t> SharedMemory::MemoryInvalidationCallback(
+       page_last =
+           (page_last & ~uint32_t(63)) + (std::max(rex::tzcnt(gpu_written_end), uint8_t(1)) - 1);
+     }
++    if (expand_pages < 64) {
++      page_first = std::max(page_first, page_first_requested & ~(expand_pages - 1));
++      page_last = std::min(page_last, page_last_requested | (expand_pages - 1));
++    }
+   }
++  stats_invalidations_.fetch_add(1, std::memory_order_relaxed);
++  stats_invalidated_pages_.fetch_add(page_last - page_first + 1, std::memory_order_relaxed);
+ 
+   for (uint32_t i = block_first; i <= block_last; ++i) {
+     uint64_t invalidate_bits = UINT64_MAX;
+@@ -528,7 +613,9 @@ std::pair<uint32_t, uint32_t> SharedMemory::MemoryInvalidationCallback(
+     if (i == block_last && (page_last & 63) != 63) {
+       invalidate_bits &= (uint64_t(1) << ((page_last & 63) + 1)) - 1;
+     }
+-    system_page_flags_valid_[i] &= ~invalidate_bits;
++    // Release store: AreRangesValidLockFree reads this without the lock.
++    std::atomic_ref<uint64_t>(system_page_flags_valid_[i])
++        .store(system_page_flags_valid_[i] & ~invalidate_bits, std::memory_order_release);
+     system_page_flags_valid_and_gpu_written_[i] &= ~invalidate_bits;
+   }
+ 
+-- 
+2.43.0
+

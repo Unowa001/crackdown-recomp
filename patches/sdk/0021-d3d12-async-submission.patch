@@ -1,0 +1,348 @@
+From 968d93560fbc2a4b3e6eb485e80d7b6caa8be47a Mon Sep 17 00:00:00 2001
+From: Jerrod <jerrod.uno@gmail.com>
+Date: Sat, 17 Oct 2026 09:20:17 +0000
+Subject: [PATCH] d3d12: submit command lists from a separate thread
+
+EndSubmission replayed the deferred command list into the real D3D12
+command list, closed it and executed it on the GPU command processor
+thread. In Crackdown that was 17-21% of the CP thread (driver recording
+included), and the CP thread is the frame-rate limit at 1x and 2x.
+
+- d3d12_async_submission (default on, read at startup): EndSubmission
+  hands the recorded stream (swapped out of deferred_command_list_, so no
+  copy) plus its command allocator and submission number to a
+  "D3D12 Submission" thread, which records, executes and signals
+  submission_fence_ in queue order. Everything that waits on that fence
+  (frame pacing, allocator and pool reclaim, readbacks, cache clears)
+  is unchanged, since a value is only signaled after its list executed.
+- A swap waits for the thread to drain before returning, because the
+  presenter submits its own guest-output work to the queue right after.
+- d3d12_async_submission_draws (default 2000): also end the submission
+  every N draws, so less of the frame is left for the swap wait.
+- d3d12_async_submission_stats: logs submissions/frame and the swap wait.
+
+Crackdown, RTX 5080, Release, uncapped, async off -> on (draws=0):
+stand 1x 68.0 -> 74.6 fps, pan 1x 77.2 -> 91.2, drive 1x 105.3 -> 117.6,
+stand 2x 68.7 -> 76.9, pan 2x 77.9 -> 97.9, drive 2x 89.5 -> 116.2.
+draws=2000 at 1x: stand 79.3, pan 98.5 (1% low 16.8 / 14.6 ms).
+---
+ .../rex/graphics/d3d12/command_processor.h    |  33 ++++
+ .../graphics/d3d12/deferred_command_list.h    |   3 +
+ src/graphics/d3d12/command_processor.cpp      | 177 +++++++++++++++++-
+ 3 files changed, 206 insertions(+), 7 deletions(-)
+
+diff --git a/include/rex/graphics/d3d12/command_processor.h b/include/rex/graphics/d3d12/command_processor.h
+index 27d955a..8518ea6 100644
+--- a/include/rex/graphics/d3d12/command_processor.h
++++ b/include/rex/graphics/d3d12/command_processor.h
+@@ -14,8 +14,10 @@
+ #include <algorithm>
+ #include <array>
+ #include <atomic>
++#include <condition_variable>
+ #include <deque>
+ #include <memory>
++#include <mutex>
+ #include <optional>
+ #include <string>
+ #include <unordered_map>
+@@ -466,6 +468,37 @@ class D3D12CommandProcessor : public CommandProcessor {
+   ID3D12GraphicsCommandList1* command_list_1_ = nullptr;
+   DeferredCommandList deferred_command_list_;
+ 
++  // Async submission (d3d12_async_submission): EndSubmission hands the
++  // recorded deferred command list to a thread that replays it into
++  // command_list_, executes it and signals submission_fence_, so the driver's
++  // command recording runs off the GPU command processor thread. Only that
++  // thread touches command_list_ while it runs.
++  struct AsyncSubmission {
++    std::unique_ptr<DeferredCommandList> commands;
++    ID3D12CommandAllocator* command_allocator;
++    uint64_t submission;
++  };
++  void StartAsyncSubmission();
++  void StopAsyncSubmission();
++  void AsyncSubmissionThread();
++  void EnqueueAsyncSubmission(ID3D12CommandAllocator* command_allocator, uint64_t submission);
++  // Blocks until every queued submission is on the direct queue.
++  void AwaitAsyncSubmissions();
++  bool async_submission_enabled_ = false;
++  std::unique_ptr<rex::thread::Thread> async_submission_thread_;
++  std::mutex async_submission_mutex_;
++  std::condition_variable async_submission_work_cv_;
++  std::condition_variable async_submission_idle_cv_;
++  std::deque<AsyncSubmission> async_submission_queue_;
++  std::vector<std::unique_ptr<DeferredCommandList>> async_submission_free_lists_;
++  bool async_submission_busy_ = false;
++  bool async_submission_stop_ = false;
++  uint32_t draws_since_submission_ = 0;
++  // d3d12_async_submission_stats.
++  uint32_t stats_frames_ = 0;
++  uint32_t stats_submissions_ = 0;
++  uint64_t stats_swap_wait_us_ = 0;
++
+   bool debug_markers_enabled_ = false;
+ 
+   // Viewport info caching - avoids redundant GetHostViewportInfo recalculation
+diff --git a/include/rex/graphics/d3d12/deferred_command_list.h b/include/rex/graphics/d3d12/deferred_command_list.h
+index 7f1eb7f..0317231 100644
+--- a/include/rex/graphics/d3d12/deferred_command_list.h
++++ b/include/rex/graphics/d3d12/deferred_command_list.h
+@@ -33,6 +33,9 @@ class DeferredCommandList {
+                       size_t initial_size_bytes = 1_MiB);
+ 
+   void Reset();
++  // Exchanges the recorded commands with another list's (async submission
++  // hands the recorded stream to its thread and keeps an empty one).
++  void SwapStream(DeferredCommandList& other) { command_stream_.swap(other.command_stream_); }
+   void Execute(ID3D12GraphicsCommandList* command_list, ID3D12GraphicsCommandList1* command_list_1);
+ 
+   D3D12_RECT* ClearDepthStencilViewAllocatedRects(D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_view,
+diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
+index 5e5cf97..bdeeead 100644
+--- a/src/graphics/d3d12/command_processor.cpp
++++ b/src/graphics/d3d12/command_processor.cpp
+@@ -10,6 +10,7 @@
+  */
+ 
+ #include <algorithm>
++#include <chrono>
+ #include <cstdarg>
+ #include <cstring>
+ #include <sstream>
+@@ -53,6 +54,18 @@ REXCVAR_DEFINE_BOOL(d3d12_submit_on_primary_buffer_end, true, "GPU/D3D12",
+                     "Submit command list when PM4 primary buffer ends")
+     .lifecycle(rex::cvar::Lifecycle::kHotReload);
+ 
++REXCVAR_DEFINE_BOOL(d3d12_async_submission, true, "GPU/D3D12",
++                    "Record and execute command lists on a separate thread instead of the GPU "
++                    "command processor thread (read at startup)");
++REXCVAR_DEFINE_UINT32(d3d12_async_submission_draws, 2000, "GPU/D3D12",
++                      "With d3d12_async_submission, also end the submission every this many "
++                      "draws so more of the frame is recorded off the command processor thread "
++                      "(0 = only where it already ends)")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++REXCVAR_DEFINE_BOOL(d3d12_async_submission_stats, false, "GPU/D3D12",
++                    "Log submissions per frame and the swap wait every 600 frames")
++    .lifecycle(rex::cvar::Lifecycle::kHotReload);
++
+ namespace rex::graphics::d3d12 {
+ 
+ // Generated with `xb buildshaders`.
+@@ -910,6 +923,9 @@ bool D3D12CommandProcessor::SetupContext() {
+   command_list_->Close();
+   // Optional - added in Creators Update (SDK 10.0.15063.0).
+   command_list_->QueryInterface(IID_PPV_ARGS(&command_list_1_));
++  if (REXCVAR_GET(d3d12_async_submission)) {
++    StartAsyncSubmission();
++  }
+ 
+   bindless_resources_used_ = REXCVAR_GET(d3d12_bindless) &&
+                              provider.GetResourceBindingTier() >= D3D12_RESOURCE_BINDING_TIER_2;
+@@ -1633,6 +1649,7 @@ bool D3D12CommandProcessor::SetupContext() {
+ 
+ void D3D12CommandProcessor::ShutdownContext() {
+   AwaitAllQueueOperationsCompletion();
++  StopAsyncSubmission();
+   InvalidateAllVertexBufferResidency();
+   ShutdownOcclusionQueryResources();
+ 
+@@ -2291,6 +2308,16 @@ bool D3D12CommandProcessor::IssueDraw(xenos::PrimitiveType primitive_type, uint3
+   SCOPE_profile_cpu_f("gpu");
+ #endif  // XE_GPU_FINE_GRAINED_DRAW_SCOPES
+ 
++  // Between draws is a packet boundary like the primary buffer end, so the
++  // submission can end here the same way.
++  if (async_submission_enabled_ && submission_open_) {
++    uint32_t draws_per_submission = REXCVAR_GET(d3d12_async_submission_draws);
++    if (draws_per_submission && ++draws_since_submission_ >= draws_per_submission &&
++        CanEndSubmissionImmediately()) {
++      EndSubmission(false);
++    }
++  }
++
+   ID3D12Device* device = GetD3D12Provider().GetDevice();
+   const RegisterFile& regs = *register_file_;
+ 
+@@ -3446,12 +3473,17 @@ bool D3D12CommandProcessor::EndSubmission(bool is_swap) {
+     // happens between Xenia submissions.
+     ID3D12CommandAllocator* command_allocator =
+         command_allocator_writable_first_->command_allocator;
+-    command_allocator->Reset();
+-    command_list_->Reset(command_allocator, nullptr);
+-    deferred_command_list_.Execute(command_list_, command_list_1_);
+-    command_list_->Close();
+-    ID3D12CommandList* execute_command_lists[] = {command_list_};
+-    direct_queue->ExecuteCommandLists(1, execute_command_lists);
++    if (async_submission_enabled_) {
++      // The thread signals submission_fence_ with this value after executing.
++      EnqueueAsyncSubmission(command_allocator, submission_current_);
++    } else {
++      command_allocator->Reset();
++      command_list_->Reset(command_allocator, nullptr);
++      deferred_command_list_.Execute(command_list_, command_list_1_);
++      command_list_->Close();
++      ID3D12CommandList* execute_command_lists[] = {command_list_};
++      direct_queue->ExecuteCommandLists(1, execute_command_lists);
++    }
+     command_allocator_writable_first_->last_usage_submission = submission_current_;
+     if (command_allocator_submitted_last_) {
+       command_allocator_submitted_last_->next = command_allocator_writable_first_;
+@@ -3465,7 +3497,13 @@ bool D3D12CommandProcessor::EndSubmission(bool is_swap) {
+       command_allocator_writable_last_ = nullptr;
+     }
+ 
+-    direct_queue->Signal(submission_fence_, submission_current_++);
++    if (async_submission_enabled_) {
++      ++submission_current_;
++    } else {
++      direct_queue->Signal(submission_fence_, submission_current_++);
++    }
++    ++stats_submissions_;
++    draws_since_submission_ = 0;
+ 
+     submission_open_ = false;
+ 
+@@ -3474,7 +3512,35 @@ bool D3D12CommandProcessor::EndSubmission(bool is_swap) {
+     queue_operations_done_since_submission_signal_ = false;
+   }
+ 
++  if (is_swap && async_submission_enabled_) {
++    // The presenter submits its own work reading the guest output to the
++    // queue once this returns, so the frame's commands must be on the queue
++    // before it.
++    uint64_t wait_start_us = 0;
++    bool stats = REXCVAR_GET(d3d12_async_submission_stats);
++    if (stats) {
++      wait_start_us = uint64_t(std::chrono::duration_cast<std::chrono::microseconds>(
++                                   std::chrono::steady_clock::now().time_since_epoch())
++                                   .count());
++    }
++    AwaitAsyncSubmissions();
++    if (stats) {
++      stats_swap_wait_us_ += uint64_t(std::chrono::duration_cast<std::chrono::microseconds>(
++                                          std::chrono::steady_clock::now().time_since_epoch())
++                                          .count()) -
++                             wait_start_us;
++    }
++  }
++
+   if (is_closing_frame) {
++    if (REXCVAR_GET(d3d12_async_submission_stats) && ++stats_frames_ >= 600) {
++      REXGPU_INFO("D3D12 async submission: {:.2f} submissions/frame, swap wait {:.1f} us/frame",
++                  double(stats_submissions_) / stats_frames_,
++                  double(stats_swap_wait_us_) / stats_frames_);
++      stats_frames_ = 0;
++      stats_submissions_ = 0;
++      stats_swap_wait_us_ = 0;
++    }
+     if (REXCVAR_GET(clear_memory_page_state) && shared_memory_) {
+       shared_memory_->SetSystemPageBlocksValidWithGpuDataWritten();
+     }
+@@ -3519,6 +3585,103 @@ bool D3D12CommandProcessor::EndSubmission(bool is_swap) {
+   return true;
+ }
+ 
++void D3D12CommandProcessor::StartAsyncSubmission() {
++  async_submission_stop_ = false;
++  async_submission_busy_ = false;
++  async_submission_thread_ =
++      rex::thread::Thread::Create({}, [this]() { AsyncSubmissionThread(); });
++  if (!async_submission_thread_) {
++    REXGPU_WARN("D3D12: Failed to create the submission thread, submitting synchronously");
++    return;
++  }
++  async_submission_thread_->set_name("D3D12 Submission");
++  async_submission_enabled_ = true;
++}
++
++void D3D12CommandProcessor::StopAsyncSubmission() {
++  if (!async_submission_thread_) {
++    return;
++  }
++  {
++    std::lock_guard<std::mutex> lock(async_submission_mutex_);
++    async_submission_stop_ = true;
++  }
++  async_submission_work_cv_.notify_one();
++  rex::thread::Wait(async_submission_thread_.get(), false);
++  async_submission_thread_.reset();
++  async_submission_enabled_ = false;
++  async_submission_free_lists_.clear();
++}
++
++void D3D12CommandProcessor::EnqueueAsyncSubmission(ID3D12CommandAllocator* command_allocator,
++                                                   uint64_t submission) {
++  std::unique_ptr<DeferredCommandList> commands;
++  {
++    std::lock_guard<std::mutex> lock(async_submission_mutex_);
++    if (!async_submission_free_lists_.empty()) {
++      commands = std::move(async_submission_free_lists_.back());
++      async_submission_free_lists_.pop_back();
++    }
++  }
++  if (!commands) {
++    commands = std::make_unique<DeferredCommandList>(*this);
++  }
++  // deferred_command_list_ keeps the pooled list's empty stream (and its
++  // capacity) for the next submission.
++  commands->SwapStream(deferred_command_list_);
++  {
++    std::lock_guard<std::mutex> lock(async_submission_mutex_);
++    async_submission_queue_.push_back({std::move(commands), command_allocator, submission});
++  }
++  async_submission_work_cv_.notify_one();
++}
++
++void D3D12CommandProcessor::AwaitAsyncSubmissions() {
++  if (!async_submission_enabled_) {
++    return;
++  }
++  std::unique_lock<std::mutex> lock(async_submission_mutex_);
++  async_submission_idle_cv_.wait(
++      lock, [this]() { return async_submission_queue_.empty() && !async_submission_busy_; });
++}
++
++void D3D12CommandProcessor::AsyncSubmissionThread() {
++  ID3D12CommandQueue* direct_queue = GetD3D12Provider().GetDirectQueue();
++  std::unique_lock<std::mutex> lock(async_submission_mutex_);
++  while (true) {
++    async_submission_work_cv_.wait(
++        lock, [this]() { return async_submission_stop_ || !async_submission_queue_.empty(); });
++    if (async_submission_queue_.empty()) {
++      // Stopping, and everything queued has been submitted.
++      break;
++    }
++    AsyncSubmission job = std::move(async_submission_queue_.front());
++    async_submission_queue_.pop_front();
++    async_submission_busy_ = true;
++    lock.unlock();
++
++    {
++      SCOPE_profile_cpu_f("gpu");
++      // Submissions execute in queue order, so fence values stay increasing.
++      job.command_allocator->Reset();
++      command_list_->Reset(job.command_allocator, nullptr);
++      job.commands->Execute(command_list_, command_list_1_);
++      command_list_->Close();
++      ID3D12CommandList* execute_command_lists[] = {command_list_};
++      direct_queue->ExecuteCommandLists(1, execute_command_lists);
++      direct_queue->Signal(submission_fence_, job.submission);
++      job.commands->Reset();
++    }
++
++    lock.lock();
++    async_submission_free_lists_.push_back(std::move(job.commands));
++    async_submission_busy_ = false;
++    if (async_submission_queue_.empty()) {
++      async_submission_idle_cv_.notify_all();
++    }
++  }
++}
++
+ bool D3D12CommandProcessor::CanEndSubmissionImmediately() const {
+   return !submission_open_ || !pipeline_cache_->IsCreatingPipelines();
+ }
+-- 
+2.43.0
+

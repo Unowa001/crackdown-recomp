@@ -1,4 +1,4 @@
-From 1737385bf8ec0b053096e3eb9768d1049abe8d28 Mon Sep 17 00:00:00 2001
+From 968d93560fbc2a4b3e6eb485e80d7b6caa8be47a Mon Sep 17 00:00:00 2001
 From: Jerrod <jerrod.uno@gmail.com>
 Date: Sat, 17 Oct 2026 09:20:17 +0000
 Subject: [PATCH] d3d12: submit command lists from a separate thread
@@ -17,9 +17,14 @@ included), and the CP thread is the frame-rate limit at 1x and 2x.
   is unchanged, since a value is only signaled after its list executed.
 - A swap waits for the thread to drain before returning, because the
   presenter submits its own guest-output work to the queue right after.
-- d3d12_async_submission_draws (default 0): also end the submission
+- d3d12_async_submission_draws (default 2000): also end the submission
   every N draws, so less of the frame is left for the swap wait.
 - d3d12_async_submission_stats: logs submissions/frame and the swap wait.
+
+Crackdown, RTX 5080, Release, uncapped, async off -> on (draws=0):
+stand 1x 68.0 -> 74.6 fps, pan 1x 77.2 -> 91.2, drive 1x 105.3 -> 117.6,
+stand 2x 68.7 -> 76.9, pan 2x 77.9 -> 97.9, drive 2x 89.5 -> 116.2.
+draws=2000 at 1x: stand 79.3, pan 98.5 (1% low 16.8 / 14.6 ms).
 ---
  .../rex/graphics/d3d12/command_processor.h    |  33 ++++
  .../graphics/d3d12/deferred_command_list.h    |   3 +
@@ -94,7 +99,7 @@ index 7f1eb7f..0317231 100644
  
    D3D12_RECT* ClearDepthStencilViewAllocatedRects(D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_view,
 diff --git a/src/graphics/d3d12/command_processor.cpp b/src/graphics/d3d12/command_processor.cpp
-index 5e5cf97..766764c 100644
+index 5e5cf97..bdeeead 100644
 --- a/src/graphics/d3d12/command_processor.cpp
 +++ b/src/graphics/d3d12/command_processor.cpp
 @@ -10,6 +10,7 @@
@@ -112,7 +117,7 @@ index 5e5cf97..766764c 100644
 +REXCVAR_DEFINE_BOOL(d3d12_async_submission, true, "GPU/D3D12",
 +                    "Record and execute command lists on a separate thread instead of the GPU "
 +                    "command processor thread (read at startup)");
-+REXCVAR_DEFINE_UINT32(d3d12_async_submission_draws, 0, "GPU/D3D12",
++REXCVAR_DEFINE_UINT32(d3d12_async_submission_draws, 2000, "GPU/D3D12",
 +                      "With d3d12_async_submission, also end the submission every this many "
 +                      "draws so more of the frame is recorded off the command processor thread "
 +                      "(0 = only where it already ends)")

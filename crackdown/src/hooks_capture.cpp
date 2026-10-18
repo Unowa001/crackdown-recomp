@@ -1,9 +1,9 @@
-// crackdown - diagnostic: F11 RenderDoc capture of whole guest frames
+// crackdown - diagnostic: F9 RenderDoc capture of whole guest frames
 //
 // RenderDoc's own capture key cuts frames at host Present, but the presenter
 // runs on its own cadence while the GPU command thread records the guest's
 // D3D12 work, so a host-frame capture holds only the final blit. Instead,
-// when the app was launched from RenderDoc, F11 starts a capture at a guest
+// when the app was launched from RenderDoc, F9 starts a capture at a guest
 // swap and ends it two guest swaps later, so the capture holds at least one
 // whole guest frame of draws.
 //
@@ -42,7 +42,7 @@ RENDERDOC_API_1_0_0* RenderDoc() {
       }
     }
     if (p) {
-      REXLOG_INFO("capture: RenderDoc attached; press F11 for a {}-guest-frame capture",
+      REXLOG_INFO("capture: RenderDoc attached; press F9 for a {}-guest-frame capture",
                   kSwapsPerCapture);
     }
     return p;
@@ -65,7 +65,7 @@ void OnGuestSwap() {
     }
     return;
   }
-  const bool down = (GetAsyncKeyState(VK_F11) & 0x8000) != 0;
+  const bool down = (GetAsyncKeyState(VK_F9) & 0x8000) != 0;
   if (down && !g_f11_was_down) {
     api->StartFrameCapture(nullptr, nullptr);
     g_swaps_left = kSwapsPerCapture;

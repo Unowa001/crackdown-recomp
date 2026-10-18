@@ -100,7 +100,7 @@ First validate sunlight with unlimited readback, then validate `262144`. The Win
 
 | Component | Current state and required action | Evidence |
 |---|---|---|
-| RenderDoc capture | F11 whole-guest-frame capture is Windows-only; Linux callback is empty. Add injected-library discovery through POSIX dynamic loading and use the existing SDL key-event path. | `crackdown/src/hooks_capture.cpp:31`, `:38`, `:76` |
+| RenderDoc capture | F9 whole-guest-frame capture is Windows-only; Linux callback is empty. Add injected-library discovery through POSIX dynamic loading and use the existing SDL key-event path. | `crackdown/src/hooks_capture.cpp:31`, `:38`, `:76` |
 | Precise frame sleep | High-resolution Windows waitable timer plus spin tail; Linux returns false and falls back to the guest/runtime sleep path. Measure Linux pacing before adding an absolute monotonic wait implementation. Preserve title-termination checks. | `crackdown/src/hooks_sleep.cpp:74`, `:89`, `:114`, `:167` |
 | Simulation timers and frame logging | Uses `std::chrono::steady_clock`; no Windows API dependency was found in the inspected framerate/replay implementation. Existing frame CSV is usable on Linux. | `crackdown/src/hooks_framerate.cpp:95`, `:144`; `crackdown/src/hooks_input_replay.cpp:53` |
 | 60 fps defaults | Shared implementation sets fast readback, 256 KB limit, vsync off, 60 fps cap, measured clock, literal step, and animation step. Explicit vsync true retains stock behavior. | `crackdown/src/host_tuning.cpp:93`, `:105` |

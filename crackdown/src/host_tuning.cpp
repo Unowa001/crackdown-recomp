@@ -31,6 +31,7 @@
 #include <string>
 #include <string_view>
 
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
@@ -149,6 +150,18 @@ void ApplyGameDefaults() {
       REXLOG_INFO("crackdown default: --{}={}", d.name, d.value);
     } else {
       REXLOG_WARN("crackdown default: could not set --{}={}", d.name, d.value);
+    }
+  }
+  // --aspect_ratio: give the guest frame buffer the same shape as the camera
+  // (hooks_aspect.cpp), 720 lines high, width a multiple of 8.
+  if (!AspectRatioIsDefault() && !user_set("video_mode_width") && !user_set("video_mode_height")) {
+    const int width = int(std::lround(720.0 * AspectRatio() / 8.0)) * 8;
+    if (rex::cvar::SetFlagByName("video_mode_width", std::to_string(width)) &&
+        rex::cvar::SetFlagByName("video_mode_height", "720")) {
+      REXLOG_INFO("crackdown default: --video_mode_width={} --video_mode_height=720 (aspect_ratio)",
+                  width);
+    } else {
+      REXLOG_WARN("crackdown default: could not set the video mode for aspect_ratio");
     }
   }
   // Mouse/keyboard mode without mouse look leaves the camera on the arrow

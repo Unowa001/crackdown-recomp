@@ -44,6 +44,10 @@ void ApplyFpsCap(rex::memory::Memory* memory);
 // Guest frames per second for the F3 overlay (hooks_framerate.cpp).
 rex::ui::FrameStats GuestFrameStats();
 
+// --aspect_ratio as width / height (hooks_aspect.cpp); 16:9 when unset or invalid.
+double AspectRatio();
+bool AspectRatioIsDefault();
+
 // --dump_image: write the loaded guest image to a file (diagnostic).
 void DumpGuestImage(rex::Runtime* runtime);
 

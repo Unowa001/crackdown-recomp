@@ -52,6 +52,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <thread>
 
 #include <rex/cvar.h>
 #include <rex/hook.h>
@@ -205,7 +206,35 @@ rex::ui::FrameStats GuestFrameStats() {
 }
 }  // namespace crackdown
 
+// Above 60 fps the guest limiter is too coarse: it sleeps (1000 / cap) whole ms,
+// so 120 would give 125 fps and 144 would give 166 (1000 / 144 = 6). ApplyFpsCap
+// (host_tuning.cpp) then sets the guest cap to 1000 and this paces frame starts
+// to exactly 1 / fps_cap: sleep to about 1.5 ms before the deadline, then spin.
+// At 60 and below the guest limiter stays in charge (the verified setup).
+static void PaceFrame() {
+  static const int32_t cap = rex::cvar::Query<int32_t>("fps_cap");
+  if (cap <= 60) return;
+  static const Clock::duration period = std::chrono::duration_cast<Clock::duration>(
+      std::chrono::duration<double>(1.0 / cap));
+  static Clock::time_point deadline{};
+  Clock::time_point now = Clock::now();
+  if (now >= deadline) {
+    deadline = now + period;  // first frame, or this frame ran long: don't catch up
+    return;
+  }
+  while (deadline - now > std::chrono::microseconds(1500)) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    now = Clock::now();
+  }
+  while (now < deadline) {
+    std::this_thread::yield();
+    now = Clock::now();
+  }
+  deadline += period;
+}
+
 REX_HOOK_RAW(sub_826A7698) {
+  PaceFrame();
   LogFrameTime();
   CountFrame();
   const bool game_clock = Sim().game_clock;

@@ -294,10 +294,14 @@ void ApplyFpsCap(rex::memory::Memory* memory) {
   if (cap <= 0 || !memory) {
     return;
   }
+  // Above 60 the host paces frames exactly (PaceFrame, hooks_framerate.cpp)
+  // and the guest's whole-ms limiter is moved out of the way.
+  const int32_t guest_cap = cap > 60 ? 1000 : cap;
   auto* p = memory->TranslateVirtual<uint8_t*>(kFrameCapAddress);
   const int32_t old_cap = rex::memory::load_and_swap<int32_t>(p);
-  rex::memory::store_and_swap<int32_t>(p, cap);
-  REXLOG_INFO("fps_cap: guest frame cap {} -> {}", old_cap, cap);
+  rex::memory::store_and_swap<int32_t>(p, guest_cap);
+  REXLOG_INFO("fps_cap: guest frame cap {} -> {}{}", old_cap, guest_cap,
+              cap > 60 ? " (host paces " + std::to_string(cap) + " fps)" : std::string());
 }
 
 REXCVAR_DEFINE_STRING(dump_image, "", "Crackdown",

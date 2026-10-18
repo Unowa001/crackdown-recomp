@@ -127,7 +127,15 @@ void update_config(const fs::path& path, const Changes& changes) {
       auto it=changes.find(name); if(it==changes.end()) continue;
       if(!found.insert(name).second) throw std::runtime_error("Ambiguous TOML setting: " + name);
       auto src=value.source();
-      edits.push_back({offset(it->second ? src.begin : key.source().begin),offset(src.end),it->second.value_or("")});
+      size_t begin=offset(it->second ? src.begin : key.source().begin), end=offset(src.end);
+      if(!it->second) {
+        // A removed setting that had its line to itself takes the line with it
+        // (an inline comment keeps the line).
+        size_t line=text.rfind('\n',begin==0?0:begin-1); line=line==text.npos||begin==0?0:line+1;
+        size_t after=text.find_first_not_of(" \t\r",end);
+        if(text.find_first_not_of(" \t",line)==begin&&(after==text.npos||text[after]=='\n')) { begin=line; end=after==text.npos?text.size():after+1; }
+      }
+      edits.push_back({begin,end,it->second.value_or("")});
     }
   };
   walk(table,"");

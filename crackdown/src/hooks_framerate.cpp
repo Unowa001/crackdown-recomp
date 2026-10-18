@@ -52,9 +52,11 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <thread>
 
 #include <rex/cvar.h>
 #include <rex/hook.h>
+#include <rex/ui/overlay/debug_overlay.h>
 
 REXCVAR_DEFINE_BOOL(sim_variable_step, false, "Crackdown",
                     "Experimental: rewrite the step constant every frame with the measured "
@@ -171,8 +173,70 @@ static void LogFrameTime() {
   last = now;
 }
 
+// Guest frame rate for the SDK's F3 overlay (CrackdownApp passes
+// GuestFrameStats to SetGuestFrameStats). Averaged over half-second windows so
+// the number is readable; updated from the same once-per-frame hook.
+static std::atomic<uint64_t> g_stats_frames{0};
+static std::atomic<double> g_stats_fps{0.0};
+static void CountFrame() {
+  static Clock::time_point window_start{};
+  static uint64_t window_frames = 0;
+  const Clock::time_point now = Clock::now();
+  g_stats_frames.fetch_add(1, std::memory_order_relaxed);
+  if (window_start == Clock::time_point{}) {
+    window_start = now;
+    return;
+  }
+  ++window_frames;
+  const double seconds = std::chrono::duration<double>(now - window_start).count();
+  if (seconds >= 0.5) {
+    g_stats_fps.store(window_frames / seconds, std::memory_order_relaxed);
+    window_start = now;
+    window_frames = 0;
+  }
+}
+
+namespace crackdown {
+rex::ui::FrameStats GuestFrameStats() {
+  rex::ui::FrameStats stats;
+  stats.frame_count = g_stats_frames.load(std::memory_order_relaxed);
+  stats.fps = g_stats_fps.load(std::memory_order_relaxed);
+  stats.frame_time_ms = stats.fps > 0 ? 1000.0 / stats.fps : 0;
+  return stats;
+}
+}  // namespace crackdown
+
+// Above 60 fps the guest limiter is too coarse: it sleeps (1000 / cap) whole ms,
+// so 120 would give 125 fps and 144 would give 166 (1000 / 144 = 6). ApplyFpsCap
+// (host_tuning.cpp) then sets the guest cap to 1000 and this paces frame starts
+// to exactly 1 / fps_cap: sleep to about 1.5 ms before the deadline, then spin.
+// At 60 and below the guest limiter stays in charge (the verified setup).
+static void PaceFrame() {
+  static const int32_t cap = rex::cvar::Query<int32_t>("fps_cap");
+  if (cap <= 60) return;
+  static const Clock::duration period = std::chrono::duration_cast<Clock::duration>(
+      std::chrono::duration<double>(1.0 / cap));
+  static Clock::time_point deadline{};
+  Clock::time_point now = Clock::now();
+  if (now >= deadline) {
+    deadline = now + period;  // first frame, or this frame ran long: don't catch up
+    return;
+  }
+  while (deadline - now > std::chrono::microseconds(1500)) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    now = Clock::now();
+  }
+  while (now < deadline) {
+    std::this_thread::yield();
+    now = Clock::now();
+  }
+  deadline += period;
+}
+
 REX_HOOK_RAW(sub_826A7698) {
+  PaceFrame();
   LogFrameTime();
+  CountFrame();
   const bool game_clock = Sim().game_clock;
   if (Sim().variable_step || game_clock) {
     const Clock::time_point now = Clock::now();

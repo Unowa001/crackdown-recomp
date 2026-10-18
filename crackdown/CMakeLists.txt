@@ -25,6 +25,7 @@ set(CRACKDOWN_SOURCES
     src/hooks_capture.cpp
     src/hooks_xaudio.cpp
     src/hooks_framerate.cpp
+    src/hooks_aspect.cpp
     src/hooks_diag_physics.cpp
     src/hooks_diag_audio.cpp
     src/hooks_coop_trace.cpp
